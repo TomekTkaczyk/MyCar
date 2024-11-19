@@ -1,1 +1,0 @@
-dotnet ef database update %1 --startup-project AGK.RestAPI --project AGK.DataAccess --context AgkDbContext -v

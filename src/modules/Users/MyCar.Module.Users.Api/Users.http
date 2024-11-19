@@ -1,0 +1,35 @@
+@url = http://localhost:5000/users-module
+
+@userId = b5146805-beb5-453b-a4a0-0eae78c7ffec
+
+
+###
+GET {{url}}
+
+###
+GET {{url}}/Users
+
+###
+POST {{url}}/Users
+Content-Type: application/json
+{
+  "Firstname" : "John",
+  "Lastname" : "Dow"
+}
+
+###
+GET {{url}}/Users/{{emloyeeId}}
+
+###
+PATCH {{url}}/Users
+Content-Type: application/json
+{
+  "Id": "{{emloyeeId}}",
+  "Firstname" : "John",
+  "Lastname" : "Dow",
+  "Description": "Opis pracownika"
+}
+
+###
+DELETE {{url}}/Users/99b106ec-395b-4bcc-88ed-e2c7c99cd57a
+Content-Type: application/json

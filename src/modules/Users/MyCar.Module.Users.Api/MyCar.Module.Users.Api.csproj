@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="module.users.Developmnet.json" />
+    <None Remove="module.users.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="module.users.Developmnet.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="module.users.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MyCar.Module.Users.Core\MyCar.Module.Users.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -15,7 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\modules\Employees\MyCar.Employees.Api\MyCar.Employees.Api.csproj" />
+    <ProjectReference Include="..\..\modules\Employees\MyCar.Module.Employees.Api\MyCar.Module.Employees.Api.csproj" />
+    <ProjectReference Include="..\..\modules\Users\MyCar.Module.Users.Api\MyCar.Module.Users.Api.csproj" />
   </ItemGroup>
 
 </Project>

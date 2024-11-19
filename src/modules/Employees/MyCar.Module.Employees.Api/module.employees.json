@@ -1,0 +1,8 @@
+{
+  "employees": {
+    "module": {
+      "name": "Employyes",
+      "enabled": true
+    }
+  }
+}

@@ -1,1 +1,0 @@
-dotnet ef migrations add EmployeeInit --startup-project ..\..\..\bootstraper\MyCar.Bootstraper\MyCar.Bootstraper.csproj --project .\MyCar.Employees.Core.csproj -o .\DAL\Migrations

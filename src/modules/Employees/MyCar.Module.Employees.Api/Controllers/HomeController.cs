@@ -1,0 +1,12 @@
+﻿
+using Microsoft.AspNetCore.Mvc;
+using MyCar.Module.Employees.Api;
+
+namespace MyCar.Module.Employees.Api.Controllers;
+
+[Route(EmployeeModule.BasePath)]
+internal class HomeController : HomeControllerBase
+{
+	[HttpGet]
+	public ActionResult<string> Get() => "Employees API";
+}

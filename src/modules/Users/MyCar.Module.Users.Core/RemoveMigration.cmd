@@ -1,0 +1,1 @@
+dotnet-ef migrations remove --startup-project ..\..\..\bootstraper\MyCar.Bootstraper\MyCar.Bootstraper --project .\MyCar.Users.Core -v

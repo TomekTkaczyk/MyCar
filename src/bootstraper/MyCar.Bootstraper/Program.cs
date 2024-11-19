@@ -1,6 +1,7 @@
 using MyCar.Shared.Abstractions.Modules;
 using MyCar.Shared.Infrastructure;
 using System.Reflection;
+using MyCar.Shared.Infrastructure.Modules;
 
 namespace MyCar.Bootstraper;
 
@@ -8,14 +9,21 @@ public class Program
 {
 	public static void Main(string[] args)
 	{
-		IList<Assembly> _assemblies = ModuleLoader.LoadAssemblies();
-		IList<IModule> _modules = ModuleLoader.LoadModules(_assemblies);
+		IList<Assembly> _assemblies;
+		IList<IModule> _modules;
 
 		var builder = WebApplication.CreateBuilder(args);
-		builder.Services.AddInfrastructure(builder.Configuration);
+		var config  =builder.Configuration;
+		var services = builder.Services;
+		
+		builder.Host.ConfigureModules();
 
+		_assemblies = ModuleLoader.LoadAssemblies(config);
+		_modules = ModuleLoader.LoadModules(_assemblies);
+
+		builder.Services.AddInfrastructure(config);
 		foreach (var module in _modules) {
-			module.Register(builder.Services);
+			module.Register(services);
 		}
 
 		var app = builder.Build();
