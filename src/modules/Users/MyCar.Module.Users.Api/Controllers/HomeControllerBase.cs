@@ -1,10 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace MyCar.Module.Users.Api.Controllers;
-internal class HomeControllerBase
+
+[ApiController]
+[Route(UserModule.BasePath)]
+internal abstract class HomeControllerBase : ControllerBase
 {
+	protected ActionResult<T> OkOrNotFound<T>(T model)
+	{
+
+		if(model is null) {
+			return NotFound();
+		}
+
+		return Ok(model);
+	}
 }

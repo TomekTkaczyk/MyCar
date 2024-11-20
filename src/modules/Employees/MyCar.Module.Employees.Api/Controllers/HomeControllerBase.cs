@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MyCar.Module.Employees.Api;
 
 namespace MyCar.Module.Employees.Api.Controllers;
 
@@ -7,7 +6,6 @@ namespace MyCar.Module.Employees.Api.Controllers;
 [Route(EmployeeModule.BasePath)]
 internal abstract class HomeControllerBase : ControllerBase
 {
-
 	protected ActionResult<T> OkOrNotFound<T>(T model)
 	{
 
@@ -17,5 +15,4 @@ internal abstract class HomeControllerBase : ControllerBase
 
 		return Ok(model);
 	}
-
 }
