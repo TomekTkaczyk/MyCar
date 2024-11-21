@@ -22,7 +22,7 @@ internal class AppInitializer(IServiceProvider serviceProvider, ILogger<AppIniti
 					continue;
                 }
                 await dbContext.Database.MigrateAsync(cancellationToken);
-				_logger.LogInformation($"\nMigration {nameof(dbType)}");
+				_logger.LogInformation("Database migration {DbContext}", dbContext.GetType().Name.Replace("DbContext",""));
 			}
 		}
 	}

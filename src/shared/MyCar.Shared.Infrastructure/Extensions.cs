@@ -36,7 +36,7 @@ public static class Extensions
 			}
 		}
 
-		// services.AddAuth(configuration,modules);
+		services.AddAuth(configuration,modules);
 		services.AddDatabase(configuration);
 		services.AddErrorHandling();
 		services.AddHostedService<AppInitializer>();

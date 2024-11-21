@@ -28,7 +28,7 @@ public class Program
 		builder.Services.AddInfrastructure(config, _modules);
 
 		var app = builder.Build();
-
+		app.Logger.LogInformation("Modules: {Modules}", string.Join(",", _modules.Select(m => m.Name)));
 
 		app.UseInfrastructure(app.Environment);
 		foreach(var module in _modules) {

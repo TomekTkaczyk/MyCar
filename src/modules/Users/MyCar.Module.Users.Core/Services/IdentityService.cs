@@ -1,4 +1,5 @@
-﻿using MyCar.Module.Users.Core.DTO;
+﻿using Microsoft.AspNetCore.Identity;
+using MyCar.Module.Users.Core.DTO;
 using MyCar.Module.Users.Core.Entities;
 using MyCar.Module.Users.Core.Exceptions;
 using MyCar.Module.Users.Core.Repositories;
@@ -8,12 +9,12 @@ using MyCar.Shared.Abstractions.Auth;
 namespace MyCar.Module.Users.Core.Services;
 internal class IdentityService(
 	IUserRepository userRepository,
-	IPasswordManager passwordManager,
+	IPasswordHasher<User> passwordHasher,
 	IAuthManager authManager,
 	IClock clock) : IIdentityService
 {
 	private readonly IUserRepository _userRepository = userRepository;
-	private readonly IPasswordManager _passwordManager = passwordManager;
+	private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
 	private readonly IAuthManager _authManager = authManager;
 	private readonly IClock _clock = clock;
 
@@ -38,7 +39,7 @@ internal class IdentityService(
 		var user = await _userRepository.GetAsync(dto.Email.ToLowerInvariant())
 			?? throw new InvalidCredentialException();
 
-		if( !_passwordManager.Validate(dto.Password, user.Password)) {
+		if( _passwordHasher.VerifyHashedPassword(default, dto.Password, user.Password) is not PasswordVerificationResult.Success) {
 			throw new InvalidCredentialException();
 		}
 
@@ -59,7 +60,7 @@ internal class IdentityService(
 			throw new EmailIsInUseException();
 		}
 
-		var password = _passwordManager.Secure(dto.Password);
+		var password = _passwordHasher.HashPassword(default, dto.Password);
 
 		user = new User
 		{

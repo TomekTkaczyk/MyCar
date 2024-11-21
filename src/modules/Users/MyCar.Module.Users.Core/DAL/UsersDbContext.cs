@@ -2,7 +2,7 @@
 using MyCar.Module.Users.Core.Entities;
 
 namespace MyCar.Module.Users.Core.DAL;
-internal class UsersDbContext(DbContextOptions options) : DbContext(options)
+internal class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContext(options)
 {
 	public DbSet<User> Employees { get; set; }
 
