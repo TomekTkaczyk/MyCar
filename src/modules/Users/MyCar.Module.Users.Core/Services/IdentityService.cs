@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using MyCar.Module.Users.Core.DTO;
+﻿using MyCar.Module.Users.Core.DTO;
 using MyCar.Module.Users.Core.Entities;
 using MyCar.Module.Users.Core.Exceptions;
 using MyCar.Module.Users.Core.Repositories;
@@ -9,12 +8,12 @@ using MyCar.Shared.Abstractions.Auth;
 namespace MyCar.Module.Users.Core.Services;
 internal class IdentityService(
 	IUserRepository userRepository,
-	IPasswordHasher<User> passwordHasher,
+	IPasswordManager passwordManager,
 	IAuthManager authManager,
 	IClock clock) : IIdentityService
 {
 	private readonly IUserRepository _userRepository = userRepository;
-	private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
+	private readonly IPasswordManager _passwordManager = passwordManager;
 	private readonly IAuthManager _authManager = authManager;
 	private readonly IClock _clock = clock;
 
@@ -36,7 +35,21 @@ internal class IdentityService(
 
 	public async Task<JsonWebToken> SignInAsync(SignInDto dto)
 	{
-		return new JsonWebToken();
+		var user = await _userRepository.GetAsync(dto.Email.ToLowerInvariant())
+			?? throw new InvalidCredentialException();
+
+		if( !_passwordManager.Validate(dto.Password, user.Password)) {
+			throw new InvalidCredentialException();
+		}
+
+		if(!user.IsActive) {
+			throw new UserNotActiveException(user.Id);
+		}
+
+		var jwt = _authManager.CreateToken(user.Id.ToString(), user.Role, claims: user.Claims);
+		jwt.Email = user.Email;
+
+		return jwt;
 	}
 
 	public async Task SignUpAsync(SignUpDto dto)
@@ -46,7 +59,8 @@ internal class IdentityService(
 			throw new EmailIsInUseException();
 		}
 
-		var password = _passwordHasher.HashPassword(default, dto.Password);
+		var password = _passwordManager.Secure(dto.Password);
+
 		user = new User
 		{
 			Id = Guid.NewGuid(),
@@ -55,7 +69,7 @@ internal class IdentityService(
 			Role = dto.Role?.ToLowerInvariant() ?? "user",
 			CreatedAt = _clock.CurrentDate(),
 			IsActive = true,
-			Claims = dto.Claims ?? new Dictionary<string, IEnumerable<string>>()
+			Claims = dto.Claims ?? []
 		};
 
 		await _userRepository.AddAsync(user);

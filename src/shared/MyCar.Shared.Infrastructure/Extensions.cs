@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,11 +7,11 @@ using Microsoft.Extensions.Hosting;
 using MyCar.Shared.Abstractions;
 using MyCar.Shared.Abstractions.Modules;
 using MyCar.Shared.Infrastructure.Api;
+using MyCar.Shared.Infrastructure.Auth;
 using MyCar.Shared.Infrastructure.Database;
 using MyCar.Shared.Infrastructure.Exceptions;
 using MyCar.Shared.Infrastructure.Services;
 using MyCar.Shared.Infrastructure.Time;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("MyCar.Bootstraper")]
@@ -23,7 +22,8 @@ public static class Extensions
 {
 	public static IServiceCollection AddInfrastructure(
 		this IServiceCollection services,
-		IConfiguration configuration)
+		IConfiguration configuration,
+		IList<IModule> modules)
 	{
 		var disableModules = new List<string>();
 		foreach(var (key, value) in configuration.AsEnumerable()) {
@@ -36,6 +36,7 @@ public static class Extensions
 			}
 		}
 
+		// services.AddAuth(configuration,modules);
 		services.AddDatabase(configuration);
 		services.AddErrorHandling();
 		services.AddHostedService<AppInitializer>();
@@ -74,7 +75,9 @@ public static class Extensions
 		}
 
 		app.UseErrorHandling();
+		// app.UseAuthentication();
 		app.UseRouting();
+		// app.UseAuthorization();
 
 		return app;
 	}

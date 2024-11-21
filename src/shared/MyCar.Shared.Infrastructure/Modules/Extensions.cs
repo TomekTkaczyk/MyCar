@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Microsoft.Extensions.Hosting;
 
 namespace MyCar.Shared.Infrastructure.Modules;

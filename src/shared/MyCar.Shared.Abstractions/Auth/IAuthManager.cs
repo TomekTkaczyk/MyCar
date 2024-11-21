@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace MyCar.Shared.Abstractions.Auth;
 
-namespace MyCar.Shared.Abstractions.Auth;
 public interface IAuthManager
 {
 	JsonWebToken CreateToken(
