@@ -4,11 +4,11 @@ using MyCar.Module.Users.Core.Entities;
 namespace MyCar.Module.Users.Core.DAL;
 internal class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContext(options)
 {
-	public DbSet<User> Employees { get; set; }
+	public DbSet<User> Users { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		modelBuilder.HasDefaultSchema("Userss");
+		modelBuilder.HasDefaultSchema("Users");
 		modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 	}
 }

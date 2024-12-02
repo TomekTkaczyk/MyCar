@@ -13,7 +13,7 @@ internal class EmployeeService(
 	private readonly IEmployeeRepository _employeeRepository = employeeRepository;
 	private readonly IEmployeeDeletionPolicy _employeeDeletionPolicy = employeeDeletionPolicy;
 
-	public async Task AddAsync(EmployeeDto dto)
+	public async Task AddAsync(EmployeeDto dto, CancellationToken cancellationToken)
 	{
 		dto.Id = Guid.NewGuid();
 		await _employeeRepository.AddAsync(new Employee
@@ -21,12 +21,12 @@ internal class EmployeeService(
 			Id = dto.Id,
 			Firstname = dto.Firstname,
 			Lastname = dto.Lastname
-		});
+		}, cancellationToken);
 	}
 
-	public async Task<EmployeeDetailsDto> GetAsync(Guid id)
+	public async Task<EmployeeDetailsDto> GetAsync(Guid id, CancellationToken cancellationToken)
 	{
-		var employee = await _employeeRepository.GetAsync(id) ?? throw new EmployeeNotFoundException(id);
+		var employee = await _employeeRepository.GetAsync(id, cancellationToken) ?? throw new EmployeeNotFoundException(id);
 
 		var dto = Map<EmployeeDetailsDto>(employee);
 		dto.Description = employee.Description;
@@ -34,35 +34,35 @@ internal class EmployeeService(
 		return dto;
 	}
 
-	public async Task<IReadOnlyList<EmployeeDto>> GetAllAsync()
+	public async Task<IReadOnlyList<EmployeeDto>> GetAllAsync(CancellationToken cancellationToken)
 	{
 
-		var employees = await _employeeRepository.GetAllAsync();
+		var employees = await _employeeRepository.GetAllAsync(cancellationToken);
 
 		return employees.Select(Map<EmployeeDto>).ToList();
 	}
 
-	public async Task UpdateAsync(EmployeeDetailsDto dto)
+	public async Task UpdateAsync(EmployeeDetailsDto dto, CancellationToken cancellationToken)
 	{
 
-		var employee = await _employeeRepository.GetAsync(dto.Id) ?? throw new EmployeeNotFoundException(dto.Id);
+		var employee = await _employeeRepository.GetAsync(dto.Id, cancellationToken) ?? throw new EmployeeNotFoundException(dto.Id);
 
 		employee.Firstname = dto.Firstname;
 		employee.Lastname = dto.Lastname;
 		employee.Description = dto.Description;
 
-		await _employeeRepository.UpdateAsync(employee);
+		await _employeeRepository.UpdateAsync(employee, cancellationToken);
 	}
 
-	public async Task DeleteAsync(Guid id)
+	public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
 	{
-		var employee = await _employeeRepository.GetAsync(id) ?? throw new EmployeeNotFoundException(id);
+		var employee = await _employeeRepository.GetAsync(id, cancellationToken) ?? throw new EmployeeNotFoundException(id);
 
 		if(await _employeeDeletionPolicy.CanDeleteAsync(employee) is false) {
 			throw new CannotDeleteEmployeeException(id);
 		}
 
-		await _employeeRepository.DeleteAsync(employee);
+		await _employeeRepository.DeleteAsync(employee, cancellationToken);
 	}
 
 	private static T Map<T>(Employee employee) where T : EmployeeDto, new()

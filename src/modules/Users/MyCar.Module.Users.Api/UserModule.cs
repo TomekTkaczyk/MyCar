@@ -13,12 +13,16 @@ internal class UserModule : IModule
 
 	public string Path => BasePath;
 
-	public void Register(IServiceCollection services)
+	public IEnumerable<string> Policies { get; } = ["users"];
+
+	public void Register(IServiceCollection services, IConfiguration configuration)
 	{
-		using(var scope = services.BuildServiceProvider()) {
-			var configuration = scope.GetRequiredService<IConfiguration>();
-			services.AddCore(configuration);
-		}
+		services.AddCore(configuration);
+
+		//using(var scope = services.BuildServiceProvider()) {
+		//	var configuration = scope.GetRequiredService<IConfiguration>();
+		//	services.AddCore(configuration);
+		//}
 	}
 
 	public void Use(IApplicationBuilder app)

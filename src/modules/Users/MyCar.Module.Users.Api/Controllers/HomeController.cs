@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace MyCar.Module.Users.Api.Controllers;
 
@@ -7,5 +6,5 @@ namespace MyCar.Module.Users.Api.Controllers;
 internal class HomeController : HomeControllerBase
 {
 	[HttpGet]
-	public ActionResult<string> Get() => "Users API";
+	public static ActionResult<string> Get() => "Users API";
 }

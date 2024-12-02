@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace MyCar.Module.Employees.Core.DAL.Migrations;
-
-/// <inheritdoc />
-public partial class EmployeeInit : Migration
+namespace MyCar.Module.Employees.Core.DAL.Migrations
+{
+    /// <inheritdoc />
+    public partial class EmployeeInit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -37,3 +38,4 @@ public partial class EmployeeInit : Migration
                 schema: "Employees");
         }
     }
+}

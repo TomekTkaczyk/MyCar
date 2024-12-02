@@ -1,7 +1,9 @@
 ﻿namespace MyCar.Shared.Infrastructure.Auth;
 
-public class AuthOptions
+public sealed class AuthOptions
 {
+	public const string Section = "auth";
+
 	public bool AuthenticationDisabled { get; set; }
 	public string Issuer { get; set; }
 	public string IssuerSigningKey { get; set; }
@@ -16,6 +18,8 @@ public class AuthOptions
 	public bool RequireExpirationTime { get; set; } = true;
 	public bool RequireSignedTokens { get; set; } = true;
 	public TimeSpan Expiry { get; set; }
+	public TimeSpan RefreshExpiry { get; set; }
+	public TimeSpan EmailConfirmExpiry { get; set; }
 	public string ValidAudience { get; set; }
 	public IEnumerable<string> ValidAudiences { get; set; }
 	public string ValidIssuer { get; set; }
@@ -31,4 +35,5 @@ public class AuthOptions
 	public string AuthenticationType { get; set; }
 	public string NameClaimType { get; set; }
 	public string RoleClaimType { get; set; }
+	public string EmailConfirmType { get; set; }
 }

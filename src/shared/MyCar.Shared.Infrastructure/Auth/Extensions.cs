@@ -15,80 +15,80 @@ public static class Extensions
 		IList<IModule> modules,
 		Action<JwtBearerOptions> optionsFactory = null)
 	{
-		var options = configuration.GetOptions<AuthOptions>("auth");
+		var authOptions = configuration.GetOptions<AuthOptions>(AuthOptions.Section);
 
-		//services.AddSingleton<IPasswordManager, PasswordManager>();
-		services.AddSingleton<IAuthManager, AuthManager>();
+		services.AddSingleton<ITokenProvider,TokenProvider>();
+		services.AddSingleton<EmailConfirmerFactory>();
 
 		var tokenValidationParameters = new TokenValidationParameters
 		{
-			RequireAudience = options.RequireAudience,
-			ValidIssuer = options.ValidIssuer,
-			ValidIssuers = options.ValidIssuers,
-			ValidateActor = options.ValidateActor,
-			ValidAudience = options.ValidAudience,
-			ValidAudiences = options.ValidAudiences,
-			ValidateAudience = options.ValidateAudience,
-			ValidateIssuer = options.ValidateIssuer,
-			ValidateLifetime = options.ValidateLifetime,
-			ValidateTokenReplay = options.ValidateTokenReplay,
-			ValidateIssuerSigningKey = options.ValidateIssuerSigningKey,
-			SaveSigninToken = options.SaveSigninToken,
-			RequireExpirationTime = options.RequireExpirationTime,
-			RequireSignedTokens = options.RequireSignedTokens,
+			RequireAudience = authOptions.RequireAudience,
+			ValidIssuer = authOptions.ValidIssuer,
+			ValidIssuers = authOptions.ValidIssuers,
+			ValidateActor = authOptions.ValidateActor,
+			ValidAudience = authOptions.ValidAudience,
+			ValidAudiences = authOptions.ValidAudiences,
+			ValidateAudience = authOptions.ValidateAudience,
+			ValidateIssuer = authOptions.ValidateIssuer,
+			ValidateLifetime = authOptions.ValidateLifetime,
+			ValidateTokenReplay = authOptions.ValidateTokenReplay,
+			ValidateIssuerSigningKey = authOptions.ValidateIssuerSigningKey,
+			SaveSigninToken = authOptions.SaveSigninToken,
+			RequireExpirationTime = authOptions.RequireExpirationTime,
+			RequireSignedTokens = authOptions.RequireSignedTokens,
 			ClockSkew = TimeSpan.Zero
 		};
 
-		if(string.IsNullOrWhiteSpace(options.IssuerSigningKey)) {
-			throw new ArgumentException("Missing issuer signing key.", nameof(options.IssuerSigningKey));
+		if(string.IsNullOrWhiteSpace(authOptions.IssuerSigningKey)) {
+			throw new ArgumentException("Missing IssuerSigningKey in options.", nameof(authOptions.IssuerSigningKey));
 		}
 
-		if(!string.IsNullOrWhiteSpace(options.AuthenticationType)) {
-			tokenValidationParameters.AuthenticationType = options.AuthenticationType;
+		if(!string.IsNullOrWhiteSpace(authOptions.AuthenticationType)) {
+			tokenValidationParameters.AuthenticationType = authOptions.AuthenticationType;
 		}
 
-		var rawKey = Encoding.UTF8.GetBytes(options.IssuerSigningKey);
-		tokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(rawKey);
+		tokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(
+			Encoding.UTF8.GetBytes(authOptions.IssuerSigningKey));
 
-		if(!string.IsNullOrWhiteSpace(options.NameClaimType)) {
-			tokenValidationParameters.NameClaimType = options.NameClaimType;
+		if(!string.IsNullOrWhiteSpace(authOptions.NameClaimType)) {
+			tokenValidationParameters.NameClaimType = authOptions.NameClaimType;
 		}
 
-		if(!string.IsNullOrWhiteSpace(options.RoleClaimType)) {
-			tokenValidationParameters.RoleClaimType = options.RoleClaimType;
+		if(!string.IsNullOrWhiteSpace(authOptions.RoleClaimType)) {
+			tokenValidationParameters.RoleClaimType = authOptions.RoleClaimType;
 		}
 
-		//services.AddAuthentication(o =>
-		//	{
-		//		o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-		//		o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-		//	})
-		//	.AddJwtBearer(o =>
-		//	{
-		//		o.Authority = options.Authority;
-		//		o.Audience = options.Audience;
-		//		o.MetadataAddress = options.MetadataAddress;
-		//		o.SaveToken = options.SaveToken;
-		//		o.RefreshOnIssuerKeyNotFound = options.RefreshOnIssuerKeyNotFound;
-		//		o.RequireHttpsMetadata = options.RequireHttpsMetadata;
-		//		o.IncludeErrorDetails = options.IncludeErrorDetails;
-		//		o.TokenValidationParameters = tokenValidationParameters;
-		//		if(!string.IsNullOrWhiteSpace(options.Challenge)) {
-		//			o.Challenge = options.Challenge;
-		//		}
-		//		optionsFactory?.Invoke(o);
-		//	});
+		services.AddAuthentication(o =>
+			{
+				o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			})
+			.AddJwtBearer(o =>
+			{
+				o.Authority = authOptions.Authority;
+				o.Audience = authOptions.Audience;
+				o.MetadataAddress = authOptions.MetadataAddress;
+				o.SaveToken = authOptions.SaveToken;
+				o.RefreshOnIssuerKeyNotFound = authOptions.RefreshOnIssuerKeyNotFound;
+				o.RequireHttpsMetadata = authOptions.RequireHttpsMetadata;
+				o.IncludeErrorDetails = authOptions.IncludeErrorDetails;
+				o.TokenValidationParameters = tokenValidationParameters;
+				if(!string.IsNullOrWhiteSpace(authOptions.Challenge)) {
+					o.Challenge = authOptions.Challenge;
+				}
+				optionsFactory?.Invoke(o);
+			});
 
-		services.AddSingleton(options);
+		services.AddSingleton(authOptions);
 		services.AddSingleton(tokenValidationParameters);
 
 		var policies = modules?.SelectMany(x => x.Policies ?? []) ?? [];
-		//services.AddAuthorization(authorization =>
-		//{
-		//	foreach(var policy in policies) {
-		//		authorization.AddPolicy(policy, x => x.RequireClaim("permissions", policy));
-		//	}
-		//});
+		services.AddAuthorization(authorization =>
+		{
+			foreach(var policy in policies) {
+				authorization.AddPolicy(policy, x => x.RequireClaim("permissions", policy));
+			}
+		});
 
 		return services;
 	}

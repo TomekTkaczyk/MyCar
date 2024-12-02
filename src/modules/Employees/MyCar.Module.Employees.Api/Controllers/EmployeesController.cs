@@ -8,40 +8,55 @@ namespace MyCar.Module.Employees.Api.Controllers;
 [Route(EmployeeModule.BasePath + "/[controller]")]
 internal class EmployeesController(IEmployeeService service) : HomeControllerBase
 {
-	private readonly IEmployeeService _employeeService = service;
 
 	[HttpGet("{id:Guid}")]
-	public async Task<ActionResult<EmployeeDetailsDto>> GetAsync(Guid id)
+	[ProducesResponseType(200)]
+	[ProducesResponseType(404)]
+	public async Task<ActionResult<EmployeeDetailsDto>> GetAsync(Guid id, CancellationToken cancellationToken)
 	{
-		return Ok(await _employeeService.GetAsync(id));
+		return Ok(await service.GetAsync(id, cancellationToken));
 	}
 
 	[HttpGet]
-	public async Task<ActionResult<EmployeeDetailsDto>> GetAllAsync()
+	[ProducesResponseType(200)]
+	[ProducesResponseType(404)]
+	public async Task<ActionResult<EmployeeDetailsDto>> GetAllAsync(CancellationToken cancellationToken)
 	{
-		return Ok(await _employeeService.GetAllAsync());
+		return Ok(await service.GetAllAsync(cancellationToken));
 	}
 
 	[HttpPost]
-	public async Task<ActionResult> AddAsync(EmployeeDto dto)
+	[ProducesResponseType(201)]
+	[ProducesResponseType(400)]
+	[ProducesResponseType(401)]
+	[ProducesResponseType(403)]
+	public async Task<ActionResult> AddAsync(EmployeeDto dto, CancellationToken cancellationToken)
 	{
-		await _employeeService.AddAsync(dto);
+		await service.AddAsync(dto, cancellationToken);
 
 		return CreatedAtAction("Get", new { id = dto.Id }, null);
 	}
 
-	[HttpPatch]
-	public async Task<ActionResult> UpdateAsync(EmployeeDetailsDto dto)
+	[HttpPut]
+	[ProducesResponseType(204)]
+	[ProducesResponseType(400)]
+	[ProducesResponseType(401)]
+	[ProducesResponseType(403)]
+	public async Task<ActionResult> UpdateAsync(EmployeeDetailsDto dto, CancellationToken cancellationToken)
 	{
-		await _employeeService.UpdateAsync(dto);
+		await service.UpdateAsync(dto, cancellationToken);
 
 		return NoContent();
 	}
 
 	[HttpDelete("{id:Guid}")]
-	public async Task<ActionResult> DeleteAsync(Guid id)
+	[ProducesResponseType(204)]
+	[ProducesResponseType(400)]
+	[ProducesResponseType(401)]
+	[ProducesResponseType(403)]
+	public async Task<ActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
 	{
-		await _employeeService.DeleteAsync(id);
+		await service.DeleteAsync(id, cancellationToken);
 
 		return NoContent();
 	}

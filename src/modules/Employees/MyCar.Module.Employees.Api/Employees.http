@@ -1,6 +1,6 @@
 @url = http://localhost:5000/employees-module
 
-@emloyeeId = b5146805-beb5-453b-a4a0-0eae78c7ffec
+@emloyeeId = dd2bf9a6-4604-40ed-aa5b-65eb16ef7942
 
 
 ###
@@ -8,6 +8,9 @@ GET {{url}}
 
 ###
 GET {{url}}/Employees
+
+###
+GET {{url}}/Employees/{{emloyeeId}}
 
 ###
 POST {{url}}/Employees
@@ -21,7 +24,7 @@ Content-Type: application/json
 GET {{url}}/Employees/{{emloyeeId}}
 
 ###
-PATCH {{url}}/Employees
+PUT {{url}}/Employees
 Content-Type: application/json
 {
   "Id": "{{emloyeeId}}",
@@ -31,5 +34,5 @@ Content-Type: application/json
 }
 
 ###
-DELETE {{url}}/Employees/99b106ec-395b-4bcc-88ed-e2c7c99cd57a
+DELETE {{url}}/Employees/{{emloyeeId}}
 Content-Type: application/json

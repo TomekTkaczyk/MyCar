@@ -9,4 +9,8 @@
     <ProjectReference Include="..\..\..\shared\MyCar.Shared.Infrastructure\MyCar.Shared.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DAL\Migrations\" />
+  </ItemGroup>
+
 </Project>

@@ -8,29 +8,29 @@ internal class EmployeeRepository(EmployeesDbContext context) : IEmployeeReposit
 	private readonly EmployeesDbContext _context = context;
 	private readonly DbSet<Employee> _employees = context.Set<Employee>();
 
-	public Task<Employee> GetAsync(Guid id) => _employees.SingleOrDefaultAsync(p => p.Id == id);
+	public Task<Employee> GetAsync(Guid id, CancellationToken cancellationToken) => _employees.SingleOrDefaultAsync(p => p.Id == id, cancellationToken);
 
-	public async Task<IReadOnlyList<Employee>> GetAllAsync() => await _employees.ToListAsync();
+	public async Task<IReadOnlyList<Employee>> GetAllAsync(CancellationToken cancellationToken) => await _employees.ToListAsync(cancellationToken);
 
-	public async Task AddAsync(Employee employee)
+	public async Task AddAsync(Employee employee, CancellationToken cancellationToken)
 	{
 		_employees.Add(employee);
 
-		await _context.SaveChangesAsync();
+		await _context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task DeleteAsync(Employee employee)
+	public async Task DeleteAsync(Employee employee, CancellationToken cancellationToken)
 	{
 		_employees.Remove(employee);
 
-		await _context.SaveChangesAsync();
+		await _context.SaveChangesAsync(cancellationToken);
 	}
 
 
-	public async Task UpdateAsync(Employee employee)
+	public async Task UpdateAsync(Employee employee, CancellationToken cancellationToken)
 	{
 		_employees.Update(employee);
 
-		await _context.SaveChangesAsync();
+		await _context.SaveChangesAsync(cancellationToken);
 	}
 }

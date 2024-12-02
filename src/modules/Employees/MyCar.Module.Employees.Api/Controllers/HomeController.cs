@@ -1,6 +1,5 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
-using MyCar.Module.Employees.Api;
 
 namespace MyCar.Module.Employees.Api.Controllers;
 
@@ -8,5 +7,5 @@ namespace MyCar.Module.Employees.Api.Controllers;
 internal class HomeController : HomeControllerBase
 {
 	[HttpGet]
-	public ActionResult<string> Get() => "Employees API";
+	public static ActionResult<string> Get() => "Employees API";
 }

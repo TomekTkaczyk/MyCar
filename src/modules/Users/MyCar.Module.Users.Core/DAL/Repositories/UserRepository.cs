@@ -6,13 +6,17 @@ namespace MyCar.Module.Users.Core.DAL.Repositories;
 internal class UserRepository(UsersDbContext context) : IUserRepository
 {
 	private readonly UsersDbContext _context = context;
-	private readonly DbSet<User> _users;
+	private readonly DbSet<User> _users = context.Set<User>();
+
 
 	public Task<User> GetAsync(Guid id)
 		=> _users.SingleOrDefaultAsync(x => x.Id == id);
 
-	public Task<User> GetAsync(string email)
-		=> _users.SingleOrDefaultAsync(x => x.Email == email);
+	public async Task<User> GetByEmailAsync(string email)
+		=> await _users.SingleOrDefaultAsync(x => x.Email == email);
+
+	public async Task<User> GetByNameAsync(string name)
+		=> await _users.SingleOrDefaultAsync(x => x.Name == name);
 
 	public async Task AddAsync(User user)
 	{

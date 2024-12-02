@@ -7,7 +7,9 @@ internal interface IUserRepository
 
 	Task<User> GetAsync(Guid id);
 
-	Task<User> GetAsync(string email);
+	Task<User> GetByEmailAsync(string email);
+
+	Task<User> GetByNameAsync(string name);
 
 	Task AddAsync(User user);
 

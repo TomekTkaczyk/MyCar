@@ -1,21 +1,26 @@
 @url = http://localhost:5000/users-module
-@email = user1@confab.io
+@name = user4
+@email = user4@mycar.it
 @password = secret
-@role = user
-@accessToken = secret
+@role = admin
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NjZjYzdjMS05Mjc3LTQ0N2YtOTM2Ny1kMDI5MTQzYjYyYjkiLCJ1bmlxdWVfbmFtZSI6Ijc2NmNjN2MxLTkyNzctNDQ3Zi05MzY3LWQwMjkxNDNiNjJiOSIsImp0aSI6IjkzMmVhMDFiLWViNDktNDAzNS1hNDVlLWU3ZDBmNGUzNmJkZSIsImlhdCI6IjE3MzMxNTU4MTM5ODgiLCJyb2xlIjoidXNlciIsImlzcyI6Ik15Q2FyIiwiZXhwIjoxNzMzMTU5NDEzLCJuYmYiOjE3MzMxNTU4MTN9.3IYQ_mXyh0WORHL8aly8KtR3UNwizoNezL9zrEJjZRQ
 
 ###
 GET {{url}}
 
 ### 
-GET {{url}}/account 
+GET {{url}}/account
+Authorization: Bearer {{accessToken}}
+
+### 
+GET {{url}}/account/changepassword
 Authorization: Bearer {{accessToken}}
 
 ### 
 POST {{url}}/account/sign-up 
 Content-Type: application/json
-
 {
+  "name": "{{name}}", 
   "email": "{{email}}", 
   "password": "{{password}}", 
   "role": "{{role}}", 
@@ -34,8 +39,15 @@ Content-Type: application/json
 ### 
 POST {{url}}/account/sign-in 
 Content-Type: application/json
-
 {
-  "email": "{{email}}",
+  "identifier": "{{email}}",
   "password": "{{password}}"
 }
+
+###
+POST {{url}}/account/forgot-password
+Content-Type: application/json
+{
+  "email": "{{email}}",
+}
+

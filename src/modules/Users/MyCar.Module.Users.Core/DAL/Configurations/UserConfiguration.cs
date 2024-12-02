@@ -15,6 +15,7 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
 
 	public void Configure(EntityTypeBuilder<User> builder)
 	{
+		builder.HasIndex(x => x.Name).IsUnique();
 		builder.HasIndex(x => x.Email).IsUnique();
 		builder.Property(x => x.Password).IsRequired();
 		builder.Property(x => x.Role).IsRequired();

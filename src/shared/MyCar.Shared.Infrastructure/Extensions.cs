@@ -1,15 +1,22 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using MyCar.Shared.Abstractions;
 using MyCar.Shared.Abstractions.Modules;
+using MyCar.Shared.Abstractions.Services;
 using MyCar.Shared.Infrastructure.Api;
 using MyCar.Shared.Infrastructure.Auth;
+using MyCar.Shared.Infrastructure.Contexts;
 using MyCar.Shared.Infrastructure.Database;
 using MyCar.Shared.Infrastructure.Exceptions;
+using MyCar.Shared.Infrastructure.Modules;
 using MyCar.Shared.Infrastructure.Services;
 using MyCar.Shared.Infrastructure.Time;
 using System.Runtime.CompilerServices;
@@ -20,6 +27,10 @@ namespace MyCar.Shared.Infrastructure;
 
 public static class Extensions
 {
+	private const string _corsPolicy = "cors";
+	private const string _docsVersion = "v0.01";
+	private const string _titleApi = "MyCar API";
+
 	public static IServiceCollection AddInfrastructure(
 		this IServiceCollection services,
 		IConfiguration configuration,
@@ -35,11 +46,23 @@ public static class Extensions
 				disableModules.Add(key.Split(":")[0]);
 			}
 		}
+		services.AddModuleInfo(modules);
+		services.AddContexts();
 
-		services.AddAuth(configuration,modules);
+		services.AddCors(cors =>
+		{
+			cors.AddPolicy(_corsPolicy, x =>
+			{
+				x.WithOrigins("*")
+				 .WithMethods("POST", "PUT", "DELETE")
+				 .WithHeaders("Content-Type", "Authorizacion");
+			});
+		});
+		services.AddAuth(configuration, modules);
 		services.AddDatabase(configuration);
 		services.AddErrorHandling();
-		services.AddHostedService<AppInitializer>();
+		
+		services.AddBackgroundServices(configuration);
 
 		services.AddSingleton<IClock, UtcClock>();
 
@@ -60,24 +83,81 @@ public static class Extensions
 			});
 		;
 		services.AddEndpointsApiExplorer();
-		services.AddSwaggerGen();
+		services.AddSwaggerGen(swagger =>
+		{
+			swagger.CustomSchemaIds(x => x.FullName!.Replace("+","-"));
+			swagger.SwaggerDoc(_docsVersion, new OpenApiInfo 
+			{ 
+				Title = _titleApi,
+				Version = _docsVersion,
+			});
+
+			var securityScheme = new OpenApiSecurityScheme
+			{
+				Name = "JWT Authentication",
+				Description = "Enter your JWT token in this field",
+				In = ParameterLocation.Header,
+				Type = SecuritySchemeType.Http,
+				Scheme = JwtBearerDefaults.AuthenticationScheme,
+				BearerFormat = "JWT"
+			};
+
+			swagger.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, securityScheme);
+
+			var securityRequirement = new OpenApiSecurityRequirement
+			{
+				{
+					new OpenApiSecurityScheme
+					{
+						Reference = new OpenApiReference
+						{
+							Type = ReferenceType.SecurityScheme,
+							Id = JwtBearerDefaults.AuthenticationScheme
+						}
+					},
+					[]
+				}
+			};
+
+			swagger.AddSecurityRequirement(securityRequirement);
+		});
+
 
 		return services;
 	}
 
 	public static IApplicationBuilder UseInfrastructure(
 		this IApplicationBuilder app,
+		IServiceProvider services,
 		IWebHostEnvironment environment)
 	{
-		if(environment.IsDevelopment()) {
-			app.UseSwagger();
-			app.UseSwaggerUI();
+		try {
+			_= services.GetRequiredService<IOptions<SmtpOptions>>().Value;
+		}
+		catch(OptionsValidationException) {
 		}
 
+		app.UseCors(_corsPolicy);
 		app.UseErrorHandling();
-		// app.UseAuthentication();
+		
+		if(environment.IsDevelopment()) {
+			app.UseSwagger();
+			app.UseSwaggerUI(x =>
+			{
+				x.RoutePrefix = "docs/swagger";
+				x.SwaggerEndpoint($"/swagger/{_docsVersion}/swagger.json", _titleApi);
+			});
+			app.UseReDoc(x =>
+			{
+				x.RoutePrefix = "docs";
+				x.SpecUrl($"/swagger/{_docsVersion}/swagger.json");
+				x.DocumentTitle = _titleApi;
+			});
+		}
+
+		app.UseAuthentication();
 		app.UseRouting();
-		// app.UseAuthorization();
+		app.UseAuthorization();
 
 		return app;
 	}
