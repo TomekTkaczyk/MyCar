@@ -20,6 +20,7 @@ internal static class Extensions
 		services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 		services.AddTransient<IIdentityService, IdentityService>();
 		services.AddScoped<IUserRepository, UserRepository>();
+		services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 		services.AddDatatabase<UsersDbContext>(configuration);
 
 		return services;

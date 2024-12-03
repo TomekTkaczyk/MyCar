@@ -14,7 +14,7 @@ internal class IdentityService(
 	IUserRepository userRepository,
 	IPasswordHasher<User> passwordHasher,
 	ITokenProvider tokenProvider,
-	EmailConfirmerFactory emailConfirmerFactory,
+	IEmailConfirmerFactory emailConfirmerFactory,
 	IClock clock) : IIdentityService
 {
 	public async Task<AccountDto> GetAsync(Guid id, CancellationToken cancellationToken)
@@ -113,7 +113,7 @@ internal class IdentityService(
 			throw new UserNotActiveException(user.Id);
 		}
 
-		if(!user.RefreshToken.Equals(token) || (user.Expires < clock.CurrentDate())) {
+		if(!user.RefreshToken.Equals(token) || (user.RefreshExpires < clock.CurrentDate())) {
 			throw new InvalidCredentialException();
 		}
 
@@ -122,40 +122,6 @@ internal class IdentityService(
 		await StoreRefreshToken(user, jwt.RefreshToken);
 
 		return jwt;
-	}
-
-	private JsonWebToken GetTokens(User user)
-	{
-		var jwt = new JsonWebToken
-		{
-			AccesToken = tokenProvider.GenerateAccessToken(user.Id, user.Role, user.Claims),
-			RefreshToken = tokenProvider.GenerateRefreshToken(),
-		};
-
-		return jwt;
-	}
-
-	private async Task StoreRefreshToken(User user, RefreshToken token)
-	{
-		user.RefreshToken = token.Token;
-		user.Expires = token.Expires;
-
-		await userRepository.UpdateAsync(user);
-	}
-
-	public async Task ConfirmEmail(ConfirmEmailDto dto, CancellationToken cancellationToken)
-	{
-		var user = await userRepository.GetByEmailAsync(dto.Email)
-			?? throw new InvalidCredentialException();
-
-		if(!user.IsActive) {
-			throw new UserNotActiveException(user.Id);
-		}
-
-		var emailConfirmer = emailConfirmerFactory.GetEmailConfirmer();
-		if(!emailConfirmer.Confirm(user.EmailConfirmToken, dto.ConfirmToken)) {
-			throw new UserEmailConfirmException();
-		}
 	}
 
 	public Task ForgotPassword(string email, CancellationToken cancellationToken)
@@ -174,6 +140,7 @@ internal class IdentityService(
 		await userRepository.UpdateAsync(user);
 	}
 
+	#region Private methods
 	private async Task<User> GetByIdentifier(string identifier)
 	{
 		var user = await userRepository.GetByNameAsync(identifier);
@@ -181,4 +148,25 @@ internal class IdentityService(
 
 		return user;
 	}
+
+	private JsonWebToken GetTokens(User user)
+	{
+		var jwt = new JsonWebToken
+		{
+			AccesToken = tokenProvider.GenerateAccessToken(user.Id, user.Role, user.Claims),
+			RefreshToken = tokenProvider.GenerateRefreshToken(),
+		};
+
+		return jwt;
+	}
+
+	private async Task StoreRefreshToken(User user, RefreshToken token)
+	{
+		user.RefreshToken = token.Token;
+		user.RefreshExpires = token.Expires;
+
+		await userRepository.UpdateAsync(user);
+	}
+
+	#endregion
 }

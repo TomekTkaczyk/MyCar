@@ -18,7 +18,7 @@ public static class Extensions
 		var authOptions = configuration.GetOptions<AuthOptions>(AuthOptions.Section);
 
 		services.AddSingleton<ITokenProvider,TokenProvider>();
-		services.AddSingleton<EmailConfirmerFactory>();
+		services.AddSingleton<IEmailConfirmerFactory, EmailConfirmerFactory>();
 
 		var tokenValidationParameters = new TokenValidationParameters
 		{

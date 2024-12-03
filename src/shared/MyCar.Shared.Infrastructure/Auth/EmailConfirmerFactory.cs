@@ -3,7 +3,7 @@ using MyCar.Shared.Abstractions.Auth;
 
 namespace MyCar.Shared.Infrastructure.Auth;
 
-public class EmailConfirmerFactory(AuthOptions options, IClock clock)
+public class EmailConfirmerFactory(AuthOptions options, IClock clock) : IEmailConfirmerFactory
 {
 	public IEmailConfirmer GetEmailConfirmer()
 	{

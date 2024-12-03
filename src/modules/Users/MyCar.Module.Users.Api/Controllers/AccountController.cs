@@ -18,7 +18,7 @@ internal class AccountController(
 	[ProducesResponseType(200)]
 	[ProducesResponseType(401)]
 	[ProducesResponseType(404)]
-	public async Task<ActionResult<AccountDto>> Get(CancellationToken cancellationToken)
+	public async Task<ActionResult<AccountDto>> GetAsync(CancellationToken cancellationToken)
 	{
 		return OkOrNotFound(await service.GetAsync(context.Identity.Id, cancellationToken));
 	}
@@ -80,16 +80,6 @@ internal class AccountController(
 		await service.Logout(context.Identity.Id, cancellationToken);
 
 		return Ok();
-	}
-
-	[HttpGet("confirm-email")]
-	[ProducesResponseType(200)]
-	[ProducesResponseType(400)]
-	[ProducesResponseType(401)]
-	public async Task<ActionResult> ConfirmEmailAsync([FromQuery] ConfirmEmailDto dto, CancellationToken cancellationToken)
-	{
-		await service.ConfirmEmail(dto, cancellationToken);
-		return NoContent();
 	}
 
 	[HttpGet("forgot-password")]

@@ -9,7 +9,6 @@ public interface IIdentityService
 	Task<JsonWebToken> SignInAsync(SignInDto dto, CancellationToken cancellationToken);
 	Task<JsonWebToken> RefreshTokenAsync(Guid id, string token, CancellationToken cancellationToken);
 	Task<Guid> SignUpAsync(SignUpDto dto, CancellationToken cancellationToken);
-	Task ConfirmEmail(ConfirmEmailDto dto, CancellationToken cancellationToken);
 	Task ForgotPassword(string email, CancellationToken cancellationToken);
 	Task Logout(Guid id, CancellationToken cancellationToken);
 }

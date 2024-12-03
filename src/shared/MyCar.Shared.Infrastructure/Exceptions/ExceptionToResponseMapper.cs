@@ -1,12 +1,7 @@
 ﻿using Humanizer;
 using MyCar.Shared.Abstractions.Exceptions;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyCar.Shared.Infrastructure.Exceptions;
 internal class ExceptionToResponseMapper : IExceptionToResponseMapper
@@ -16,7 +11,7 @@ internal class ExceptionToResponseMapper : IExceptionToResponseMapper
 	public ExceptionResponse Map(Exception exception)
 		=> exception switch {
 			MyCarException ex => new ExceptionResponse(new ErrorsResponse(new Error(GetErrorCode(ex), ex.Message)), 
-				HttpStatusCode.BadRequest),
+				GetStatusCode(ex)),
 			_ => new ExceptionResponse(new Error("error", "There was an error."),
 				HttpStatusCode.InternalServerError)
 		};
@@ -31,5 +26,12 @@ internal class ExceptionToResponseMapper : IExceptionToResponseMapper
 
 		return _codes.GetOrAdd(type, type.Name.Underscore().Replace("_exception", string.Empty));
 	}
+
+	private static HttpStatusCode GetStatusCode(MyCarException exception)
+		=> exception.GetType().Name switch
+		{
+			"UserNotActiveException" => HttpStatusCode.Unauthorized,
+			_ => HttpStatusCode.BadRequest
+		};
 
 }
