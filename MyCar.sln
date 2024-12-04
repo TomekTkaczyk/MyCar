@@ -35,9 +35,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Users", "Users", "{01536723-4E98-4ECA-AEA6-AE6CE99E663F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyCar.Module.Users.Api", "src\modules\Users\MyCar.Module.Users.Api\MyCar.Module.Users.Api.csproj", "{2A2A0C29-83A1-4E76-A143-3AF1C1DB1EFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyCar.Module.Users.Api", "src\modules\Users\MyCar.Module.Users.Api\MyCar.Module.Users.Api.csproj", "{2A2A0C29-83A1-4E76-A143-3AF1C1DB1EFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyCar.Module.Users.Core", "src\modules\Users\MyCar.Module.Users.Core\MyCar.Module.Users.Core.csproj", "{A299843D-B4CD-4FF7-9BD3-1B4228C8B804}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyCar.Module.Users.Core", "src\modules\Users\MyCar.Module.Users.Core\MyCar.Module.Users.Core.csproj", "{A299843D-B4CD-4FF7-9BD3-1B4228C8B804}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Webclient", "Webclient", "{5ECD135F-8731-4AD9-96E4-A233123766F9}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "mycar.client", "src\webclient\mycar.client\mycar.client.esproj", "{7323D798-8248-4D7F-8E6B-0BD6AA1AB321}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,6 +77,12 @@ Global
 		{A299843D-B4CD-4FF7-9BD3-1B4228C8B804}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A299843D-B4CD-4FF7-9BD3-1B4228C8B804}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A299843D-B4CD-4FF7-9BD3-1B4228C8B804}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7323D798-8248-4D7F-8E6B-0BD6AA1AB321}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7323D798-8248-4D7F-8E6B-0BD6AA1AB321}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7323D798-8248-4D7F-8E6B-0BD6AA1AB321}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{7323D798-8248-4D7F-8E6B-0BD6AA1AB321}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7323D798-8248-4D7F-8E6B-0BD6AA1AB321}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7323D798-8248-4D7F-8E6B-0BD6AA1AB321}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +100,8 @@ Global
 		{01536723-4E98-4ECA-AEA6-AE6CE99E663F} = {B8A7B9F1-4E25-4AD6-8E52-3742D17A0D48}
 		{2A2A0C29-83A1-4E76-A143-3AF1C1DB1EFD} = {01536723-4E98-4ECA-AEA6-AE6CE99E663F}
 		{A299843D-B4CD-4FF7-9BD3-1B4228C8B804} = {01536723-4E98-4ECA-AEA6-AE6CE99E663F}
+		{5ECD135F-8731-4AD9-96E4-A233123766F9} = {17E488CA-F939-4E69-A95B-D2DB7135F628}
+		{7323D798-8248-4D7F-8E6B-0BD6AA1AB321} = {5ECD135F-8731-4AD9-96E4-A233123766F9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1BF09D59-9778-48BC-9B37-74A570C5541D}
