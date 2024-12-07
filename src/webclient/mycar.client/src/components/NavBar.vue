@@ -12,7 +12,7 @@
 <template>
     <nav class="navbar navbar-dark bg-dark navbar-expand-md" role="navigation">
         <div class="container-fluid">
-            <RouterLink class="navbar-brand" to="/">AGK</RouterLink>
+            <h1 class="navbar-brand" style="margin-bottom: 4px">MyCar</h1>
             <button class="navbar-toggler" v-if="authStore.isAuthenticated" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -72,5 +72,10 @@
 <style>
     a[class*=dropdown-item] {
         cursor: pointer;
+    }
+
+    .navbar-brand {
+      padding: auto;
+      margin: auto;
     }
 </style>

@@ -1,7 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router';
 
 import Home from '@/modules/home/Home.vue'
-import About from '@/modules/home/About.vue'
 
 const routes: RouteRecordRaw[] = [
     {
@@ -13,16 +12,11 @@ const routes: RouteRecordRaw[] = [
         path: '/Error403',
         name: 'Error403',
         component: () => import('@/modules/errors/Error403.vue'),
-    },  
+    },
     {
         path: '/Home',
         name: 'Home',
         component: () => import('@/modules/home/Home.vue'),
-    },    
-    {
-        path: '/About',
-        name: 'About',
-        component: () => import('@/modules/home/About.vue'),
     },
     {
         path: '/SignUp',
@@ -34,6 +28,15 @@ const routes: RouteRecordRaw[] = [
         name: 'SignIn',
         component: () => import('@/modules/auth/SignIn.vue'),
     },
-];
+    {
+      path: '/RemindPassword',
+      name: 'ReminPassword',
+      component: () => import('@/modules/auth/RemindPassword.vue')
+    },
+    {
+      path: '/ChangePassword',
+      name: 'ChangePassword',
+      component: () => import('@/modules/auth/ChangePassword.vue')
+    },];
 
 export default routes;

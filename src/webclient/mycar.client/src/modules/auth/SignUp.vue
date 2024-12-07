@@ -1,82 +1,126 @@
-<script setup lang="ts">
-    import { ref, watchEffect } from 'vue';
-
-    const formData = ref({
-        username: '',
-        email: '',
-        password: '',
-        retypePassword: ''
-    });
-
-    const passwordsMatch = ref(true);
-
-    const isFormValid = ref(false);
-
-    const signOutUser = () => {
-        if (formData.value.password !== formData.value.retypePassword) {
-            passwordsMatch.value = false;
-            return;
-        }
-
-        // Tutaj można wywołać funkcję do rejestracji użytkownika
-        // np. poprzez wywołanie API, przekazując formData.value
-        console.log("register");
-
-        // Czyść dane formularza po rejestracji
-        clearForm();
-    };
-
-    const clearForm = () => {
-        formData.value.username = '';
-        formData.value.email = '';
-        formData.value.password = '';
-        formData.value.retypePassword = '';
-        passwordsMatch.value = true;
-    };
-
-    // Funkcja sprawdzająca, czy formularz jest poprawnie wypełniony
-    const validateForm = () => {
-        const { username, email, password, retypePassword } = formData.value;
-        return username !== '' && email !== '' && password !== '' && retypePassword !== '' && passwordsMatch.value;
-    };
-
-    // Obserwacja zmian w danych formularza
-    watchEffect(() => {
-        isFormValid.value = validateForm();
-    });
-</script>
 
 <template>
-    <div class="signout-form">
+    <div class="signup-form">
         <h2>Rejestracja użytkownika</h2>
-        <form @submit.prevent="signOutUser">
-            <div class="form-group">
-                <label for="username">Nazwa użytkownika (login):</label>
-                <input type="text" id="username" v-model="formData.username" required />
+        <form @submit.prevent="signUpUser(formData)">
+           <div class="form-group">
+                <TextInput v-model="formData.userName"
+                type="text"
+                id="username"
+                label="Nazwa użytkownika"
+                hint="Nazwa użytkownika jest wymagana"
+                :showHint="hints.userNameHintFlag"
+                @input="onChangeUsername"/>
             </div>
             <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="text" id="email" v-model="formData.email" required />
+                <TextInput v-model="formData.email"
+                type="text"
+                id="email"
+                label="Adres email"
+                hint="Adres email jest wymagany"
+                :showHint="hints.emailHintFlag"
+                @input="onChangeEmail"/>
             </div>
             <div class="form-group">
-                <label for="password">Hasło:</label>
-                <input type="password" id="password" v-model="formData.password" required />
+                <TextInput v-model="formData.password"
+                type="password"
+                id="password"
+                label="Hasło"
+                hint="Hasło jest wymagane"
+                :showHint="hints.passwordHintFlag"
+                @input="onChangePassword"/>
             </div>
             <div class="form-group">
-                <label for="retypePassword">Powtórz hasło:</label>
-                <input type="password" id="retypePassword" v-model="formData.retypePassword" required />
+                <TextInput v-model="formData.retypePassword"
+                type="password"
+                id="retypepassword"
+                label="Powtórz hasło"
+                hint="Hasła nie są zgodne"
+                :showHint="hints.retypePasswordHintFlag"
+                @input="onChangeRetypePassword"/>
             </div>
-            <div v-if="!passwordsMatch" class="password-mismatch">Hasła nie pasują do siebie.</div>
             <button type="submit" v-if="isFormValid">Zarejestruj</button>
-            <button type="submit" v-else disabled>Zarejestruj</button>
-            <div>Jeżeli posiadasz już konto, <RouterLink to="signin">Zaloguj się</RouterLink></div>
+            <p></p>
+            <div><RouterLink to="signin">Chcę się zalogować</RouterLink></div>
         </form>
     </div>
 </template>
 
+<script setup lang="ts">
+    import { ref, watchEffect } from 'vue';
+    import type ISignUpCommand from './requests/signup-command';
+    import TextInput from "@/components/TextInput.vue";
+    import { useAuthStore } from '@/stores/AuthStore';
+
+    interface Hints {
+      userNameHintFlag: boolean,
+      emailHintFlag: boolean,
+      passwordHintFlag: boolean,
+      retypePasswordHintFlag: boolean
+    }
+
+    const hints = ref<Hints>({
+      userNameHintFlag: false,
+      emailHintFlag: false,
+      passwordHintFlag: false,
+      retypePasswordHintFlag: false
+    });
+
+    const formData = ref<ISignUpCommand & {retypePassword: string}>({
+      userName: '',
+      email: '',
+      password: '',
+      retypePassword: '',
+    });
+
+    async function signUpUser(data: ISignUpCommand) {
+      const { userName, email, password } = formData.value;
+      const body: ISignUpCommand = {userName, email, password};
+      try {
+          await authStore.signUpUser(body);
+      } catch (error) {
+          console.error('Register failed', error);
+      }
+    }
+
+    const isFormValid = ref(false);
+
+    const authStore = useAuthStore();
+
+    const onChangeUsername = (value: string) => {
+      formData.value.userName = value;
+      hints.value.userNameHintFlag = formData.value.userName === '';
+    };
+
+    const onChangeEmail = (value: string) => {
+      formData.value.email = value;
+      hints.value.emailHintFlag = formData.value.email === '';
+    };
+
+    const onChangePassword = (value: string) => {
+      formData.value.password = value;
+      hints.value.passwordHintFlag = formData.value.password === '';
+      hints.value.retypePasswordHintFlag = formData.value.password !== formData.value.retypePassword;
+    };
+
+    const onChangeRetypePassword = (value: string) => {
+      formData.value.retypePassword = value;
+      hints.value.retypePasswordHintFlag = formData.value.password !== formData.value.retypePassword;
+    };
+
+    const validateForm = () => {
+      const { userName, email, password, retypePassword } = formData.value;
+      return userName !== '' && email !== '' && password !== '' && password === retypePassword;
+    };
+
+    watchEffect(() => {
+      isFormValid.value = validateForm();
+    });
+
+</script>
 
 <style scoped>
-    .signout-form {
+    .signup-form {
         max-width: 400px;
         margin: 0 auto;
         padding: 20px;
@@ -100,17 +144,4 @@
         border-radius: 5px;
     }
 
-    button {
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .password-mismatch {
-        color: red;
-        margin-top: 5px;
-    }
 </style>

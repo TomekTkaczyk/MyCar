@@ -1,7 +1,5 @@
-export default interface SignOutCommand {
+export default interface SignUpCommand {
     userName: string,
-    firstName: string,
-    lastName: string,
     email: string,
     password: string,
 }
