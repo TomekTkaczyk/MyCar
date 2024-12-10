@@ -1,8 +1,8 @@
 <template>
   <div>
-      Error 403
+      Error 404
   </div>
   <div>
-    Hmm.... Ta droga nie dla ciebie.
+    Hmm.... Wybrałeś złą drogę.
   </div>
 </template>

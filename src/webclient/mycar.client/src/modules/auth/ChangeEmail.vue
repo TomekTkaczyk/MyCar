@@ -1,6 +1,6 @@
 <template>
-  <div class="changeemail-form">
-      <h2>Zmiana adresu email</h2>
+  <div>
+      <h4>Zmiana adresu email</h4>
       <form @submit.prevent="changeEmail(formData)">
         <div class="form-group">
               <TextInput v-model="formData.email"
@@ -11,10 +11,7 @@
                 :showHint="emailHintFlag"
                 @input="onChangeEmail"/>
             </div>
-          <button type="submit" v-if="isFormValid">Wyślij</button>
-          <p></p>
-          <div><RouterLink to="signin">Chcę się zalogować</RouterLink></div>
-          <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
+          <button class="btn btn-outline-primary" type="submit" v-if="isFormValid">Wyślij</button>
       </form>
   </div>
 </template>
@@ -26,15 +23,14 @@
     import { useAuthStore } from '@/stores/AuthStore';
     import { isValidEmail } from '@/helpers/email-validator'
 
-    const emailHintFlag = ref(false);
+    const authStore = useAuthStore();
+
 
     const formData = ref<IChangeEmailCommand>({
-        email: '',
+      email: authStore.email as string,
     });
-
+    const emailHintFlag = ref(false);
     const isFormValid = ref(false);
-
-    const authStore = useAuthStore();
 
     async function changeEmail(data: {email: string}) {
       // Tutaj można wywołać funkcję do rejestracji użytkownika
@@ -83,14 +79,5 @@
         padding: 8px;
         border: 1px solid #ccc;
         border-radius: 5px;
-    }
-
-    button {
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
     }
 </style>

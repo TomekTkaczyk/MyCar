@@ -1,6 +1,8 @@
 <script setup lang="ts">
     import Navbar from '@/components/NavBar.vue'
     import Footbar from '@/components/FootBar.vue'
+
+
 </script>
 
 <template>

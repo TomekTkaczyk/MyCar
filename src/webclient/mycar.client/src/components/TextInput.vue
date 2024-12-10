@@ -18,6 +18,7 @@
     placeholder?: string,
     hint?: string,
     showHint?: boolean,
+    readonly?: boolean,
     type: 'text' | 'password'
   }
 
@@ -26,6 +27,7 @@
     hint: '',
     label: '',
     placeholder: '',
+    readonly: false,
     showHint: false,
     type: 'text'
   });
