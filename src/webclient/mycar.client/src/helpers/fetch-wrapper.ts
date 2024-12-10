@@ -26,6 +26,9 @@ function request(method: string) {
             requestOptions.body = JSON.stringify(body);
         }
 
+        console.log(url);
+        console.log(requestOptions);
+
         return fetch(url, requestOptions);
     }
 }

@@ -14,14 +14,14 @@ import type IChangeProfileCommand from '@/modules/auth/requests/changeprofile-co
 
 const baseUrl = `${import.meta.env.VITE_API_URL}/api`
 
-// console.log(baseUrl);
+console.log(baseUrl);
 
 export const useAuthStore = defineStore('auth', {
   state: (): IAuthState => ({
-    userName: "jk",
-    firstName: "Jan",
-    lastName: "Kowalski",
-    email: 'jakis@email.eu',
+    userName: "",
+    firstName: "",
+    lastName: "",
+    email: '',
     isAuthenticated: false,
     token: null,
     refreshToken: null,

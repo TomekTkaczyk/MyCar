@@ -3,6 +3,6 @@
       Error 404
   </div>
   <div>
-    Hmm.... Wybrałeś złą drogę.
+    Upss.... Ślepy zaułek.
   </div>
 </template>

@@ -10,11 +10,18 @@ const routes: RouteRecordRaw[] = [
     path: '/MyProfile',
     name: 'MyProfile',
     component: () => import('@/modules/auth/MyProfile.vue'),
+    meta: {
+      requiresAuth: true,
+      role: 'user',
+    }
   },
   {
     path: '/Logout',
     name: 'Logout',
     component: () => import('@/modules/auth/Logout.vue'),
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/SignUp',
@@ -29,12 +36,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/RemindPassword',
     name: 'ReminPassword',
-    component: () => import('@/modules/auth/RemindPassword.vue')
-  },
-  {
-    path: '/ChangePassword',
-    name: 'ChangePassword',
-    component: () => import('@/modules/auth/ChangePassword.vue')
+    component: () => import('@/modules/auth/RemindPassword.vue'),
   },
   {
     path: '/Error403',

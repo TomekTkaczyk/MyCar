@@ -3,6 +3,6 @@
       Error 403
   </div>
   <div>
-    Hmm.... Ta droga nie dla ciebie.
+    Upss.... Ta droga nie dla ciebie.
   </div>
 </template>
