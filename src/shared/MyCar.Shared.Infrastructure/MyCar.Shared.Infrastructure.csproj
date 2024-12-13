@@ -18,6 +18,11 @@
   <ItemGroup>
     <ProjectReference Include="..\MyCar.Shared.Abstractions\MyCar.Shared.Abstractions.csproj" />
   </ItemGroup>
-
   
+  <ItemGroup>
+    <InternalsVisibleTo Include="InfrastructureTests" />
+    <InternalsVisibleTo Include="MyCar.Bootstraper" />
+  </ItemGroup>
+
+
 </Project>

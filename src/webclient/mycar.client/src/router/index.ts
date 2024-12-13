@@ -21,11 +21,8 @@ router.beforeEach((to, from, next) => {
   const requiredRoles = to.meta.requiredRoles as string[] | undefined;
   const requiredClaims = to.meta.requiredClaims as string[] | undefined;
 
-  console.log(requiredRoles);
-  console.log(requiredClaims);
-
   const hasRequiredRole = requiredRoles?.some(role => authStore.role === role) ?? true;
-  const hasRequiredClaim = requiredClaims?.some(claim => authStore.claims.includes(claim)) ?? true;
+  const hasRequiredClaim = requiredClaims?.some(claim => authStore.claims?.includes(claim)) ?? true;
 
   if (!hasRequiredRole && !hasRequiredClaim) {
     return next({ name: 'Error403' });

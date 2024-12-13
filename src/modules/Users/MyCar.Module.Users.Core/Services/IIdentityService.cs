@@ -9,6 +9,9 @@ public interface IIdentityService
 	Task<JsonWebToken> SignInAsync(SignInDto dto, CancellationToken cancellationToken);
 	Task<JsonWebToken> RefreshTokenAsync(Guid id, string token, CancellationToken cancellationToken);
 	Task<Guid> SignUpAsync(SignUpDto dto, CancellationToken cancellationToken);
-	Task ForgotPassword(string email, CancellationToken cancellationToken);
-	Task Logout(Guid id, CancellationToken cancellationToken);
+	Task ForgotPasswordAsync(string email, CancellationToken cancellationToken);
+	Task LogoutAsync(Guid id, CancellationToken cancellationToken);
+	Task ChangePasswordAsync(Guid id, ChangePasswordDto dto, CancellationToken cancellationToken);
+	Task ChangeEmailAsync(Guid id, ChangeEmailDto dto, CancellationToken cancellationToken);
+	Task UpdateProfileAsync(Guid id, UpdateProfileDto dto, CancellationToken cancellationToken);
 }

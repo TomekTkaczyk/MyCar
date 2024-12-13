@@ -8,7 +8,7 @@ namespace MyCar.Module.Users.Api.Controllers;
 [ProducesDefaultContentType]
 internal abstract class HomeControllerBase : ControllerBase
 {
-    protected ActionResult<T> OkOrNotFound<T>(T model)
+	protected ActionResult<T> OkOrNotFound<T>(T model)
 	{
 		if(model is null) {
 			return NotFound();

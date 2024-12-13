@@ -1,4 +1,4 @@
 export default interface ISignInCommand {
-    userName: string,
+    identifier: string,
     password: string,
 }

@@ -8,7 +8,8 @@ internal static class Etensions
 {
 	public static IServiceCollection AddBackgroundServices(this IServiceCollection services, IConfiguration configuration)
 	{
-		services.AddSingleton<IEmailService, EmailService>();
+		services.AddSingleton<IEmailService, FakeEmailService>();
+		services.AddSingleton<IEmailServiceFactory, EmailServiceFactory>();
 
 		services.AddHostedService<AppInitializer>();
 		services.AddHostedService<SmtpEmailProcessingBackgroundService>();

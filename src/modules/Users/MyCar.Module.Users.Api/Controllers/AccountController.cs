@@ -46,14 +46,13 @@ internal class AccountController(
 		var cookieOptions = new CookieOptions
 		{
 			HttpOnly = true,
-			Expires = response.RefreshToken.Expires,
 		};
-		Response.Cookies.Append("refreshToken", response.RefreshToken.Token, cookieOptions);
+		Response.Cookies.Append("refreshToken", response.RefreshToken, cookieOptions);
 
 		return Ok(response.AccesToken);
 	}
 
-	[HttpPost("refresh-token")]
+	[HttpGet("refresh-token")]
 	[ProducesResponseType(200)]
 	[ProducesResponseType(401)]
 	public async Task<ActionResult> RefreshToken(CancellationToken cancellationToken)
@@ -65,29 +64,56 @@ internal class AccountController(
 		var cookieOptions = new CookieOptions
 		{
 			HttpOnly = true,
-			Expires = response.RefreshToken.Expires,
 		};
-		Response.Cookies.Append("refreshToken", response.RefreshToken.Token, cookieOptions);
+		Response.Cookies.Append("refreshToken", response.RefreshToken, cookieOptions);
 
 		return Ok(response.AccesToken);
 	}
 
-	[HttpPost("logout")]
+	[HttpGet("logout")]
 	[ProducesResponseType(200)]
 	[ProducesResponseType(401)]
 	public async Task<ActionResult> Logout(CancellationToken cancellationToken)
 	{
-		await service.Logout(context.Identity.Id, cancellationToken);
+		await service.LogoutAsync(context.Identity.Id, cancellationToken);
 
 		return Ok();
 	}
 
-	[HttpGet("forgot-password")]
+	[HttpPut("forgot-password")]
 	[ProducesResponseType(200)]
 	[ProducesResponseType(400)]
-	public async Task<ActionResult> ForgotPasswordAsync(string email, CancellationToken cancellationToken)
+	public async Task<IActionResult> ForgotPasswordAsync(string email, CancellationToken cancellationToken)
 	{
-		await service.ForgotPassword(email, cancellationToken);
+		await service.ForgotPasswordAsync(email, cancellationToken);
+		return Ok();
+	}
+
+	[HttpPut("change-password")]
+	[ProducesResponseType(200)]
+	[ProducesResponseType(400)]
+	public async Task<IActionResult> ChangePasswordAsync(ChangePasswordDto dto, CancellationToken cancellationToken)
+	{
+		await service.ChangePasswordAsync(context.Identity.Id, dto, cancellationToken);
+		return NoContent();
+	}
+
+
+	[HttpPut("change-email")]
+	[ProducesResponseType(200)]
+	[ProducesResponseType(400)]
+	public async Task<IActionResult> ChangeEmailAsync(ChangeEmailDto dto, CancellationToken cancellationToken)
+	{
+		await service.ChangeEmailAsync(context.Identity.Id, dto, cancellationToken);
+		return NoContent();
+	}
+	[HttpPut("update-profile")]
+	[ProducesResponseType(200)]
+	[ProducesResponseType(400)]
+	public async Task<IActionResult> UpdateProfileAsync(UpdateProfileDto dto, CancellationToken cancellationToken)
+	{
+		await service.UpdateProfileAsync(context.Identity.Id, dto, cancellationToken);
+
 		return NoContent();
 	}
 }

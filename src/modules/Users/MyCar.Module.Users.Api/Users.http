@@ -1,9 +1,9 @@
 @url = http://localhost:5000/users-module
-@name = aaa
-@email = user4@mycar.it
-@password = aaa
+@name = user6
+@email = user6@mycar.it
+@password = secret
 @role = admin
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NjZjYzdjMS05Mjc3LTQ0N2YtOTM2Ny1kMDI5MTQzYjYyYjkiLCJ1bmlxdWVfbmFtZSI6Ijc2NmNjN2MxLTkyNzctNDQ3Zi05MzY3LWQwMjkxNDNiNjJiOSIsImp0aSI6IjkzMmVhMDFiLWViNDktNDAzNS1hNDVlLWU3ZDBmNGUzNmJkZSIsImlhdCI6IjE3MzMxNTU4MTM5ODgiLCJyb2xlIjoidXNlciIsImlzcyI6Ik15Q2FyIiwiZXhwIjoxNzMzMTU5NDEzLCJuYmYiOjE3MzMxNTU4MTN9.3IYQ_mXyh0WORHL8aly8KtR3UNwizoNezL9zrEJjZRQ
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzYmVhMjE2MS02MGFkLTRhZmUtOTRkOC1mNTJmMTQ5MjZhNTgiLCJ1bmlxdWVfbmFtZSI6IjNiZWEyMTYxLTYwYWQtNGFmZS05NGQ4LWY1MmYxNDkyNmE1OCIsImp0aSI6IjY5YWI4ODE4LWYyYjctNDliOS1iZWI4LWUyMjVhZjhkNzE3MSIsImlhdCI6IjE3MzM5NTIzNTc0ODciLCJyb2xlIjoidXNlciIsImlzcyI6Ik15Q2FyIiwiZXhwIjoxNzMzOTU1OTU3LCJuYmYiOjE3MzM5NTIzNTd9.XmIpsJbGHL6Gv6OsmT-Fw3VIOnRnld-dHa0swAcP8D4
 
 ###
 GET {{url}}

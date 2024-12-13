@@ -3,13 +3,13 @@
         <h2>Logowanie użytkownika</h2>
         <form @submit.prevent="signInUser(formData)">
             <div class="form-group">
-              <TextInput v-model="formData.userName"
+              <TextInput v-model="formData.identifier"
                 type="text"
-                id="username"
-                label="Nazwa użytkownika"
+                id="identifier"
+                label="Nazwa użytkownika (login/email)"
                 hint="Nazwa użytkownika jest wymagana"
-                :showHint="hints.userNameHintFlag"
-                @input="onChangeUsername"/>
+                :showHint="hints.identifierHintFlag"
+                @input="onChangeIdentifier"/>
             </div>
             <div class="form-group">
               <TextInput v-model="formData.password"
@@ -35,17 +35,17 @@
     import { useAuthStore } from '@/stores/AuthStore';
 
     interface Hints {
-      userNameHintFlag: boolean,
+      identifierHintFlag: boolean,
       passwordHintFlag: boolean,
     }
 
     const hints = ref<Hints>({
-      userNameHintFlag: false,
+      identifierHintFlag: false,
       passwordHintFlag: false,
     });
 
     const formData = ref<ISignInCommand>({
-        userName: '',
+        identifier: '',
         password: '',
     });
 
@@ -54,8 +54,8 @@
     const authStore = useAuthStore();
 
     async function signInUser(data: ISignInCommand) {
-      const { userName, password } = data;
-      const body: ISignInCommand = {userName, password};
+      const { identifier, password } = data;
+      const body: ISignInCommand = {identifier, password};
       try {
           await authStore.signInUser(body);
       } catch (error) {
@@ -63,9 +63,9 @@
       }
     };
 
-    const onChangeUsername = (value: string) => {
-      formData.value.userName = value;
-      hints.value.userNameHintFlag = formData.value.userName === '';
+    const onChangeIdentifier = (value: string) => {
+      formData.value.identifier = value;
+      hints.value.identifierHintFlag = formData.value.identifier === '';
     };
 
     const onChangePassword = (value: string) => {
@@ -74,8 +74,8 @@
     };
 
     const validateForm = () => {
-      const { userName, password } = formData.value;
-      return userName !== '' && password !== '';
+      const { identifier, password } = formData.value;
+      return identifier !== '' && password !== '';
     };
 
     watchEffect(() => {

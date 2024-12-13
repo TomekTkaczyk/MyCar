@@ -21,8 +21,6 @@ using MyCar.Shared.Infrastructure.Services;
 using MyCar.Shared.Infrastructure.Time;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("MyCar.Bootstraper")]
-
 namespace MyCar.Shared.Infrastructure;
 
 public static class Extensions
@@ -55,7 +53,7 @@ public static class Extensions
 			{
 				x.WithOrigins("*")
 				 .WithMethods("POST", "PUT", "DELETE")
-				 .WithHeaders("Content-Type", "Authorizacion");
+				 .WithHeaders("Content-Type", "Authorization");
 			});
 		});
 		services.AddAuth(configuration, modules);
@@ -136,6 +134,9 @@ public static class Extensions
 		}
 		catch(OptionsValidationException) {
 		}
+
+		//app.UseDefaultFiles();
+		//app.UseStaticFiles();
 
 		app.UseCors(_corsPolicy);
 		app.UseErrorHandling();

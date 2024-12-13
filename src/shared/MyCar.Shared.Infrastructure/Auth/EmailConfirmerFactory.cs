@@ -10,7 +10,7 @@ public class EmailConfirmerFactory(AuthOptions options, IClock clock) : IEmailCo
 		_ = Enum.TryParse<EmailConfirmTypes>(options.EmailConfirmType, true, out EmailConfirmTypes confirmType);
 		return confirmType switch
 		{
-			EmailConfirmTypes.Jwt => new JwEmailConfirmer(options, clock),
+			EmailConfirmTypes.Jwt => new JwtEmailConfirmer(options, clock),
 			EmailConfirmTypes.Code => new CodeEmailConfirmer(),
 			_ => null,
 		};

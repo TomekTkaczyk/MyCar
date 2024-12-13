@@ -1,7 +1,5 @@
 using MyCar.Shared.Abstractions.Modules;
-using MyCar.Shared.Abstractions.Services;
 using MyCar.Shared.Infrastructure;
-using MyCar.Shared.Infrastructure.Auth;
 using MyCar.Shared.Infrastructure.Modules;
 using MyCar.Shared.Infrastructure.Services;
 using System.Reflection;
@@ -52,21 +50,21 @@ public class Program
 			return context.Response.WriteAsJsonAsync(moduleInfoProvider);
 		});
 
-		app.MapGet("email", context =>
-		{
-			var confirmer = context.RequestServices
-				.GetRequiredService<EmailConfirmerFactory>()
-				.GetEmailConfirmer();
-			var body = confirmer.GetConfirmEmailBody(Guid.NewGuid(), "biuro@unipromax.pl");
-			var email = new Email
-			{
-				Body = body,
-				Subject = "Sample activating your account in the MyCar application",
-				Recievers = ["biuro@unipromax.pl"]
-			};
-			EmailsQueue.Add(email);
-			return context.Response.WriteAsync("MyCar API.");
-		});
+		//app.MapGet("email", context =>
+		//{
+		//	var confirmer = context.RequestServices
+		//		.GetRequiredService<EmailConfirmerFactory>()
+		//		.GetEmailConfirmer();
+		//	var body = confirmer.GetConfirmEmailBody(Guid.NewGuid(), "biuro@unipromax.pl");
+		//	var email = new Email
+		//	{
+		//		Body = body,
+		//		Subject = "Sample activating your account in the MyCar application",
+		//		Recievers = ["biuro@unipromax.pl"]
+		//	};
+		//	EmailsQueue.Add(email);
+		//	return context.Response.WriteAsync("MyCar API.");
+		//});
 
 		_assemblies.Clear();
 		_modules.Clear();

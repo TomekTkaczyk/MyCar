@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid">
     <div class="row justify-content-center">
-      <div class="col-12 col-sm-4 col-md-3 col-lg-2 col-xxl-1">
+      <div class="col-12 col-sm-5 col-md-4 col-lg-3 col-xxl-2">
         <div class="row myprofile-form">
           <h4>Moje konto</h4>
           <div class="btn-group-vertical" role="group" aria-label="toggle button group">
@@ -14,7 +14,7 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-8 col-md-5 col-lg-5 col-xl-4 col-xxl-3">
+      <div class="col-sm-7 col-md-7 col-lg-5 col-xl-4 col-xxl-3">
         <component :is="currentComponent" />
       </div>
     </div>
@@ -23,19 +23,20 @@
 
 <script setup lang="ts">
   import {computed, ref} from 'vue';
-  import ChangeProfile from './ChangeProfile.vue';
+  import UpdateProfile from './UpdateProfile.vue';
   import ChangeEmail from './ChangeEmail.vue';
   import ChangePassword from './ChangePassword.vue';
 
   type OptionKey = "name" | "email" | "pass";
   const componentsMap: Record<OptionKey,any> = {
-    name: ChangeProfile,
+    name: UpdateProfile,
     email: ChangeEmail,
     pass: ChangePassword,
   };
   const selectedOption = ref<OptionKey>("name");
 
   const currentComponent = computed(() => componentsMap[selectedOption.value]);
+
 </script>
 
 <style scoped>

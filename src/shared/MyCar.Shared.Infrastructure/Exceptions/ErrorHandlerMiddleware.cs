@@ -15,7 +15,7 @@ internal class ErrorHandlerMiddleware(
 			await next(context);
 		}
 		catch(Exception exception) {
-			_logger.LogError(exception, exception.Message);
+			// _logger.LogError(exception, exception.Message);
 			await HandleErrorAsync(context, exception);
 		}
 	}

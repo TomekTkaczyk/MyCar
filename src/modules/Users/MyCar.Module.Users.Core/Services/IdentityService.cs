@@ -19,7 +19,8 @@ internal class IdentityService(
 {
 	public async Task<AccountDto> GetAsync(Guid id, CancellationToken cancellationToken)
 	{
-		var user = await userRepository.GetAsync(id);
+		var user = await userRepository.GetAsync(id)
+			?? throw new InvalidCredentialException();
 
 		return user is null
 			? null
@@ -30,7 +31,7 @@ internal class IdentityService(
 				Email = user.Email,
 				Role = user.Role,
 				Claims = user.Claims,
-				CreatedAt = user.CreatedAt
+				IsConfirmed = user.EmailConfirm,
 			};
 	}
 
@@ -61,7 +62,7 @@ internal class IdentityService(
 			throw new EmailIsInUseException();
 		}
 
-		user = await userRepository.GetByNameAsync(dto.Name.ToLowerInvariant());
+		user = await userRepository.GetByNameAsync(dto.UserName.ToLowerInvariant());
 		if(user is not null) {
 			throw new NameIsInUseException();
 		}
@@ -71,7 +72,7 @@ internal class IdentityService(
 		user = new User
 		{
 			Id = Guid.NewGuid(),
-			Name = dto.Name.ToLowerInvariant(),
+			Name = dto.UserName.ToLowerInvariant(),
 			Email = dto.Email.ToLowerInvariant(),
 			Password = password,
 			Role = "user",
@@ -124,21 +125,88 @@ internal class IdentityService(
 		return jwt;
 	}
 
-	public Task ForgotPassword(string email, CancellationToken cancellationToken)
+	public async Task ForgotPasswordAsync(string email, CancellationToken cancellationToken)
 	{
-		throw new NotImplementedException();
+		var user = await userRepository.GetByEmailAsync(email)
+			?? throw new InvalidCredentialException();
+
+		var emailConfirmer = emailConfirmerFactory.GetEmailConfirmer();
+
+		var forgotEmail = new Email
+		{
+			Body = emailConfirmer.GetRemaindPasswordBody(user.Id, user.Email),
+			Subject = "Remaind your password in the MyCar application",
+			Recievers = [user.Email]
+		};
 	}
 
-	public async Task Logout(Guid id, CancellationToken cancellationToken)
+	public async Task LogoutAsync(Guid id, CancellationToken cancellationToken)
 	{
-		var user = await userRepository.GetAsync(id);
+		var user = await userRepository.GetAsync(id)
+			?? throw new InvalidCredentialException();
 
-		if(user is not null) {
-			user.RefreshToken = null;
-		};
+		user.RefreshToken = null;
 
 		await userRepository.UpdateAsync(user);
 	}
+
+	public async Task ChangePasswordAsync(Guid id, ChangePasswordDto dto, CancellationToken cancellationToken)
+	{
+		var user = await userRepository.GetAsync(id)
+			?? throw new InvalidCredentialException();
+
+		if(passwordHasher.VerifyHashedPassword(default, user.Password, dto.CurrentPassword) is not PasswordVerificationResult.Success) {
+			throw new InvalidCredentialException();
+		}
+
+		var password = passwordHasher.HashPassword(default, dto.Password);
+		user.Password = password;
+
+		await userRepository.UpdateAsync(user);
+	}
+
+	public async Task ChangeEmailAsync(Guid id, ChangeEmailDto dto, CancellationToken cancellationToken)
+	{
+		var user = await userRepository.GetAsync(id)
+			?? throw new InvalidCredentialException();
+
+		var anotherUser = await userRepository.GetByEmailAsync(dto.Email);
+
+		if(anotherUser is null) {
+			var emailConfirmer = emailConfirmerFactory.GetEmailConfirmer();
+			if(emailConfirmer is not null) {
+				var email = new Email
+				{
+					Body = emailConfirmer.GetConfirmEmailBody(user.Id, user.Email),
+					Subject = "Activating your account in the MyCar application",
+					Recievers = [user.Email]
+				};
+				EmailsQueue.Add(email);
+				user.EmailConfirmToken = emailConfirmer.ConfirmToken;
+			}
+			else {
+				user.EmailConfirm = true;
+				user.EmailConfirmToken = null;
+			}
+			return;
+		}
+
+		if(!user.Id.Equals(anotherUser.Id)) {
+			throw new EmailIsInUseException();
+		}
+	}
+
+	public async Task UpdateProfileAsync(Guid id, UpdateProfileDto dto, CancellationToken cancellationToken)
+	{
+		var user = await userRepository.GetAsync(id)
+			?? throw new InvalidCredentialException();
+
+		user.FirstName = dto.FirstName;
+		user.LastName = dto.LastName;
+
+		await userRepository.UpdateAsync(user);
+	}
+
 
 	#region Private methods
 	private async Task<User> GetByIdentifier(string identifier)
@@ -154,16 +222,15 @@ internal class IdentityService(
 		var jwt = new JsonWebToken
 		{
 			AccesToken = tokenProvider.GenerateAccessToken(user.Id, user.Role, user.Claims),
-			RefreshToken = tokenProvider.GenerateRefreshToken(),
+			RefreshToken = tokenProvider.GenerateRefreshToken(user.Id),
 		};
 
 		return jwt;
 	}
 
-	private async Task StoreRefreshToken(User user, RefreshToken token)
+	private async Task StoreRefreshToken(User user, string token)
 	{
-		user.RefreshToken = token.Token;
-		user.RefreshExpires = token.Expires;
+		user.RefreshToken = token;
 
 		await userRepository.UpdateAsync(user);
 	}

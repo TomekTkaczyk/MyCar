@@ -1,11 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyCar.Shared.Abstractions.Services;
 
 namespace MyCar.Shared.Infrastructure.Services;
 internal class SmtpEmailProcessingBackgroundService(
-	IEmailService emailService,
+	IEmailServiceFactory emailServiceFactory,
 	ILogger<SmtpEmailProcessingBackgroundService> logger) : BackgroundService
 {
 	protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -21,6 +20,7 @@ internal class SmtpEmailProcessingBackgroundService(
 		await Task.Run(async () =>
 		{
 			if(!EmailsQueue.IsEmpty && EmailsQueue.TryPeek(out Email email)) {
+				var emailService = emailServiceFactory.GetService();
 				if(await emailService.SendEmail(email, EmailsQueue.ErrorCount)) {
 					if(EmailsQueue.TryDequeue(out email)) {
 						logger.LogInformation($"Email {email.Subject} removed from queue.");

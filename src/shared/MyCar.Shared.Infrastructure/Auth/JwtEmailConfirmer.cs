@@ -1,13 +1,21 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using MyCar.Shared.Abstractions;
+﻿using MyCar.Shared.Abstractions;
 using MyCar.Shared.Abstractions.Auth;
+using MyCar.Shared.Infrastructure.Exceptions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace MyCar.Shared.Infrastructure.Auth;
-internal class JwEmailConfirmer(AuthOptions options, IClock clock) : IEmailConfirmer
+
+internal class JwtEmailConfirmer(AuthOptions options, IClock clock) : IEmailConfirmer
 {
 	public string ConfirmToken { get; private set; }
+
+	public string GetRemaindPasswordBody(Guid userId, string email)
+	{
+		ConfirmToken = CreateToken(userId, email);
+
+		return ConfirmToken;
+	}
 
 	public string GetConfirmEmailBody(Guid userId, string email)
 	{
@@ -16,9 +24,23 @@ internal class JwEmailConfirmer(AuthOptions options, IClock clock) : IEmailConfi
 		return ConfirmToken;
 	}
 
-	public bool Confirm(string expected, string received)
+	public bool Confirm(string expected, string received, string email)
 	{
-		throw new NotImplementedException();
+		if(!expected.Equals(received)) {
+			return false;
+		}
+
+		var handler = new JwtSecurityTokenHandler();
+		var token = handler.ReadJwtToken(received) 
+			?? throw new InvalidEmailTokenException();
+
+		var claim = token.Claims.FirstOrDefault(x => x.Properties.ContainsKey("email"));
+		var emailFromToken = claim.Properties["email"];
+		if(emailFromToken is null || emailFromToken.Equals(email)) {
+			throw new InvalidEmailTokenException();
+		}
+
+		return true;
 	}
 
 	private string CreateToken(Guid userId, string email)
@@ -36,7 +58,6 @@ internal class JwEmailConfirmer(AuthOptions options, IClock clock) : IEmailConfi
 		var jwt = new JwtSecurityToken(
 			userId.ToString(),
 			expires: expires,
-			notBefore: now,
 			claims: claims);
 
 		var body = new JwtSecurityTokenHandler().WriteToken(jwt);

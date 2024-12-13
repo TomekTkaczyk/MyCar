@@ -29,6 +29,7 @@ function request(method: string) {
         console.log(url);
         console.log(requestOptions);
 
+        url = 'http://localhost:5000/users-module/Account/sign-in';
         return fetch(url, requestOptions);
     }
 }

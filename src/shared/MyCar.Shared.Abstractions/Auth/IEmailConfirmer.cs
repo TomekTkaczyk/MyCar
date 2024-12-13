@@ -4,5 +4,6 @@ public interface IEmailConfirmer
 {
 	string ConfirmToken { get; }
 	string GetConfirmEmailBody(Guid userId, string email);
-	bool Confirm(string expected, string received);
+	string GetRemaindPasswordBody(Guid userId, string email);
+	bool Confirm(string expected, string received, string email);
 }

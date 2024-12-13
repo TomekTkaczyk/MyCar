@@ -10,7 +10,9 @@ internal class EmailVerificationService(
 {
 	public async Task Confirm(ConfirmEmailDto dto, CancellationToken cancellationToken)
 	{
-		var user = await userRepository.GetByEmailAsync(dto.Email)
+		//ConfirmToken decode !!! and compliance check !!! 
+
+		var user = await userRepository.GetByEmailToken(dto.ConfirmToken)
 			?? throw new InvalidCredentialException();
 
 		if(!user.IsActive) {
@@ -18,10 +20,11 @@ internal class EmailVerificationService(
 		}
 
 		var emailConfirmer = emailConfirmerFactory.GetEmailConfirmer();
-		if(!emailConfirmer.Confirm(user.EmailConfirmToken, dto.ConfirmToken)) {
+		if(!emailConfirmer.Confirm(user.EmailConfirmToken, dto.ConfirmToken, dto.Email)) {
 			throw new UserEmailConfirmException();
 		}
 
+		user.Email = dto.Email;
 		user.EmailConfirm = true;
 		user.EmailConfirmToken = null;
 

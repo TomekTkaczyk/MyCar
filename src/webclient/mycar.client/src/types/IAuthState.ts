@@ -1,12 +1,8 @@
-export default interface AuthState {
-    userName: string;
-    firstName: string | null;
-    lastName: string | null;
-    email: string | null;
-    role: string;
-    claims: string[];
-    isAuthenticated: boolean;
-    token: string | null;
-    refreshToken: string | null;
-    returnUrl: string;
+import type IUser from "./IUser";
+
+export default interface AuthState extends IUser {
+  token?: string;
+  refreshToken?: string;
+  returnUrl?: string;
+  isAuthenticated?: boolean;
 }

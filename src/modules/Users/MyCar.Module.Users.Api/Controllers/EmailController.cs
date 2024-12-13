@@ -8,7 +8,6 @@ namespace MyCar.Module.Users.Api.Controllers;
 
 
 [Route(UserModule.BasePath + "/[controller]")]
-[Authorize]
 internal class EmailController(IEmailVerificationService service) : HomeControllerBase
 {
 	[HttpGet("email-confirm")]

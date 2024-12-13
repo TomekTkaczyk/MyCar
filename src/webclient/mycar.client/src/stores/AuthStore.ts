@@ -1,77 +1,104 @@
 import { defineStore } from 'pinia';
 
-import { fetchWrapper } from '@/helpers/fetch-wrapper';
 import router from '@/router'
-import { useAlertStore } from '@/stores/AlertStore';
+
+import { httpApiClient, axiosErrorHandler } from '@/infrastructure/httpApiClient';
 
 import type ISignInCommand from '@/modules/auth/requests/signin-command';
 import type ISignUpCommand from '@/modules/auth/requests/signup-command';
 import type IChangePasswordCommand from '@/modules/auth/requests/changepassword-command';
+import type IUpdateProfileCommand from '@/modules/auth/requests/updateprofile-command';
+
 import type IUser from '@/types/IUser';
 import type IAuthState from '@/types/IAuthState';
-import type Logout from '@/modules/auth/Logout.vue';
-import type IChangeProfileCommand from '@/modules/auth/requests/changeprofile-command';
-
-const baseUrl = `${import.meta.env.VITE_API_URL}/api`
-
-console.log(baseUrl);
 
 export const useAuthStore = defineStore('auth', {
-  state: (): IAuthState => ({
-    userName: "",
-    firstName: "",
-    lastName: "",
-    email: '',
-    isAuthenticated: false,
-    token: null,
-    refreshToken: null,
-    role: '',
-    claims: [],
-    returnUrl: '',
-  }),
+  state: (): IAuthState => ({}),
   actions: {
-    async logout(command: string) {
-      console.log("Strzał do API/Logout ale co wysłać?");
-      const response = await fetchWrapper.post(`${baseUrl}/logout`, command)
-      const user = await response.json();
-      console.log(`user: `, user);
+    async logout() {
+      try {
+        await httpApiClient.post('/users-module/Account/logout');
+        this.$reset;
+        router.push('/signin');
+      } catch (error) {
+        await axiosErrorHandler(error, 'logout');
+      }
     },
+
     async signInUser(command: ISignInCommand) {
-      console.log("Strzał do API/Login", command);
-      const response = await fetchWrapper.post(`${baseUrl}/signin`, command)
-        .then((resp) => resp.json());
-      console.log(`user: `, response);
-      router.push("/About");
+      try {
+        const response = await httpApiClient.post('/users-module/Account/sign-in', command);
+        this.token = response.data;
+        this.isAuthenticated = true;
+        await this.getUser();
+        router.push('/');
+      } catch (error) {
+        await axiosErrorHandler(error, 'signIn');
+      }
     },
+
     async signUpUser(command: ISignUpCommand) {
-      console.log("Strzał do API/Rejestracja", command);
-      const response = await fetchWrapper.post(`${baseUrl}/signup`, command)
-        .then((resp) => resp.json());
-      console.log(`user: `, response);
+      try {
+        await httpApiClient.post('/users-module/Account/sign-up', command);
+        router.push('/signin');
+        alert('Wysłaliśmy aktywację na twój adres email. Zaloguj się po potwierdzeniu adresu email.')
+      } catch (error) {
+        await axiosErrorHandler(error, 'signUp');
+      }
     },
-    async remindPassword(command: string) {
-      console.log("Strzał do API/PrzypomnijHasło", command);
-      const response = await fetchWrapper.post(`${baseUrl}/remind`, command)
-        .then((resp) => resp.json());
-      console.log(`user: `, response);
+
+    async forgotPassword(command: string) {
+      try {
+        await httpApiClient.post('/users-module/Account/forgot-password', command);
+        router.push('/signin');
+        alert('Wysłaliśmy link do zmiany hasła na twój adres email.')
+      } catch (error) {
+        await axiosErrorHandler(error, 'forgotPassword');
+      }
     },
+
     async changePassword(command: IChangePasswordCommand) {
-      console.log("Strzał do API/ZmienHasło", command);
-      const response = await fetchWrapper.post(`${baseUrl}/changepassword`, command)
-        .then((resp) => resp.json());
-      console.log(`user: `, response);
+      try {
+        await httpApiClient.post('/users-module/change-password', command);
+        alert('Hasło zostało zmienione.');
+      } catch (error) {
+        await axiosErrorHandler(error, 'changePassword');
+      }
     },
+
     async changeEmail(command: string) {
-      console.log("Strzał do API/ZmienEmail", command);
-      const response = await fetchWrapper.post(`${baseUrl}/changeemail`, command)
-        .then((resp) => resp.json());
-      console.log(`user: `, response);
+      try {
+        await httpApiClient.put('/users-module/Account/change-email', command);
+      } catch (error) {
+        axiosErrorHandler(error, 'changeEmail');
+      }
     },
-    async changeProfile(command: IChangeProfileCommand) {
-      console.log("Strzał do API/UpdateUser", command);
-      const response = await fetchWrapper.put(`${baseUrl}/user`, command)
-        .then((resp) => resp.json());
-      console.log(`user: `, response);
+
+    async updateProfile(command: IUpdateProfileCommand) {
+      try {
+        await httpApiClient.put('/users-module/Account/update-profile', command);
+        await this.getUser();
+      } catch (error) {
+        console.log(error);
+        axiosErrorHandler(error, 'updateProfile');
+      }
+    },
+
+    async getUser() {
+      try {
+        const userReponse = await httpApiClient.get('/users-module/Account');
+        const user: IUser = userReponse.data;
+        this.id = user.id;
+        this.name = user.name;
+        this.email = user.email;
+        this.firstName = user.firstName;
+        this.lastName = user.lastName;
+        this.role = user.role;
+        this.claims = user.claims;
+        this.isConfirmed = user.isConfirmed;
+      } catch (error) {
+        await axiosErrorHandler(error, 'getUser');
+      }
     },
   },
 });

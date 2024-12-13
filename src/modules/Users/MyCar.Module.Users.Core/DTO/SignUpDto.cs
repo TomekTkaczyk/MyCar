@@ -4,7 +4,7 @@ namespace MyCar.Module.Users.Core.DTO;
 public class SignUpDto
 {
 	[Required]
-	public string Name { get; set; }
+	public string UserName { get; set; }
 
 	[EmailAddress]
 	[Required]

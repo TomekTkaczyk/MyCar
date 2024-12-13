@@ -9,6 +9,9 @@ internal class UserRepository(UsersDbContext context) : IUserRepository
 	private readonly DbSet<User> _users = context.Set<User>();
 
 
+	public async Task<User> GetByEmailToken(string token)
+		=> await _users.SingleOrDefaultAsync(x => x.EmailConfirmToken.Equals(token));
+
 	public Task<User> GetAsync(Guid id)
 		=> _users.SingleOrDefaultAsync(x => x.Id == id);
 

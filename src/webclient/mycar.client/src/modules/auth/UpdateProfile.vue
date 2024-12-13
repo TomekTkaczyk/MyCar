@@ -1,7 +1,7 @@
 <template>
-  <div class="changeprofile-form">
+  <div class="updateprofile-form">
     <h4>Zmiana nazwy</h4>
-    <form @submit.prevent="changeProfile(formData)">
+    <form @submit.prevent="updateProfile(formData)">
         <div class="form-group">
               <TextInput v-model="formData.firstName"
                 type="text"
@@ -23,29 +23,25 @@
 
 <script setup lang="ts">
     import { ref, watchEffect } from 'vue';
-    import type IChangeProfileCommand from './requests/changeprofile-command.ts';
+    import type IUpdateProfileCommand from './requests/updateprofile-command.ts';
     import TextInput from "@/components/TextInput.vue";
     import { useAuthStore } from '@/stores/AuthStore';
 
     const authStore = useAuthStore();
 
-    const formData = ref<IChangeProfileCommand>({
-        firstName: authStore.firstName as string,
-        lastName: authStore.lastName as string,
+    const formData = ref<IUpdateProfileCommand>({
+        firstName: authStore.firstName as string || '',
+        lastName: authStore.lastName as string || '',
     });
 
     const isFormValid = ref(false);
 
-    async function changeProfile(data: IChangeProfileCommand) {
+    async function updateProfile(data: IUpdateProfileCommand) {
       // Tutaj można wywołać funkcję do rejestracji użytkownika
       // np. poprzez wywołanie API, przekazując formData.value
       const { firstName, lastName } = data;
-      const body: IChangeProfileCommand = {firstName, lastName};
-      try {
-        await authStore.changeProfile(body);
-      } catch (error) {
-          console.error('Change profile failed', error);
-      }
+      const body: IUpdateProfileCommand = {firstName, lastName};
+      await authStore.updateProfile(body);
     };
 
     const onChangeFirstName = (value: string) => {
