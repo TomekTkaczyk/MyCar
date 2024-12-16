@@ -5,6 +5,7 @@ using MyCar.Module.Users.Core;
 using MyCar.Shared.Abstractions.Modules;
 
 namespace MyCar.Module.Users.Api;
+
 internal class UserModule : IModule
 {
 	public const string BasePath = "users-module";

@@ -1,7 +1,7 @@
 {
-  "employees": {
-    "module": {
-      "name": "Employyes",
+  "modules": {
+    "employees": {
+      "name": "Employees",
       "enabled": true
     }
   }

@@ -20,7 +20,7 @@ internal class IdentityService(
 	public async Task<AccountDto> GetAsync(Guid id, CancellationToken cancellationToken)
 	{
 		var user = await userRepository.GetAsync(id)
-			?? throw new InvalidCredentialException();
+			?? throw new InvalidCredentialsException();
 
 		return user is null
 			? null
@@ -29,6 +29,8 @@ internal class IdentityService(
 				Id = user.Id,
 				Name = user.Name,
 				Email = user.Email,
+				FirstName = user.FirstName,
+				LastName = user.LastName,
 				Role = user.Role,
 				Claims = user.Claims,
 				IsConfirmed = user.EmailConfirm,
@@ -38,10 +40,10 @@ internal class IdentityService(
 	public async Task<JsonWebToken> SignInAsync(SignInDto dto, CancellationToken cancellationToken)
 	{
 		var user = await GetByIdentifier(dto.Identifier.ToLowerInvariant())
-			?? throw new InvalidCredentialException();
+			?? throw new InvalidCredentialsException();
 
 		if(passwordHasher.VerifyHashedPassword(default, user.Password, dto.Password) is not PasswordVerificationResult.Success) {
-			throw new InvalidCredentialException();
+			throw new InvalidCredentialsException();
 		}
 
 		if(!user.IsActive) {
@@ -108,14 +110,14 @@ internal class IdentityService(
 	public async Task<JsonWebToken> RefreshTokenAsync(Guid id, string token, CancellationToken cancellationToken)
 	{
 		var user = await userRepository.GetAsync(id)
-			?? throw new InvalidCredentialException();
+			?? throw new InvalidCredentialsException();
 
 		if(!user.IsActive) {
 			throw new UserNotActiveException(user.Id);
 		}
 
 		if(!user.RefreshToken.Equals(token) || (user.RefreshExpires < clock.CurrentDate())) {
-			throw new InvalidCredentialException();
+			throw new InvalidCredentialsException();
 		}
 
 		var jwt = GetTokens(user);
@@ -128,7 +130,7 @@ internal class IdentityService(
 	public async Task ForgotPasswordAsync(string email, CancellationToken cancellationToken)
 	{
 		var user = await userRepository.GetByEmailAsync(email)
-			?? throw new InvalidCredentialException();
+			?? throw new InvalidCredentialsException();
 
 		var emailConfirmer = emailConfirmerFactory.GetEmailConfirmer();
 
@@ -143,7 +145,7 @@ internal class IdentityService(
 	public async Task LogoutAsync(Guid id, CancellationToken cancellationToken)
 	{
 		var user = await userRepository.GetAsync(id)
-			?? throw new InvalidCredentialException();
+			?? throw new InvalidCredentialsException();
 
 		user.RefreshToken = null;
 
@@ -153,10 +155,10 @@ internal class IdentityService(
 	public async Task ChangePasswordAsync(Guid id, ChangePasswordDto dto, CancellationToken cancellationToken)
 	{
 		var user = await userRepository.GetAsync(id)
-			?? throw new InvalidCredentialException();
+			?? throw new InvalidCredentialsException();
 
 		if(passwordHasher.VerifyHashedPassword(default, user.Password, dto.CurrentPassword) is not PasswordVerificationResult.Success) {
-			throw new InvalidCredentialException();
+			throw new InvalidPasswordException();
 		}
 
 		var password = passwordHasher.HashPassword(default, dto.Password);
@@ -168,7 +170,7 @@ internal class IdentityService(
 	public async Task ChangeEmailAsync(Guid id, ChangeEmailDto dto, CancellationToken cancellationToken)
 	{
 		var user = await userRepository.GetAsync(id)
-			?? throw new InvalidCredentialException();
+			?? throw new InvalidCredentialsException();
 
 		var anotherUser = await userRepository.GetByEmailAsync(dto.Email);
 
@@ -199,7 +201,7 @@ internal class IdentityService(
 	public async Task UpdateProfileAsync(Guid id, UpdateProfileDto dto, CancellationToken cancellationToken)
 	{
 		var user = await userRepository.GetAsync(id)
-			?? throw new InvalidCredentialException();
+			?? throw new InvalidCredentialsException();
 
 		user.FirstName = dto.FirstName;
 		user.LastName = dto.LastName;

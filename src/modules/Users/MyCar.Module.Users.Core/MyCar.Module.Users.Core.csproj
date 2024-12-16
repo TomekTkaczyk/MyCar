@@ -14,4 +14,9 @@
     <Folder Include="ValueObjects\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="UsersTests" />
+    <InternalsVisibleTo Include="MyCar.Module.Users.Api" />
+  </ItemGroup>
+
 </Project>

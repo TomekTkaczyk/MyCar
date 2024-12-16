@@ -13,6 +13,7 @@ class MessageProvider implements IMessageProvider {
     logout: () => import('@/infrastructure/messages/logoutMessages'),
     updateProfile: () => import('@/infrastructure/messages/updateProfileMessages'),
     changeEmail: () => import('@/infrastructure/messages/changeEmailMessages'),
+    changePassword: () => import('@/infrastructure/messages/changePasswordMessages'),
   };
 
   constructor(messageGroup: string) {

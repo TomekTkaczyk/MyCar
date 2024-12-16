@@ -80,6 +80,7 @@ internal class AccountController(
 		return Ok();
 	}
 
+
 	[HttpPut("forgot-password")]
 	[ProducesResponseType(200)]
 	[ProducesResponseType(400)]
@@ -88,6 +89,7 @@ internal class AccountController(
 		await service.ForgotPasswordAsync(email, cancellationToken);
 		return Ok();
 	}
+
 
 	[HttpPut("change-password")]
 	[ProducesResponseType(200)]
@@ -107,6 +109,8 @@ internal class AccountController(
 		await service.ChangeEmailAsync(context.Identity.Id, dto, cancellationToken);
 		return NoContent();
 	}
+
+
 	[HttpPut("update-profile")]
 	[ProducesResponseType(200)]
 	[ProducesResponseType(400)]

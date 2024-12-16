@@ -7,12 +7,12 @@
                 type="text"
                 id="email"
                 label="Email"
-                hint='Wymagany prawidłowy adres email'
-                :showHint="emailHintFlag"
+                :messages="emailMessages"
                 @input="onChangeEmail"/>
             </div>
           <button class="btn btn-outline-primary" type="submit" v-if="isFormValid">Wyślij</button>
-      </form>
+          <HintList :messages="errors"/>
+        </form>
   </div>
 </template>
 
@@ -21,35 +21,66 @@
     import type IChangeEmailCommand from './requests/changeemail-command.ts';
     import TextInput from "@/components/TextInput.vue";
     import { useAuthStore } from '@/stores/AuthStore';
+    import HintList from '@/components/HintList.vue';
     import { isValidEmail } from '@/helpers/email-validator'
+    import MessageProvider from '@/infrastructure/messageProvider';
+    import type { AxiosError, AxiosResponse } from 'axios';
 
+    const errors = ref<string[]>([]);
+    const emailMessages = ref<string[]>([]);
     const authStore = useAuthStore();
-
+    const isFormValid = ref(false);
 
     const formData = ref<IChangeEmailCommand>({
       email: authStore.email as string,
     });
-    const emailHintFlag = ref(false);
-    const isFormValid = ref(false);
+
+    interface errordata {
+      code:string,
+      message:string,
+    }
 
     async function changeEmail(data: {email: string}) {
       // Tutaj można wywołać funkcję do rejestracji użytkownika
       // np. poprzez wywołanie API, przekazując formData.value
       const { email } = data;
+      const messageProvider = new MessageProvider("signIn");
+      await messageProvider.Initialize();
       try {
         await authStore.changeEmail(email);
       } catch (error) {
-          console.error('Change email failed', error);
+        if(error as AxiosError){
+          console.log(error);
+          if((error as AxiosError).response as AxiosResponse){
+            const data = ((error as AxiosError).response as AxiosResponse).data as {errors: errordata[]};
+            console.log(data.errors);
+            data.errors.forEach((value) => {
+              emailMessages.value.push(messageProvider.GetMessage(value.code));
+            });
+          } else {
+            console.error(error);
+            errors.value = [(error as AxiosError).message];
+          }
+        } else {
+          console.error(error);
+        }
       }
     };
 
     const onChangeEmail = (value: string) => {
       formData.value.email = value;
-      emailHintFlag.value = !isValidEmail(value);
+      emailMessages.value = [];
+      if(!isValidEmail(formData.value.email)){
+        emailMessages.value.push("Wymagany jest prawidłowy adres email.");
+      }
     }
 
+    const validateForm = () => {
+      return isValidEmail(formData.value.email);
+    };
+
     watchEffect(() => {
-        isFormValid.value = isValidEmail(formData.value.email);
+        isFormValid.value = validateForm();
     });
 
 </script>

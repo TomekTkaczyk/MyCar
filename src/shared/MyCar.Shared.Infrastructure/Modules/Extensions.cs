@@ -20,6 +20,7 @@ public static class Extensions
 	internal static IHostBuilder ConfigureModules(this IHostBuilder builder)
 		=> builder.ConfigureAppConfiguration((ctx, cfg) => {
 
+			var settingsFiles = GetSettings("*");
 			foreach(var settings in GetSettings("*")) {
 				cfg.AddJsonFile(settings);
 			}

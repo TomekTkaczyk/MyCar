@@ -9,8 +9,6 @@ using MyCar.Module.Users.Core.Services;
 using MyCar.Shared.Infrastructure.Database;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("MyCar.Module.Users.Api")]
-
 namespace MyCar.Module.Users.Core;
 
 internal static class Extensions

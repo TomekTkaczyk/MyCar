@@ -7,8 +7,6 @@
             type="password"
             id="currentpassword"
             label="Aktualne hasło"
-            hint="Hasło jest wymagane"
-            :show-hint="hints.currentPasswordHintFlag"
             @input="onChangeCurrentPassword"/>
         </div>
         <div class="form-group">
@@ -16,8 +14,6 @@
             type="password"
             id="password"
             label="Nowe hasło"
-            hint="Hasło jest wymagane"
-            :show-hint="hints.passwordHintFlag"
             @input="onChangePassword"/>
         </div>
         <div class="form-group">
@@ -25,8 +21,7 @@
             type="password"
             id="retypepassword"
             label="Powtórz hasło"
-            hint="Hasła nie są zgodne"
-            :showHint="hints.retypePasswordHintFlag"
+            :messages="retypeMessages"
             @input="onChangeRetypePassword"/>
         </div>
         <button class="btn btn-outline-primary" type="submit" v-if="isFormValid">Zmień hasło</button>
@@ -41,31 +36,22 @@ import type IChangePasswordCommand from './requests/changepassword-command';
 import TextInput from '@/components/TextInput.vue';
 import { useAuthStore } from '@/stores/AuthStore';
 
-interface Hints {
-  currentPasswordHintFlag: boolean,
-  passwordHintFlag: boolean,
-  retypePasswordHintFlag: boolean,
-}
-
-const hints = ref<Hints>({
-  currentPasswordHintFlag: false,
-  passwordHintFlag: false,
-  retypePasswordHintFlag: false,
-});
-
 const formData = ref<IChangePasswordCommand & {retypePassword: string}>({
   currentPassword: '',
   password: '',
   retypePassword: '',
 });
 
+const retypeMessages = ref<string[]>(["aaa"]);
 
 async function changePassword(data: IChangePasswordCommand) {
   const {currentPassword, password} = data;
   const body: IChangePasswordCommand = {currentPassword, password};
-  try{
+  try {
     await authStore.changePassword(body);
+    retypeMessages.value = ["dfd"];
   } catch (error) {
+    retypeMessages.value = ["dfd"];
     console.log("Change password failed", error);
   }
 }
@@ -76,18 +62,14 @@ const authStore = useAuthStore();
 
 const onChangeCurrentPassword = (value:string ) => {
   formData.value.currentPassword = value;
-  hints.value.currentPasswordHintFlag = formData.value.currentPassword === '';
 }
 
 const onChangePassword = (value: string) => {
   formData.value.password = value;
-  hints.value.passwordHintFlag = formData.value.password === '';
-  hints.value.retypePasswordHintFlag = formData.value.password !== formData.value.retypePassword;
 };
 
 const onChangeRetypePassword = (value: string) => {
   formData.value.retypePassword = value;
-  hints.value.retypePasswordHintFlag = formData.value.password !== formData.value.retypePassword;
 };
 
 const validateForm = () => {

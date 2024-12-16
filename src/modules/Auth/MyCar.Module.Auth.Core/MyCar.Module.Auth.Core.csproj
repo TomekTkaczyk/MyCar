@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,11 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DAL\Migrations\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <InternalsVisibleTo Include="MyCar.Module.Employees.Api" />
+    <InternalsVisibleTo Include="MyCar.Module.Auth.Api" />
   </ItemGroup>
   
 </Project>

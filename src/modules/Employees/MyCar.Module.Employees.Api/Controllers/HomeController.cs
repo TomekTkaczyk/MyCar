@@ -7,5 +7,5 @@ namespace MyCar.Module.Employees.Api.Controllers;
 internal class HomeController : HomeControllerBase
 {
 	[HttpGet]
-	public static ActionResult<string> Get() => "Employees API";
+	public ActionResult<string> Get() =>"Employees API";
 }

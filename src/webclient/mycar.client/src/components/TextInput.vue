@@ -5,29 +5,29 @@
     :value="props.modelValue"
     :placeholder="props.placeholder"
     @input="$emit('input',($event.target as HTMLInputElement).value)"/>
-  <div class='hint-error' v-if="props.showHint">{{props.hint}}</div>
+  <HintList :messages="props.messages"/>
 </template>
 
 <script setup lang='ts'>
+
+  import HintList from '@/components/HintList.vue';
 
   interface Props {
     modelValue: string | boolean,
     id: string,
     label?: string,
     placeholder?: string,
-    hint?: string,
-    showHint?: boolean,
+    messages?: string[],
     readonly?: boolean,
     type: 'text' | 'password'
   }
 
   const props = withDefaults(defineProps<Props>(), {
     modelValue: '',
-    hint: '',
     label: '',
+    messages: () => [],
     placeholder: '',
     readonly: false,
-    showHint: false,
     type: 'text'
   });
 

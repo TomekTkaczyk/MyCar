@@ -6,20 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="module.users.json" />
+    <ProjectReference Include="..\MyCar.Module.Auth.Core\MyCar.Module.Auth.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="module.users.Development.json">
+    <None Update="module.auth.Development.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="module.users.json">
+    </None>
+    <None Update="module.auth.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\MyCar.Module.Users.Core\MyCar.Module.Users.Core.csproj" />
+    </None>
   </ItemGroup>
 
 </Project>

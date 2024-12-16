@@ -26,12 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\bootstraper\MyCar.Bootstraper\MyCar.Bootstraper.csproj" />
-    <ProjectReference Include="..\..\..\src\modules\Employees\MyCar.Module.Employees.Api\MyCar.Module.Employees.Api.csproj" />
-    <ProjectReference Include="..\..\..\src\modules\Employees\MyCar.Module.Employees.Core\MyCar.Module.Employees.Core.csproj" />
-    <ProjectReference Include="..\..\..\src\modules\Users\MyCar.Module.Users.Api\MyCar.Module.Users.Api.csproj" />
-    <ProjectReference Include="..\..\..\src\modules\Users\MyCar.Module.Users.Core\MyCar.Module.Users.Core.csproj" />
-    <ProjectReference Include="..\..\..\src\shared\MyCar.Shared.Abstractions\MyCar.Shared.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\src\shared\MyCar.Shared.Infrastructure\MyCar.Shared.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

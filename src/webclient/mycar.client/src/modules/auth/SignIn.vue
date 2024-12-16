@@ -7,8 +7,7 @@
                 type="text"
                 id="identifier"
                 label="Nazwa użytkownika (login/email)"
-                hint="Nazwa użytkownika jest wymagana"
-                :showHint="hints.identifierHintFlag"
+                :messages="identifierMessages"
                 @input="onChangeIdentifier"/>
             </div>
             <div class="form-group">
@@ -16,14 +15,14 @@
                 type="password"
                 id="password"
                 label="Hasło"
-                hint="Hasło jest wymagane"
-                :showHint="hints.passwordHintFlag"
+                :messages="passwordMessages"
                 @input="onChangePassword"/>
             </div>
             <button type="submit" v-if="isFormValid">Zaloguj</button>
             <p></p>
             <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
             <div><RouterLink to="remindpassword">Nie pamiętam hasła</RouterLink></div>
+            <HintList :messages="errors"/>
         </form>
     </div>
 </template>
@@ -33,44 +32,68 @@
     import type ISignInCommand from './requests/signin-command';
     import TextInput from "@/components/TextInput.vue";
     import { useAuthStore } from '@/stores/AuthStore';
+    import HintList from '@/components/HintList.vue';
+    import { AxiosError, type AxiosResponse } from 'axios';
+    import MessageProvider from '@/infrastructure/messageProvider';
 
-    interface Hints {
-      identifierHintFlag: boolean,
-      passwordHintFlag: boolean,
-    }
 
-    const hints = ref<Hints>({
-      identifierHintFlag: false,
-      passwordHintFlag: false,
-    });
+    const errors = ref<string[]>([]);
+    const identifierMessages= ref<string[]>([]);
+    const passwordMessages = ref<string[]>([]);
+    const authStore = useAuthStore();
+    const isFormValid = ref(false);
 
     const formData = ref<ISignInCommand>({
         identifier: '',
         password: '',
     });
 
-    let isFormValid = ref(false);
-
-    const authStore = useAuthStore();
+    interface errordata {
+      code:string,
+      message:string,
+    }
 
     async function signInUser(data: ISignInCommand) {
       const { identifier, password } = data;
       const body: ISignInCommand = {identifier, password};
+      const messageProvider = new MessageProvider("signIn");
+      await messageProvider.Initialize();
+      errors.value = [];
+      identifierMessages.value = [];
+      passwordMessages.value = [];
       try {
           await authStore.signInUser(body);
       } catch (error) {
-          console.error('Login failed', error);
+        if(error as AxiosError){
+          if((error as AxiosError).response as AxiosResponse){
+            const data = ((error as AxiosError).response as AxiosResponse).data as {errors: errordata[]};
+            data.errors.forEach((value) => {
+              passwordMessages.value.push(messageProvider.GetMessage(value.code));
+            });
+          } else {
+            console.error(error);
+            errors.value = [(error as AxiosError).message];
+          }
+        } else {
+          console.error(error);
+        }
       }
     };
 
     const onChangeIdentifier = (value: string) => {
       formData.value.identifier = value;
-      hints.value.identifierHintFlag = formData.value.identifier === '';
+      identifierMessages.value = [];
+      if(!(value.length > 0)){
+        identifierMessages.value.push("Wymagany jest identyfikator lub adres email.");
+      }
     };
 
     const onChangePassword = (value: string) => {
       formData.value.password = value;
-      hints.value.passwordHintFlag = formData.value.password === '';
+      passwordMessages.value = [];
+      if(!(value.length > 0)){
+        passwordMessages.value.push("Hasło jest wymagane.");
+      }
     };
 
     const validateForm = () => {

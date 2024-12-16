@@ -8,8 +8,6 @@ using MyCar.Module.Employees.Core.Services;
 using MyCar.Shared.Infrastructure.Database;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("MyCar.Module.Employees.Api")]
-
 namespace MyCar.Module.Employees.Core;
 
 internal static class Extensions

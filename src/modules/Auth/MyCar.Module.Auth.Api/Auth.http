@@ -1,0 +1,9 @@
+@url = http://localhost:5000/auth-module
+@name = user6
+@email = user6@mycar.it
+@password = secret
+@role = admin
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzYmVhMjE2MS02MGFkLTRhZmUtOTRkOC1mNTJmMTQ5MjZhNTgiLCJ1bmlxdWVfbmFtZSI6IjNiZWEyMTYxLTYwYWQtNGFmZS05NGQ4LWY1MmYxNDkyNmE1OCIsImp0aSI6IjY5YWI4ODE4LWYyYjctNDliOS1iZWI4LWUyMjVhZjhkNzE3MSIsImlhdCI6IjE3MzM5NTIzNTc0ODciLCJyb2xlIjoidXNlciIsImlzcyI6Ik15Q2FyIiwiZXhwIjoxNzMzOTU1OTU3LCJuYmYiOjE3MzM5NTIzNTd9.XmIpsJbGHL6Gv6OsmT-Fw3VIOnRnld-dHa0swAcP8D4
+
+###
+GET {{url}}

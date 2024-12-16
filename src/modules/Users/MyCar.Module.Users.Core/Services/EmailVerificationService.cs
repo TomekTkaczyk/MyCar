@@ -13,7 +13,7 @@ internal class EmailVerificationService(
 		//ConfirmToken decode !!! and compliance check !!! 
 
 		var user = await userRepository.GetByEmailToken(dto.ConfirmToken)
-			?? throw new InvalidCredentialException();
+			?? throw new InvalidCredentialsException();
 
 		if(!user.IsActive) {
 			throw new UserNotActiveException(user.Id);
