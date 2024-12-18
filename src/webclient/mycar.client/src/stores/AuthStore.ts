@@ -11,22 +11,35 @@ import type IUpdateProfileCommand from '@/modules/auth/requests/updateprofile-co
 
 import type IUser from '@/types/IUser';
 import type IAuthState from '@/types/IAuthState';
+import type IChangeEmailCommand from '@/modules/auth/requests/changeemail-command';
+import type IRemaindPasswordCommand from '@/modules/auth/requests/remaindpassword-command';
 
 export const useAuthStore = defineStore('auth', {
-  state: (): IAuthState => ({}),
+  state: (): IAuthState => ({
+    accessToken: null,
+    refreshToken: null,
+    isAuthenticated: false,
+  }),
   actions: {
     async logout() {
-      await httpApiClient.post('/users-module/Account/logout');
-      this.$reset;
+      await httpApiClient.put('/users-module/Account/logout');
+      this.$reset();
       router.push('/signin');
     },
 
     async signInUser(command: ISignInCommand) {
-      const response = await httpApiClient.post('/users-module/Account/sign-in', command);
-      this.token = response.data;
-      this.isAuthenticated = true;
-      await this.getUser();
-      router.push('/');
+      try{
+
+        const response = await httpApiClient.post('/users-module/Account/sign-in', command);
+        const { accessToken, refreshToken } = response.data;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.isAuthenticated = !!this.accessToken;
+        await this.getUser();
+        router.push('/');
+      } catch(error){
+        console.log(error);
+      }
     },
 
     async signUpUser(command: ISignUpCommand) {
@@ -35,8 +48,8 @@ export const useAuthStore = defineStore('auth', {
       alert('Wysłaliśmy aktywację na twój adres email. Zaloguj się po potwierdzeniu adresu email.')
     },
 
-    async forgotPassword(command: string) {
-      await httpApiClient.post('/users-module/Account/forgot-password', command);
+    async reamindPassword(command: IRemaindPasswordCommand) {
+      await httpApiClient.put('/users-module/Account/remaind-password', command);
       router.push('/signin');
       alert('Wysłaliśmy link do zmiany hasła na twój adres email.')
     },
@@ -46,7 +59,7 @@ export const useAuthStore = defineStore('auth', {
       alert('Hasło zostało zmienione.');
     },
 
-    async changeEmail(command: string) {
+    async changeEmail(command: IChangeEmailCommand) {
       await httpApiClient.put('/users-module/Account/change-email', command);
       alert('Adres email został zmieniony.');
     },
@@ -68,5 +81,13 @@ export const useAuthStore = defineStore('auth', {
       this.claims = user.claims;
       this.isConfirmed = user.isConfirmed;
     },
+
+    setTokens(accessToken: string, refreshToken: string){
+      this.accessToken = accessToken;
+      this.refreshToken = refreshToken;
+      this.isAuthenticated = !!accessToken;
+      console.log("Setting tokens:", accessToken, refreshToken);
+      console.log("this tokens:", this.accessToken, this.refreshToken);
+    }
   },
 });

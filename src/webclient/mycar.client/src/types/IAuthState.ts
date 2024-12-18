@@ -1,8 +1,8 @@
 import type IUser from "./IUser";
 
 export default interface AuthState extends IUser {
-  token?: string;
-  refreshToken?: string;
+  accessToken: string | null;
+  refreshToken: string | null;
   returnUrl?: string;
-  isAuthenticated?: boolean;
+  isAuthenticated: boolean;
 }

@@ -31,25 +31,26 @@ internal class AccountController(
 	{
 		_= await service.SignUpAsync(dto, cancellationToken);
 
-		return NoContent();
+		return Created();
 	}
 
 	[HttpPost("sign-in")]
 	[AllowAnonymous]
-	[ProducesResponseType(200)]
+	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
 	[ProducesResponseType(401)]
 	public async Task<ActionResult> SignInAsync(SignInDto dto, CancellationToken cancellationToken)
 	{
 		var response = await service.SignInAsync(dto, cancellationToken);
 		
-		var cookieOptions = new CookieOptions
-		{
-			HttpOnly = true,
-		};
-		Response.Cookies.Append("refreshToken", response.RefreshToken, cookieOptions);
+		//var cookieOptions = new CookieOptions
+		//{
+		//	HttpOnly = true,
+		//};
+		//Response.Cookies.Append("accessToken", response.AccessToken, cookieOptions);
+		//Response.Cookies.Append("refreshToken", response.RefreshToken, cookieOptions);
 
-		return Ok(response.AccesToken);
+		return Ok(response);
 	}
 
 	[HttpGet("refresh-token")]
@@ -65,34 +66,35 @@ internal class AccountController(
 		{
 			HttpOnly = true,
 		};
+		Response.Cookies.Append("accessToken", response.AccessToken, cookieOptions);
 		Response.Cookies.Append("refreshToken", response.RefreshToken, cookieOptions);
 
-		return Ok(response.AccesToken);
+		return Ok();
 	}
 
-	[HttpGet("logout")]
-	[ProducesResponseType(200)]
+	[HttpPut("logout")]
+	[ProducesResponseType(204)]
 	[ProducesResponseType(401)]
 	public async Task<ActionResult> Logout(CancellationToken cancellationToken)
 	{
 		await service.LogoutAsync(context.Identity.Id, cancellationToken);
 
-		return Ok();
+		return NoContent();
 	}
 
 
-	[HttpPut("forgot-password")]
-	[ProducesResponseType(200)]
+	[HttpPut("remaind-password")]
+	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
-	public async Task<IActionResult> ForgotPasswordAsync(string email, CancellationToken cancellationToken)
+	public async Task<IActionResult> RemaindPasswordAsync(string email, CancellationToken cancellationToken)
 	{
-		await service.ForgotPasswordAsync(email, cancellationToken);
-		return Ok();
+		await service.RemaindPasswordAsync(email, cancellationToken);
+		return NoContent();
 	}
 
 
 	[HttpPut("change-password")]
-	[ProducesResponseType(200)]
+	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
 	public async Task<IActionResult> ChangePasswordAsync(ChangePasswordDto dto, CancellationToken cancellationToken)
 	{
@@ -102,7 +104,7 @@ internal class AccountController(
 
 
 	[HttpPut("change-email")]
-	[ProducesResponseType(200)]
+	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
 	public async Task<IActionResult> ChangeEmailAsync(ChangeEmailDto dto, CancellationToken cancellationToken)
 	{
@@ -112,7 +114,7 @@ internal class AccountController(
 
 
 	[HttpPut("update-profile")]
-	[ProducesResponseType(200)]
+	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
 	public async Task<IActionResult> UpdateProfileAsync(UpdateProfileDto dto, CancellationToken cancellationToken)
 	{

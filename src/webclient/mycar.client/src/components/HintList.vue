@@ -7,15 +7,12 @@
 </template>
 
 <script setup lang="ts">
-  import { defineProps } from 'vue';
 
   defineProps({
   messages: {
     type: Array as () => string[],
     required: true
   }
-
-
 });
 
 </script>

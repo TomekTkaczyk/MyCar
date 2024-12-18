@@ -1,7 +1,4 @@
 <template>
-  <div>
-    <p>Wylogowanie...</p>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -13,8 +10,7 @@ const authStore = useAuthStore();
 
 onMounted(async () => {
   try{
-    // await authStore.logout("");
-    router.push({path: "/SignIn"});
+    await authStore.logout();
   } catch(error) {
     console.error("My Error: ",error);
   };

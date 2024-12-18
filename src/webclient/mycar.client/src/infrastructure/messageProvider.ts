@@ -21,7 +21,7 @@ class MessageProvider implements IMessageProvider {
   }
 
   GetMessage(messageCode: string): string {
-    return this.messageDictionary[messageCode];
+    return this.messageDictionary[messageCode] ?? "Nie rozpoznany błąd API";
   }
 
   async Initialize(): Promise<void> {

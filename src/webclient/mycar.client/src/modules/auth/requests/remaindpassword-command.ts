@@ -1,9 +1,8 @@
-export default interface IChangeEmailCommand {
+export default interface IRemaindPasswordCommand {
   email: string,
 }
 
-
-export function isChangeEmailCommand(obj: any): obj is IChangeEmailCommand {
+export function isRemaindPasswordCommand(obj: any): obj is IRemaindPasswordCommand {
     return (
         obj !== null &&
         typeof obj === "object" &&

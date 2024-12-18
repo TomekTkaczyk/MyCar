@@ -7,41 +7,50 @@
                 type="text"
                 id="email"
                 label="Email"
-                hint='Wymagany prawidłowy adres email'
-                :showHint="emailHintFlag"
+                :messages="emailMessages"
                 @input="onChangeEmail"/>
             </div>
           <button type="submit" v-if="isFormValid">Wyślij</button>
           <p></p>
           <div><RouterLink to="signin">Chcę się zalogować</RouterLink></div>
           <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
+          <HintList :messages="errors"/>
+
       </form>
   </div>
 </template>
 
 <script setup lang="ts">
     import { ref, watchEffect } from 'vue';
-    import type IRemindPasswordCommand from './requests/remindpassword-command';
+    import type IRemindPasswordCommand from './requests/remaindpassword-command';
     import TextInput from "@/components/TextInput.vue";
+    import HintList from '@/components/HintList.vue';
     import { useAuthStore } from '@/stores/AuthStore';
+    import MessageProvider from '@/infrastructure/messageProvider';
+    import { AxiosError, isAxiosError, type AxiosResponse } from 'axios';
+    import {isApiError, type IApiError} from '@/types/IApiError';
     import { isValidEmail } from '@/helpers/email-validator'
 
-    const emailHintFlag = ref(false);
+
+    const errors = ref<string[]>([]);
+    const emailMessages= ref<string[]>([]);
+    const authStore = useAuthStore();
+    const isFormValid = ref(false);
 
     const formData = ref<IRemindPasswordCommand>({
         email: '',
     });
 
-    const isFormValid = ref(false);
-
-    const authStore = useAuthStore();
-
     async function remindPassword(data: {email: string}) {
-      // Tutaj można wywołać funkcję do rejestracji użytkownika
-      // np. poprzez wywołanie API, przekazując formData.value
       const { email } = data;
+      const body: IRemindPasswordCommand = {email};
+      const messageProvider = new MessageProvider("forgotPassword");
+      await messageProvider.Initialize();
+      errors.value = [];
+      emailMessages.value = [];
+
       try {
-        await authStore.remindPassword(email);
+        await authStore.forgotPassword(body);
       } catch (error) {
           console.error('Remind failed', error);
       }

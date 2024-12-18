@@ -49,9 +49,10 @@ public static class Extensions
 
 		services.AddCors(cors =>
 		{
-			cors.AddPolicy(_corsPolicy, x =>
+			cors.AddPolicy(name:_corsPolicy, x =>
 			{
-				x.WithOrigins("*")
+				x.WithOrigins("http://localhost:5173")
+				 //.AllowCredentials()
 				 .WithMethods("POST", "PUT", "DELETE")
 				 .WithHeaders("Content-Type", "Authorization");
 			});
@@ -135,10 +136,6 @@ public static class Extensions
 		catch(OptionsValidationException) {
 		}
 
-		//app.UseDefaultFiles();
-		//app.UseStaticFiles();
-
-		app.UseCors(_corsPolicy);
 		app.UseErrorHandling();
 		
 		if(environment.IsDevelopment()) {
@@ -157,7 +154,12 @@ public static class Extensions
 		}
 
 		app.UseAuthentication();
+
+		//app.UseDefaultFiles();
+		//app.UseStaticFiles();
+
 		app.UseRouting();
+		app.UseCors(_corsPolicy);
 		app.UseAuthorization();
 
 		return app;

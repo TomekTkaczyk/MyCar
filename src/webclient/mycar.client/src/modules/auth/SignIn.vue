@@ -31,10 +31,11 @@
     import { ref, watchEffect } from 'vue';
     import type ISignInCommand from './requests/signin-command';
     import TextInput from "@/components/TextInput.vue";
-    import { useAuthStore } from '@/stores/AuthStore';
     import HintList from '@/components/HintList.vue';
-    import { AxiosError, type AxiosResponse } from 'axios';
+    import { useAuthStore } from '@/stores/AuthStore';
     import MessageProvider from '@/infrastructure/messageProvider';
+    import { AxiosError, isAxiosError, type AxiosResponse } from 'axios';
+    import {isApiError, type IApiError} from '@/types/IApiError';
 
 
     const errors = ref<string[]>([]);
@@ -48,11 +49,6 @@
         password: '',
     });
 
-    interface errordata {
-      code:string,
-      message:string,
-    }
-
     async function signInUser(data: ISignInCommand) {
       const { identifier, password } = data;
       const body: ISignInCommand = {identifier, password};
@@ -61,24 +57,25 @@
       errors.value = [];
       identifierMessages.value = [];
       passwordMessages.value = [];
+
       try {
           await authStore.signInUser(body);
       } catch (error) {
-        if(error as AxiosError){
-          if((error as AxiosError).response as AxiosResponse){
-            const data = ((error as AxiosError).response as AxiosResponse).data as {errors: errordata[]};
-            data.errors.forEach((value) => {
-              passwordMessages.value.push(messageProvider.GetMessage(value.code));
+        if(isAxiosError(error)){
+          if(error.response && isApiError(error.response.data)){
+            error.response.data.errors.forEach((value) => {
+              errors.value.push(messageProvider.GetMessage(value.code),);
             });
           } else {
+            errors.value = [error.message];
             console.error(error);
-            errors.value = [(error as AxiosError).message];
-          }
+          };
         } else {
+          errors.value = ["Nierozpoznany błąd systemowy."];
           console.error(error);
         }
-      }
     };
+  }
 
     const onChangeIdentifier = (value: string) => {
       formData.value.identifier = value;

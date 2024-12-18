@@ -10,6 +10,7 @@ using MyCar.Shared.Infrastructure.Auth;
 using MyCar.Shared.Infrastructure.Services;
 
 namespace MyCar.Module.Users.Core.Services;
+
 internal class IdentityService(
 	IUserRepository userRepository,
 	IPasswordHasher<User> passwordHasher,
@@ -127,7 +128,7 @@ internal class IdentityService(
 		return jwt;
 	}
 
-	public async Task ForgotPasswordAsync(string email, CancellationToken cancellationToken)
+	public async Task RemaindPasswordAsync(string email, CancellationToken cancellationToken)
 	{
 		var user = await userRepository.GetByEmailAsync(email)
 			?? throw new InvalidCredentialsException();
@@ -223,7 +224,7 @@ internal class IdentityService(
 	{
 		var jwt = new JsonWebToken
 		{
-			AccesToken = tokenProvider.GenerateAccessToken(user.Id, user.Role, user.Claims),
+			AccessToken = tokenProvider.GenerateAccessToken(user.Id, user.Role, user.Claims),
 			RefreshToken = tokenProvider.GenerateRefreshToken(user.Id),
 		};
 

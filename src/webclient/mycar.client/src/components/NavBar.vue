@@ -42,11 +42,11 @@
               <ul class="navbar-nav ms-auto mb-lg-0" v-if="authStore.isAuthenticated">
                 <li class="dropdown nav-item" v-if="authStore.isAuthenticated">
                       <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Witaj &nbsp <span class="navbar-brand">{{ authStore.userName }}</span>
+                          Witaj &nbsp <span class="navbar-brand">{{ authStore.name }}</span>
                       </a>
                       <ul class="dropdown-menu">
                           <li><RouterLink class="dropdown-item" to="/MyProfile">Mój profil</RouterLink></li>
-                          <li><RouterLink class="dropdown-item" to="/">Wyloguj</RouterLink></li>
+                          <a href="#" class="dropdown-item" @click="logout">Wyloguj</a>
                       </ul>
                   </li>
               </ul>
@@ -62,7 +62,10 @@
 
 <script setup lang="ts">
     import { useAuthStore } from '@/stores/AuthStore';
+
     const authStore = useAuthStore();
+
+    const logout = () => authStore.logout();
 </script>
 
 <style>

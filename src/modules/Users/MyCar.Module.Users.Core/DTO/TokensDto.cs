@@ -1,6 +1,6 @@
-﻿namespace MyCar.Shared.Abstractions.Auth;
+﻿namespace MyCar.Module.Users.Core.DTO;
 
-public class JsonWebToken
+public class TokensDto
 {
 	public string AccessToken { get; set; }
 	public string RefreshToken { get; set; }

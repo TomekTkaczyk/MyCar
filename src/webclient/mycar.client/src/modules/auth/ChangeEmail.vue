@@ -24,7 +24,8 @@
     import HintList from '@/components/HintList.vue';
     import { isValidEmail } from '@/helpers/email-validator'
     import MessageProvider from '@/infrastructure/messageProvider';
-    import type { AxiosError, AxiosResponse } from 'axios';
+    import { isAxiosError, type AxiosError, type AxiosResponse } from 'axios';
+    import {isApiError, type IApiError} from '@/types/IApiError';
 
     const errors = ref<string[]>([]);
     const emailMessages = ref<string[]>([]);
@@ -40,28 +41,27 @@
       message:string,
     }
 
-    async function changeEmail(data: {email: string}) {
-      // Tutaj można wywołać funkcję do rejestracji użytkownika
-      // np. poprzez wywołanie API, przekazując formData.value
-      const { email } = data;
-      const messageProvider = new MessageProvider("signIn");
+    async function changeEmail(data: IChangeEmailCommand) {
+      const {email} = data;
+      const body: IChangeEmailCommand = { email };
+      const messageProvider = new MessageProvider("changeEmail");
       await messageProvider.Initialize();
+      errors.value = [];
+      emailMessages.value = [];
       try {
-        await authStore.changeEmail(email);
+        await authStore.changeEmail(body);
       } catch (error) {
-        if(error as AxiosError){
-          console.log(error);
-          if((error as AxiosError).response as AxiosResponse){
-            const data = ((error as AxiosError).response as AxiosResponse).data as {errors: errordata[]};
-            console.log(data.errors);
-            data.errors.forEach((value) => {
-              emailMessages.value.push(messageProvider.GetMessage(value.code));
+        if(isAxiosError(error)){
+          if(error.response && isApiError(error.response.data)){
+            error.response.data.errors.forEach((value) => {
+              emailMessages.value.push(messageProvider.GetMessage(value.code),);
             });
           } else {
+            errors.value = [error.message];
             console.error(error);
-            errors.value = [(error as AxiosError).message];
-          }
+          };
         } else {
+          errors.value = ["Nierozpoznany błąd systemowy."];
           console.error(error);
         }
       }
