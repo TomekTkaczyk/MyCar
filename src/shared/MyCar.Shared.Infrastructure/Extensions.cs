@@ -5,21 +5,19 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using MyCar.Shared.Abstractions;
+using MyCar.Shared.Abstractions.Auth;
 using MyCar.Shared.Abstractions.Modules;
-using MyCar.Shared.Abstractions.Services;
 using MyCar.Shared.Infrastructure.Api;
 using MyCar.Shared.Infrastructure.Auth;
 using MyCar.Shared.Infrastructure.Contexts;
 using MyCar.Shared.Infrastructure.Database;
 using MyCar.Shared.Infrastructure.Exceptions;
+using MyCar.Shared.Infrastructure.Middleware;
 using MyCar.Shared.Infrastructure.Modules;
 using MyCar.Shared.Infrastructure.Services;
 using MyCar.Shared.Infrastructure.Time;
-using System.Runtime.CompilerServices;
 
 namespace MyCar.Shared.Infrastructure;
 
@@ -34,6 +32,8 @@ public static class Extensions
 		IConfiguration configuration,
 		IList<IModule> modules)
 	{
+		AddSingletons(services);
+
 		var disableModules = new List<string>();
 		foreach(var (key, value) in configuration.AsEnumerable()) {
 			if(!key.Contains(":module:enabled")) {
@@ -44,6 +44,7 @@ public static class Extensions
 				disableModules.Add(key.Split(":")[0]);
 			}
 		}
+
 		services.AddModuleInfo(modules);
 		services.AddContexts();
 
@@ -52,7 +53,7 @@ public static class Extensions
 			cors.AddPolicy(name:_corsPolicy, x =>
 			{
 				x.WithOrigins("http://localhost:5173")
-				 //.AllowCredentials()
+				 .AllowCredentials()
 				 .WithMethods("POST", "PUT", "DELETE")
 				 .WithHeaders("Content-Type", "Authorization");
 			});
@@ -62,8 +63,6 @@ public static class Extensions
 		services.AddErrorHandling();
 		
 		services.AddBackgroundServices(configuration);
-
-		services.AddSingleton<IClock, UtcClock>();
 
 		services.AddControllers()
 			.ConfigureApplicationPartManager(manager =>
@@ -121,21 +120,20 @@ public static class Extensions
 			swagger.AddSecurityRequirement(securityRequirement);
 		});
 
-
 		return services;
 	}
 
+	private static void AddSingletons(IServiceCollection services)
+	{
+		services.AddSingleton<IClock, UtcClock>();
+		services.AddSingleton<ITokenValidator, TokenValidator>();
+	}
+
+
 	public static IApplicationBuilder UseInfrastructure(
 		this IApplicationBuilder app,
-		IServiceProvider services,
 		IWebHostEnvironment environment)
 	{
-		try {
-			_= services.GetRequiredService<IOptions<SmtpOptions>>().Value;
-		}
-		catch(OptionsValidationException) {
-		}
-
 		app.UseErrorHandling();
 		
 		if(environment.IsDevelopment()) {
@@ -152,7 +150,8 @@ public static class Extensions
 				x.DocumentTitle = _titleApi;
 			});
 		}
-
+		
+		app.UseMiddleware<RefreshTokenMiddleware>();
 		app.UseAuthentication();
 
 		//app.UseDefaultFiles();

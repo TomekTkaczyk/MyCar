@@ -36,7 +36,7 @@ public class Program
 
 		app.Logger.LogInformation("Modules: {Modules}", string.Join(",", _modules.Select(m => m.Name)));
 
-		app.UseInfrastructure(app.Services, app.Environment);
+		app.UseInfrastructure(app.Environment);
 		foreach(var module in _modules) {
 			module.Use(app);
 		}

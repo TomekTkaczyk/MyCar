@@ -1,16 +1,18 @@
 @url = http://localhost:5000/users-module
-@name = user6
+@name = ddd
 @email = user6@mycar.it
-@password = secret
+@password = ddd
 @role = admin
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzYmVhMjE2MS02MGFkLTRhZmUtOTRkOC1mNTJmMTQ5MjZhNTgiLCJ1bmlxdWVfbmFtZSI6IjNiZWEyMTYxLTYwYWQtNGFmZS05NGQ4LWY1MmYxNDkyNmE1OCIsImp0aSI6IjY5YWI4ODE4LWYyYjctNDliOS1iZWI4LWUyMjVhZjhkNzE3MSIsImlhdCI6IjE3MzM5NTIzNTc0ODciLCJyb2xlIjoidXNlciIsImlzcyI6Ik15Q2FyIiwiZXhwIjoxNzMzOTU1OTU3LCJuYmYiOjE3MzM5NTIzNTd9.XmIpsJbGHL6Gv6OsmT-Fw3VIOnRnld-dHa0swAcP8D4
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMzMyNDQzNS1iODM2LTQxYzktYjM4MC03ZjYyMDlkYzU3MWYiLCJ1bmlxdWVfbmFtZSI6IjAzMzI0NDM1LWI4MzYtNDFjOS1iMzgwLTdmNjIwOWRjNTcxZiIsImp0aSI6ImEyNGYyYWQwLWM0ZmItNDliMC04OWY4LTI5N2JlNDlkMmZjMSIsImlhdCI6IjE3MzQ1NTQ5NTciLCJyb2xlIjoidXNlciIsImlzcyI6Ik15Q2FyIiwiZXhwIjoxNzM0NTU4NTU3LCJuYmYiOjE3MzQ1NTQ5NTd9.JBY5yUnp4Mj7xuABCfX7Bn9Ml9euyi-Q8gJONzt793k
 
 ###
 GET {{url}}
 
 ### 
 GET {{url}}/account
-Authorization: Bearer {{accessToken}}
+
+### 
+PUT {{url}}/account/logout
 
 ### 
 GET {{url}}/account/changepassword
@@ -42,6 +44,14 @@ Content-Type: application/json
 {
   "identifier": "{{email}}",
   "password": "{{password}}"
+}
+
+### 
+POST {{url}}/account/sign-in 
+Content-Type: application/json
+{
+  "identifier": "ddd",
+  "password": "ddd"
 }
 
 ###

@@ -19,6 +19,7 @@ export const useAuthStore = defineStore('auth', {
     accessToken: null,
     refreshToken: null,
     isAuthenticated: false,
+    isRefreshing: false,
   }),
   actions: {
     async logout() {
@@ -28,18 +29,10 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async signInUser(command: ISignInCommand) {
-      try{
-
-        const response = await httpApiClient.post('/users-module/Account/sign-in', command);
-        const { accessToken, refreshToken } = response.data;
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
-        this.isAuthenticated = !!this.accessToken;
-        await this.getUser();
-        router.push('/');
-      } catch(error){
-        console.log(error);
-      }
+      await httpApiClient.post('/users-module/Account/sign-in', command);
+      this.isAuthenticated = true;
+      await this.getUser();
+      router.push('/');
     },
 
     async signUpUser(command: ISignUpCommand) {
@@ -49,18 +42,18 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async reamindPassword(command: IRemaindPasswordCommand) {
-      await httpApiClient.put('/users-module/Account/remaind-password', command);
+      await httpApiClient.post('/users-module/Account/remaind-password', command);
       router.push('/signin');
       alert('Wysłaliśmy link do zmiany hasła na twój adres email.')
     },
 
     async changePassword(command: IChangePasswordCommand) {
-      await httpApiClient.put('/users-module/Account/change-password', command);
+      await httpApiClient.post('/users-module/Account/change-password', command);
       alert('Hasło zostało zmienione.');
     },
 
     async changeEmail(command: IChangeEmailCommand) {
-      await httpApiClient.put('/users-module/Account/change-email', command);
+      await httpApiClient.post('/users-module/Account/change-email', command);
       alert('Adres email został zmieniony.');
     },
 
@@ -82,7 +75,7 @@ export const useAuthStore = defineStore('auth', {
       this.isConfirmed = user.isConfirmed;
     },
 
-    setTokens(accessToken: string, refreshToken: string){
+    setTokens(accessToken: string, refreshToken: string) {
       this.accessToken = accessToken;
       this.refreshToken = refreshToken;
       this.isAuthenticated = !!accessToken;

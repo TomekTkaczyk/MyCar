@@ -31,6 +31,7 @@ internal class ExceptionToResponseMapper : IExceptionToResponseMapper
 		=> exception.GetType().Name switch
 		{
 			"UserNotActiveException" => HttpStatusCode.Unauthorized,
+			"UnauthorisedException" => HttpStatusCode.Unauthorized,
 			_ => HttpStatusCode.BadRequest
 		};
 

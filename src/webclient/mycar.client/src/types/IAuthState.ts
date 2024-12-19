@@ -5,4 +5,5 @@ export default interface AuthState extends IUser {
   refreshToken: string | null;
   returnUrl?: string;
   isAuthenticated: boolean;
+  isRefreshing: boolean,
 }

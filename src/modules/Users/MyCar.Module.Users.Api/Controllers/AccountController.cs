@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using MyCar.Module.Users.Core.DTO;
 using MyCar.Module.Users.Core.Services;
 using MyCar.Shared.Abstractions.Contexts;
+using System.Reflection.Metadata.Ecma335;
 
 namespace MyCar.Module.Users.Api.Controllers;
 
@@ -20,12 +21,13 @@ internal class AccountController(
 	[ProducesResponseType(404)]
 	public async Task<ActionResult<AccountDto>> GetAsync(CancellationToken cancellationToken)
 	{
+		var refreshToken = Request.Cookies["accesstoken"];
 		return OkOrNotFound(await service.GetAsync(context.Identity.Id, cancellationToken));
 	}
 
 	[HttpPost("sign-up")]
 	[AllowAnonymous]
-	[ProducesResponseType(201)]
+	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
 	public async Task<ActionResult> SignUpAsync(SignUpDto dto, CancellationToken cancellationToken)
 	{
@@ -42,29 +44,11 @@ internal class AccountController(
 	public async Task<ActionResult> SignInAsync(SignInDto dto, CancellationToken cancellationToken)
 	{
 		var response = await service.SignInAsync(dto, cancellationToken);
-		
-		//var cookieOptions = new CookieOptions
-		//{
-		//	HttpOnly = true,
-		//};
-		//Response.Cookies.Append("accessToken", response.AccessToken, cookieOptions);
-		//Response.Cookies.Append("refreshToken", response.RefreshToken, cookieOptions);
-
-		return Ok(response);
-	}
-
-	[HttpGet("refresh-token")]
-	[ProducesResponseType(200)]
-	[ProducesResponseType(401)]
-	public async Task<ActionResult> RefreshToken(CancellationToken cancellationToken)
-	{
-		var refreshToken = Request.Cookies["refresh-token"];
-		
-		var response = await service.RefreshTokenAsync(context.Identity.Id, refreshToken, cancellationToken);
 
 		var cookieOptions = new CookieOptions
 		{
 			HttpOnly = true,
+			SameSite = SameSiteMode.Strict,
 		};
 		Response.Cookies.Append("accessToken", response.AccessToken, cookieOptions);
 		Response.Cookies.Append("refreshToken", response.RefreshToken, cookieOptions);
@@ -72,18 +56,48 @@ internal class AccountController(
 		return Ok();
 	}
 
-	[HttpPut("logout")]
+	[HttpPost("refresh-token")]
+	[AllowAnonymous]
+	[ProducesResponseType(204)]
+	[ProducesResponseType(401)]
+	public async Task<ActionResult> RefreshToken(CancellationToken cancellationToken)
+	{
+		var refreshToken = Request.Cookies["refreshtoken"];
+
+		var response = await service.RefreshTokenAsync(refreshToken, cancellationToken);
+
+		var cookieOptions = new CookieOptions
+		{
+			HttpOnly = true,
+			SameSite = SameSiteMode.Strict,
+		};
+		Response.Cookies.Append("accessToken", response.AccessToken, cookieOptions);
+		Response.Cookies.Append("refreshToken", response.RefreshToken, cookieOptions);
+
+		return NoContent();
+	}
+
+	[HttpPost("logout")]
 	[ProducesResponseType(204)]
 	[ProducesResponseType(401)]
 	public async Task<ActionResult> Logout(CancellationToken cancellationToken)
 	{
 		await service.LogoutAsync(context.Identity.Id, cancellationToken);
 
+		var cookieOptions = new CookieOptions
+		{
+			HttpOnly = true,
+			SameSite = SameSiteMode.Strict,
+			Expires = DateTime.UtcNow.AddDays(-1),
+		};
+		Response.Cookies.Append("accessToken", "", cookieOptions);
+		Response.Cookies.Append("refreshToken", "", cookieOptions);
+
 		return NoContent();
 	}
 
 
-	[HttpPut("remaind-password")]
+	[HttpPost("remaind-password")]
 	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
 	public async Task<IActionResult> RemaindPasswordAsync(string email, CancellationToken cancellationToken)
@@ -93,7 +107,7 @@ internal class AccountController(
 	}
 
 
-	[HttpPut("change-password")]
+	[HttpPost("change-password")]
 	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
 	public async Task<IActionResult> ChangePasswordAsync(ChangePasswordDto dto, CancellationToken cancellationToken)
@@ -103,7 +117,7 @@ internal class AccountController(
 	}
 
 
-	[HttpPut("change-email")]
+	[HttpPost("change-email")]
 	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
 	public async Task<IActionResult> ChangeEmailAsync(ChangeEmailDto dto, CancellationToken cancellationToken)

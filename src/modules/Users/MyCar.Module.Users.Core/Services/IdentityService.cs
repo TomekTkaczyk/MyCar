@@ -7,7 +7,10 @@ using MyCar.Shared.Abstractions;
 using MyCar.Shared.Abstractions.Auth;
 using MyCar.Shared.Abstractions.Services;
 using MyCar.Shared.Infrastructure.Auth;
+using MyCar.Shared.Infrastructure.Exceptions;
 using MyCar.Shared.Infrastructure.Services;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace MyCar.Module.Users.Core.Services;
 
@@ -108,17 +111,31 @@ internal class IdentityService(
 		return user.Id;
 	}
 
-	public async Task<JsonWebToken> RefreshTokenAsync(Guid id, string token, CancellationToken cancellationToken)
+	public async Task<JsonWebToken> RefreshTokenAsync(string token, CancellationToken cancellationToken)
 	{
-		var user = await userRepository.GetAsync(id)
-			?? throw new InvalidCredentialsException();
+		var handler = new JwtSecurityTokenHandler();
+		var jwtToken = handler.ReadJwtToken(token);
+		var sub = jwtToken.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;
+		var exp = jwtToken.Claims.FirstOrDefault(x => x.Type == "exp")?.Value;
+		if(exp != null && long.TryParse(exp, out var expUnixSecons)) {
+		    var expirationDate = DateTimeOffset.FromUnixTimeSeconds(expUnixSecons).UtcDateTime;
+			var now = clock.CurrentDate();
+			if(expirationDate < now) {
+				throw new UnauthorisedException();
+			}
+		} else {
+			throw new UnauthorisedException();
+		};
+
+		var user = await userRepository.GetAsync(new Guid(sub))
+			?? throw new UnauthorisedException();
 
 		if(!user.IsActive) {
 			throw new UserNotActiveException(user.Id);
 		}
 
-		if(!user.RefreshToken.Equals(token) || (user.RefreshExpires < clock.CurrentDate())) {
-			throw new InvalidCredentialsException();
+		if(!user.RefreshToken.Equals(token)) {
+			throw new UnauthorisedException();
 		}
 
 		var jwt = GetTokens(user);
@@ -234,7 +251,6 @@ internal class IdentityService(
 	private async Task StoreRefreshToken(User user, string token)
 	{
 		user.RefreshToken = token;
-
 		await userRepository.UpdateAsync(user);
 	}
 

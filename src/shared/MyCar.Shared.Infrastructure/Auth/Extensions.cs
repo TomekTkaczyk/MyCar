@@ -17,7 +17,7 @@ public static class Extensions
 	{
 		var authOptions = configuration.GetOptions<AuthOptions>(AuthOptions.Section);
 
-		services.AddSingleton<ITokenProvider,TokenProvider>();
+		services.AddSingleton<ITokenProvider, TokenProvider>();
 		services.AddSingleton<IEmailConfirmerFactory, EmailConfirmerFactory>();
 
 		var tokenValidationParameters = new TokenValidationParameters
@@ -76,6 +76,22 @@ public static class Extensions
 				if(!string.IsNullOrWhiteSpace(authOptions.Challenge)) {
 					o.Challenge = authOptions.Challenge;
 				}
+
+				// add cookies
+				o.Events = new JwtBearerEvents
+				{
+					OnMessageReceived = (context) =>
+					{
+						var cookieToken = context.Request.Cookies["accessToken"];
+						if(!string.IsNullOrEmpty(cookieToken)) {
+
+							context.Token = cookieToken;
+						};
+						return Task.CompletedTask;
+					}
+				};
+				// end add cookies
+
 				optionsFactory?.Invoke(o);
 			});
 
