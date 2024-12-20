@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\modules\Auth\MyCar.Module.Auth.Api\MyCar.Module.Auth.Api.csproj" />
+    <ProjectReference Include="..\..\modules\Employees\MyCar.Module.Employees.Api\MyCar.Module.Employees.Api.csproj" />
+    <ProjectReference Include="..\..\modules\Users\MyCar.Module.Users.Api\MyCar.Module.Users.Api.csproj" />
+  </ItemGroup>
+
+</Project>

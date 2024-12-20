@@ -1,0 +1,1 @@
+dotnet ef migrations add %1 --startup-project ..\..\..\bootstraper\MyCar.Bootstraper\MyCar.Bootstraper.csproj --project .\MyCar.Module.Employees.Core.csproj -o .\DAL\Migrations --context EmployeesDbContext -v
