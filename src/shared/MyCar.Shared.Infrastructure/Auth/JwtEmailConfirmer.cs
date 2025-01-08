@@ -10,16 +10,24 @@ internal class JwtEmailConfirmer(AuthOptions options, IClock clock) : IEmailConf
 {
 	public string ConfirmToken { get; private set; }
 
+	public string GetConfirmToken(Guid userId, string email)
+	{
+		CreateToken(userId, email);
+		return ConfirmToken;
+	}
+
 	public string GetRemaindPasswordBody(Guid userId, string email)
 	{
-		ConfirmToken = CreateToken(userId, email);
+		CreateToken(userId, email);
 
 		return ConfirmToken;
 	}
 
-	public string GetConfirmEmailBody(Guid userId, string email)
+	public string GetConfirmEmailBody(Guid userId, string email, string confirmUrl)
 	{
-		ConfirmToken = CreateToken(userId, email);
+		CreateToken(userId, email);
+		string applicationUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "http://localhost:5000";
+
 
 		return ConfirmToken;
 	}
@@ -34,16 +42,20 @@ internal class JwtEmailConfirmer(AuthOptions options, IClock clock) : IEmailConf
 		var token = handler.ReadJwtToken(received) 
 			?? throw new InvalidEmailTokenException();
 
-		var claim = token.Claims.FirstOrDefault(x => x.Properties.ContainsKey("email"));
-		var emailFromToken = claim.Properties["email"];
-		if(emailFromToken is null || emailFromToken.Equals(email)) {
+		if(token.ValidTo < clock.CurrentDate()){
+			throw new InvalidEmailTokenException();
+		}
+
+		var claim = token.Claims.FirstOrDefault(x => x.Type.Equals("email"));
+		var emailFromToken = claim.Value;
+		if(emailFromToken is null || !emailFromToken.Equals(email)) {
 			throw new InvalidEmailTokenException();
 		}
 
 		return true;
 	}
 
-	private string CreateToken(Guid userId, string email)
+	private void CreateToken(Guid userId, string email)
 	{
 		var now = clock.CurrentDate();
 		if(options.EmailConfirmExpiry.TotalSeconds < 1) {
@@ -60,9 +72,7 @@ internal class JwtEmailConfirmer(AuthOptions options, IClock clock) : IEmailConf
 			expires: expires,
 			claims: claims);
 
-		var body = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-		return body;
+		ConfirmToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 	}
 
 	private static string GenerateVerificationCode()

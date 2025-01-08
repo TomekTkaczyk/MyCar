@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using MyCar.Shared.Abstractions;
 using MyCar.Shared.Abstractions.Auth;
 using MyCar.Shared.Abstractions.Modules;
+using MyCar.Shared.Abstractions.Services;
 using MyCar.Shared.Infrastructure.Api;
 using MyCar.Shared.Infrastructure.Auth;
 using MyCar.Shared.Infrastructure.Contexts;
@@ -24,6 +27,7 @@ namespace MyCar.Shared.Infrastructure;
 public static class Extensions
 {
 	private const string _corsPolicy = "cors";
+	private const string _corsFrontUrlHeaderPolicy = "cors-fronturl-header";
 	private const string _docsVersion = "v0.01";
 	private const string _titleApi = "MyCar API";
 
@@ -33,6 +37,7 @@ public static class Extensions
 		IList<IModule> modules)
 	{
 		AddSingletons(services);
+		AddTransients(services);
 
 		var disableModules = new List<string>();
 		foreach(var (key, value) in configuration.AsEnumerable()) {
@@ -50,12 +55,20 @@ public static class Extensions
 
 		services.AddCors(cors =>
 		{
+			var a = configuration.GetSection("AllowedHost").Get<string>();
 			cors.AddPolicy(name:_corsPolicy, x =>
 			{
-				x.WithOrigins("http://localhost:5173")
+				x.WithOrigins(configuration.GetSection("AllowedHost").Get<string>())
 				 .AllowCredentials()
 				 .WithMethods("POST", "PUT", "DELETE")
 				 .WithHeaders("Content-Type", "Authorization");
+			});
+			cors.AddPolicy(name: _corsFrontUrlHeaderPolicy, x =>
+			{
+				x.WithOrigins(configuration.GetSection("AllowedHost").Get<string>())
+				 .AllowCredentials()
+				 .WithMethods("POST", "PUT", "DELETE")
+				 .WithHeaders("Content-Type", "Authorization", "X-Frontend-Url");
 			});
 		});
 		services.AddAuth(configuration, modules);
@@ -64,7 +77,7 @@ public static class Extensions
 		
 		services.AddBackgroundServices(configuration);
 
-		services.AddControllers()
+		services.AddControllers(options => options.Filters.Add<VaidateModelAttribute>())
 			.ConfigureApplicationPartManager(manager =>
 			{
 				var removedParts = new List<ApplicationPart>();
@@ -79,7 +92,9 @@ public static class Extensions
 
 				manager.FeatureProviders.Add(new InternalControllerFeatureProvider());
 			});
-		;
+
+		services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
+
 		services.AddEndpointsApiExplorer();
 		services.AddSwaggerGen(swagger =>
 		{
@@ -127,8 +142,14 @@ public static class Extensions
 	{
 		services.AddSingleton<IClock, UtcClock>();
 		services.AddSingleton<ITokenValidator, TokenValidator>();
+		services.AddSingleton<IEmailSenderFactory, EmailSenderFactory>();
 	}
 
+	private static void AddTransients(IServiceCollection services)
+	{
+		services.AddTransient<SmtpEmailSender>();
+		services.AddTransient<FakeEmailSender>();
+	}
 
 	public static IApplicationBuilder UseInfrastructure(
 		this IApplicationBuilder app,
@@ -153,9 +174,6 @@ public static class Extensions
 		
 		app.UseMiddleware<RefreshTokenMiddleware>();
 		app.UseAuthentication();
-
-		//app.UseDefaultFiles();
-		//app.UseStaticFiles();
 
 		app.UseRouting();
 		app.UseCors(_corsPolicy);

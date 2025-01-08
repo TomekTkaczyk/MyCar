@@ -1,8 +1,0 @@
-{
-  "modules": {
-    "auth": {
-      "name": "Auth",
-      "enabled": true
-    }
-  }
-}

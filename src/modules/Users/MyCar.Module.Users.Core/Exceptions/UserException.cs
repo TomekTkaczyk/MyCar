@@ -2,4 +2,4 @@
 
 namespace MyCar.Module.Users.Core.Exceptions;
 
-public abstract class UserException(string message) : MyCarException(message) { }
+public abstract class UserException(string message, int status) : MyCarException(message, status) { }

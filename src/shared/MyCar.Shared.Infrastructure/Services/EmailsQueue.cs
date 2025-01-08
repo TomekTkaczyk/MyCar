@@ -28,5 +28,4 @@ public static class EmailsQueue
 	}
 
 	public static bool IsEmpty => _emails.IsEmpty;
-
 }

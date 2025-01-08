@@ -1,4 +1,5 @@
 import type IMessageProvider from '@/types/IMessageProvider';
+import { errorMessages } from 'vue/compiler-sfc';
 
 class MessageProvider implements IMessageProvider {
 
@@ -20,8 +21,8 @@ class MessageProvider implements IMessageProvider {
     this.messageGroup = messageGroup;
   }
 
-  GetMessage(messageCode: string): string {
-    return this.messageDictionary[messageCode] ?? "Nie rozpoznany błąd API";
+  GetMessage(error: {code: string, message: string}): string {
+    return this.messageDictionary[error.code] ?? error.message;
   }
 
   async Initialize(): Promise<void> {

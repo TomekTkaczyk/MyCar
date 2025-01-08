@@ -1,21 +1,3 @@
-<template>
-  <div>
-      <h4>Zmiana adresu email</h4>
-      <form @submit.prevent="changeEmail(formData)">
-        <div class="form-group">
-              <TextInput v-model="formData.email"
-                type="text"
-                id="email"
-                label="Email"
-                :messages="emailMessages"
-                @input="onChangeEmail"/>
-            </div>
-          <button class="btn btn-outline-primary" type="submit" v-if="isFormValid">Wyślij</button>
-          <HintList :messages="errors"/>
-        </form>
-  </div>
-</template>
-
 <script setup lang="ts">
     import { ref, watchEffect } from 'vue';
     import type IChangeEmailCommand from './requests/changeemail-command.ts';
@@ -35,11 +17,6 @@
     const formData = ref<IChangeEmailCommand>({
       email: authStore.email as string,
     });
-
-    interface errordata {
-      code:string,
-      message:string,
-    }
 
     async function changeEmail(data: IChangeEmailCommand) {
       const {email} = data;
@@ -85,7 +62,23 @@
 
 </script>
 
-
+<template>
+  <div>
+      <h4>Zmiana adresu email</h4>
+      <form @submit.prevent="changeEmail(formData)">
+        <div class="form-group">
+              <TextInput v-model="formData.email"
+                type="text"
+                id="email"
+                label="Email"
+                :messages="emailMessages"
+                @input="onChangeEmail"/>
+            </div>
+          <button class="btn btn-outline-primary" type="submit" v-if="isFormValid">Wyślij</button>
+          <HintList :messages="errors"/>
+        </form>
+  </div>
+</template>
 
 <style scoped>
     .changeemail-form {

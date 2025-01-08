@@ -34,9 +34,24 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/modules/auth/SignIn.vue'),
   },
   {
+    path: '/ConfirmEmail',
+    name: 'ConfirmEmail',
+    component: () => import('@/modules/auth/ConfirmEmail.vue'),
+  },
+  {
     path: '/RemindPassword',
     name: 'ReminPassword',
     component: () => import('@/modules/auth/RemindPassword.vue'),
+  },
+  {
+    path: '/Error500',
+    name: 'Error500',
+    component: () => import('@/modules/errors/Error500.vue')
+  },
+  {
+    path: '/Error503',
+    name: 'Error503',
+    component: () => import('@/modules/errors/Error503.vue')
   },
   {
     path: '/Error403',

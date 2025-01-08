@@ -1,4 +1,8 @@
-﻿using MyCar.Shared.Abstractions.Exceptions;
+﻿using Microsoft.AspNetCore.Http;
+using MyCar.Shared.Abstractions.Exceptions;
 
 namespace MyCar.Module.Users.Core.Exceptions;
-internal class InvalidCredentialsException() : MyCarException("Invalid credentials.") { }
+internal class InvalidCredentialsException : MyCarException 
+{
+	public InvalidCredentialsException() : base("Invalid credentials.", StatusCodes.Status400BadRequest) { }
+}

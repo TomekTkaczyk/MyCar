@@ -1,3 +1,5 @@
-﻿namespace MyCar.Module.Users.Core.Exceptions;
+﻿using Microsoft.AspNetCore.Http;
 
-internal class UserEmailConfirmException() : UserException("Invalid email confirm token.") { }
+namespace MyCar.Module.Users.Core.Exceptions;
+
+internal class UserEmailConfirmException() : UserException("Invalid email confirm token.", StatusCodes.Status400BadRequest) { }

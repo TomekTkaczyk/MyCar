@@ -22,4 +22,10 @@
     <ProjectReference Include="..\MyCar.Module.Users.Core\MyCar.Module.Users.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="EmailConfirmTokenTemplate.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

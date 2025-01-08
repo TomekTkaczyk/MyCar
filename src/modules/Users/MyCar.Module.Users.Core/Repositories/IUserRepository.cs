@@ -9,8 +9,6 @@ internal interface IUserRepository
 
 	Task<User> GetByEmailAsync(string email);
 
-	Task<User> GetByEmailToken(string token);
-	
 	Task<User> GetByNameAsync(string name);
 
 	Task AddAsync(User user);

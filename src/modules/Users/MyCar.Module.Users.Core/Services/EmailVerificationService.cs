@@ -1,7 +1,8 @@
 ﻿using MyCar.Module.Users.Core.DTO;
 using MyCar.Module.Users.Core.Exceptions;
 using MyCar.Module.Users.Core.Repositories;
-using MyCar.Shared.Infrastructure.Auth;
+using MyCar.Shared.Abstractions.Services;
+using MyCar.Shared.Infrastructure.Services;
 
 namespace MyCar.Module.Users.Core.Services;
 internal class EmailVerificationService(
@@ -12,7 +13,7 @@ internal class EmailVerificationService(
 	{
 		//ConfirmToken decode !!! and compliance check !!! 
 
-		var user = await userRepository.GetByEmailToken(dto.ConfirmToken)
+		var user = await userRepository.GetByEmailAsync(dto.Email)
 			?? throw new InvalidCredentialsException();
 
 		if(!user.IsActive) {
@@ -29,5 +30,17 @@ internal class EmailVerificationService(
 		user.EmailConfirmToken = null;
 
 		await userRepository.UpdateAsync(user);
+	}
+
+	public async Task SendSample(CancellationToken cancellationToken)
+	{
+		EmailsQueue.Add(new Email
+		{
+			Recievers = ["biuro@unipromax.pl"],
+			Subject = "Email sample subject",
+			Body = "Email sample body"
+		});
+
+		await Task.CompletedTask;
 	}
 }

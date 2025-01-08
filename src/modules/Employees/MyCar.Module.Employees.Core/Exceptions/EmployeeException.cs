@@ -2,4 +2,4 @@
 
 namespace MyCar.Module.Employees.Core.Exceptions;
 
-public abstract class EmployeeException(string message) : MyCarException(message) { }
+public abstract class EmployeeException(string message, int status) : MyCarException(message, status) { }

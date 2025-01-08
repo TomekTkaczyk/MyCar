@@ -1,3 +1,57 @@
+<script setup lang="ts">
+
+import {ref, watchEffect} from 'vue';
+import type IChangePasswordCommand from './requests/changepassword-command';
+import TextInput from '@/components/TextInput.vue';
+import { useAuthStore } from '@/stores/AuthStore';
+
+const formData = ref<IChangePasswordCommand & {retypePassword: string}>({
+  currentPassword: '',
+  password: '',
+  retypePassword: '',
+});
+
+const retypeMessages = ref<string[]>();
+
+async function changePassword(data: IChangePasswordCommand) {
+  const {currentPassword, password} = data;
+  const body: IChangePasswordCommand = {currentPassword, password};
+  try {
+    await authStore.changePassword(body);
+    retypeMessages.value = [];
+  } catch (error) {
+    retypeMessages.value = [];
+    console.error("Change password failed", error);
+  }
+}
+
+const isFormValid = ref(false);
+
+const authStore = useAuthStore();
+
+const onChangeCurrentPassword = (value:string ) => {
+  formData.value.currentPassword = value;
+}
+
+const onChangePassword = (value: string) => {
+  formData.value.password = value;
+};
+
+const onChangeRetypePassword = (value: string) => {
+  formData.value.retypePassword = value;
+};
+
+const validateForm = () => {
+      const { password, retypePassword } = formData.value;
+      return password !== '' && password === retypePassword;
+    };
+
+watchEffect(() => {
+  isFormValid.value = validateForm();
+});
+
+</script>
+
 <template>
   <div>
       <h4>Zmiana hasła</h4>
@@ -28,60 +82,6 @@
       </form>
   </div>
 </template>
-
-<script setup lang="ts">
-
-import {ref, watchEffect} from 'vue';
-import type IChangePasswordCommand from './requests/changepassword-command';
-import TextInput from '@/components/TextInput.vue';
-import { useAuthStore } from '@/stores/AuthStore';
-
-const formData = ref<IChangePasswordCommand & {retypePassword: string}>({
-  currentPassword: '',
-  password: '',
-  retypePassword: '',
-});
-
-const retypeMessages = ref<string[]>(["aaa"]);
-
-async function changePassword(data: IChangePasswordCommand) {
-  const {currentPassword, password} = data;
-  const body: IChangePasswordCommand = {currentPassword, password};
-  try {
-    await authStore.changePassword(body);
-    retypeMessages.value = ["dfd"];
-  } catch (error) {
-    retypeMessages.value = ["dfd"];
-    console.log("Change password failed", error);
-  }
-}
-
-const isFormValid = ref(false);
-
-const authStore = useAuthStore();
-
-const onChangeCurrentPassword = (value:string ) => {
-  formData.value.currentPassword = value;
-}
-
-const onChangePassword = (value: string) => {
-  formData.value.password = value;
-};
-
-const onChangeRetypePassword = (value: string) => {
-  formData.value.retypePassword = value;
-};
-
-const validateForm = () => {
-      const { password, retypePassword } = formData.value;
-      return password !== '' && password === retypePassword;
-    };
-
-watchEffect(() => {
-  isFormValid.value = validateForm();
-});
-
-</script>
 
 <style scoped>
     .changepassword-form {

@@ -30,7 +30,8 @@ public class Program
 		}
 
 		builder.Services.AddControllers();
-		builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection(SmtpOptions.Section));
+		builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("smtp"));
+
 
 		var app = builder.Build();
 
@@ -71,7 +72,4 @@ public class Program
 
 		app.Run();
 	}
-
-
-
 }

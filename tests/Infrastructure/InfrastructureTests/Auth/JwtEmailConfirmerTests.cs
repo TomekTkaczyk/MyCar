@@ -20,7 +20,7 @@ public class JwtEmailConfirmerTests
 		var confirmer = new JwtEmailConfirmer(options, clock);
 
 
-		var body = confirmer.GetConfirmEmailBody(id, "sample@mail.it");
+		var body = confirmer.GetConfirmEmailBody(id, "sample@mail.it","");
 
 		Assert.NotNull(body);
 	}

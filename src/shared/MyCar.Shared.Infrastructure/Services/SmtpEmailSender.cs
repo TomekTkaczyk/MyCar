@@ -4,45 +4,48 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using MyCar.Shared.Abstractions.Services;
-using System.Text.Json;
 
 namespace MyCar.Shared.Infrastructure.Services;
-internal class EmailService : IEmailService
+internal class SmtpEmailSender : IEmailSender
 {
 	private readonly IOptionsMonitor<SmtpOptions> _optionsMonitor;
-	private readonly ILogger<IEmailService> _logger;
-	private SmtpOptions _options;
+	private readonly ILogger<IEmailSender> _logger;
 
-	public EmailService(IOptionsMonitor<SmtpOptions> optionsMonitor, ILogger<IEmailService> logger)
+	public SmtpEmailSender(IOptionsMonitor<SmtpOptions> optionsMonitor, ILogger<IEmailSender> logger)
 	{
 		_logger = logger;
 		_optionsMonitor = optionsMonitor;
 		_optionsMonitor.OnChange(OnConfigurationChanged);
 		if(!IsValidConfiguration(_optionsMonitor.CurrentValue, out var errors)) {
-			_logger.LogError("Invalid SMTP configuration detected: {Errors}", string.Join(", ", errors));
+			_logger.LogError($"\n[{errors.Count}] Invalid SMTP configuration detected: {errors}", string.Join(", ", errors));
 		}
 	}
 
-	public async Task<bool> SendEmail(Email email, int counter)
+	public async Task<bool> SendEmailAsync(Email email, CancellationToken cancellationToken = default)
 	{
 		var options = _optionsMonitor.CurrentValue;
 		if(!IsValidConfiguration(options, out var errors)) {
-			_logger.LogError($"[{counter}] Invalid SMTP configuration detected: {string.Join(", ", errors)}");
+			_logger.LogError($"\nInvalid SMTP configuration detected: {string.Join(", ", errors)}");
 			return false;
 		}
 
+		using var client = new SmtpClient();
 		try {
-			using var client = new SmtpClient();
 			await client.ConnectAsync(
 				host: options.Host,
 				port: options.Port,
-				options: SecureSocketOptions.StartTls);
-			await client.AuthenticateAsync(_options.Account, _options.Password);
-			await client.SendAsync(CreateEmail(email));
-			await client.DisconnectAsync(true);
-			client.Dispose();
+				options: SecureSocketOptions.SslOnConnect,
+				cancellationToken);
+			await client.AuthenticateAsync(
+				_optionsMonitor.CurrentValue.Account, 
+				_optionsMonitor.CurrentValue.Password, 
+				cancellationToken);
+			await client.SendAsync(CreateEmail(email), cancellationToken);
+			await client.DisconnectAsync(true, cancellationToken);
 		}
-		catch(Exception ex) {
+		catch (Exception ex) {
+			_logger.LogError(ex, ex.Message, client);
+			throw;
 		}
 
 		return true;
@@ -51,7 +54,6 @@ internal class EmailService : IEmailService
 	private void OnConfigurationChanged(SmtpOptions newOptions)
 	{
 		_logger.LogInformation("OnConfigurationChanged invoked.");
-		_options = newOptions;
 		if(!IsValidConfiguration(newOptions, out var errors)) {
 			_logger.LogError("Invalid SMTP configuration detected: {Errors}", string.Join(", ", errors));
 		}
@@ -84,15 +86,18 @@ internal class EmailService : IEmailService
 
 	private MimeMessage CreateEmail(Email email)
 	{
+		var bodyBuilder = new BodyBuilder
+		{
+			HtmlBody = email.Body,
+			TextBody = @"Text body do rozważenia"
+		};
+
 		var message = new MimeMessage()
 		{
 			Subject = email.Subject,
-			Body = new TextPart(MimeKit.Text.TextFormat.Text)
-			{
-				Text = email.Body
-			}
+			Body = bodyBuilder.ToMessageBody()
 		};
-		message.From.Add(new MailboxAddress(_options.Issuer, _options.IssuerEmail));
+		message.From.Add(new MailboxAddress(_optionsMonitor.CurrentValue.Issuer, _optionsMonitor.CurrentValue.IssuerEmail));
 		foreach(var address in email.Recievers) {
 			message.To.Add(new MailboxAddress("", address));
 		}

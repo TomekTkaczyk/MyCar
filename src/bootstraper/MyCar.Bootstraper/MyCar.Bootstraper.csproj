@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\modules\Auth\MyCar.Module.Auth.Api\MyCar.Module.Auth.Api.csproj" />
     <ProjectReference Include="..\..\modules\Employees\MyCar.Module.Employees.Api\MyCar.Module.Employees.Api.csproj" />
     <ProjectReference Include="..\..\modules\Users\MyCar.Module.Users.Api\MyCar.Module.Users.Api.csproj" />
   </ItemGroup>

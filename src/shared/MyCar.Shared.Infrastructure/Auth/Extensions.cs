@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using MyCar.Shared.Abstractions.Auth;
 using MyCar.Shared.Abstractions.Modules;
+using MyCar.Shared.Abstractions.Services;
 using System.Text;
 
 namespace MyCar.Shared.Infrastructure.Auth;

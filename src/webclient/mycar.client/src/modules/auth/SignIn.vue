@@ -1,31 +1,6 @@
-<template>
-    <div class="signin-form">
-        <h2>Logowanie użytkownika</h2>
-        <form @submit.prevent="signInUser(formData)">
-            <div class="form-group">
-              <TextInput v-model="formData.identifier"
-                type="text"
-                id="identifier"
-                label="Nazwa użytkownika (login/email)"
-                :messages="identifierMessages"
-                @input="onChangeIdentifier"/>
-            </div>
-            <div class="form-group">
-              <TextInput v-model="formData.password"
-                type="password"
-                id="password"
-                label="Hasło"
-                :messages="passwordMessages"
-                @input="onChangePassword"/>
-            </div>
-            <button type="submit" v-if="isFormValid">Zaloguj</button>
-            <p></p>
-            <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
-            <div><RouterLink to="remindpassword">Nie pamiętam hasła</RouterLink></div>
-            <HintList :messages="errors"/>
-        </form>
-    </div>
-</template>
+<!-- ***************************************************  -->
+<!-- * Script section                                  *  -->
+<!-- ***************************************************  -->
 
 <script setup lang="ts">
     import { ref, watchEffect } from 'vue';
@@ -34,8 +9,7 @@
     import HintList from '@/components/HintList.vue';
     import { useAuthStore } from '@/stores/AuthStore';
     import MessageProvider from '@/infrastructure/messageProvider';
-    import { AxiosError, isAxiosError, type AxiosResponse } from 'axios';
-    import {isApiError, type IApiError} from '@/types/IApiError';
+    import { isApiError } from '@/types/IApiError';
 
 
     const errors = ref<string[]>([]);
@@ -60,22 +34,20 @@
 
       try {
           await authStore.signInUser(body);
-      } catch (error) {
-        if(isAxiosError(error)){
-          if(error.response && isApiError(error.response.data)){
-            error.response.data.errors.forEach((value) => {
-              errors.value.push(messageProvider.GetMessage(value.code),);
+      } catch (error: any) {
+          if(isApiError(error)){
+            error.validationErrors.forEach((value) => {
+              const {code, message} = value;
+              errors.value.push(messageProvider.GetMessage({code, message}));
             });
+            const {code, message} = error;
+            errors.value = [messageProvider.GetMessage({code, message})];
           } else {
-            errors.value = [error.message];
-            console.error(error);
+            console.log("To nie ApiError");
+            errors.value = ["Nierozpoznany błąd systemowy."];
           };
-        } else {
-          errors.value = ["Nierozpoznany błąd systemowy."];
-          console.error(error);
-        }
-    };
-  }
+      };
+    }
 
     const onChangeIdentifier = (value: string) => {
       formData.value.identifier = value;
@@ -100,12 +72,44 @@
 
     watchEffect(() => {
       isFormValid.value = validateForm();
+      errors.value= [];
     });
-
 </script>
 
-<style scoped>
+<!-- ***************************************************  -->
+<!-- * Template section                                *  -->
+<!-- ***************************************************  -->
 
+<template>
+  <div class="signin-form">
+      <h2>Logowanie użytkownika</h2>
+      <form @submit.prevent="signInUser(formData)">
+          <div class="form-group">
+            <TextInput v-model="formData.identifier"
+              type="text"
+              id="identifier"
+              label="Nazwa użytkownika (login/email)"
+              :messages="identifierMessages"
+              @input="onChangeIdentifier"/>
+          </div>
+          <div class="form-group">
+            <TextInput v-model="formData.password"
+              type="password"
+              id="password"
+              label="Hasło"
+              :messages="passwordMessages"
+              @input="onChangePassword"/>
+          </div>
+          <button type="submit" v-if="isFormValid">Zaloguj</button>
+          <p></p>
+          <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
+          <div><RouterLink to="remindpassword">Nie pamiętam hasła</RouterLink></div>
+          <HintList style="margin-top: 10px;" :messages="errors"/>
+      </form>
+  </div>
+</template>
+
+<style scoped>
 .signin-form {
   max-width: 400px;
     margin: 0 auto;

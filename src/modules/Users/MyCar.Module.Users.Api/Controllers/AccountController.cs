@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyCar.Module.Users.Core.DTO;
 using MyCar.Module.Users.Core.Services;
 using MyCar.Shared.Abstractions.Contexts;
-using System.Reflection.Metadata.Ecma335;
 
 namespace MyCar.Module.Users.Api.Controllers;
 
@@ -21,17 +21,19 @@ internal class AccountController(
 	[ProducesResponseType(404)]
 	public async Task<ActionResult<AccountDto>> GetAsync(CancellationToken cancellationToken)
 	{
-		var refreshToken = Request.Cookies["accesstoken"];
 		return OkOrNotFound(await service.GetAsync(context.Identity.Id, cancellationToken));
 	}
 
 	[HttpPost("sign-up")]
 	[AllowAnonymous]
+	[EnableCors("cors-fronturl-header")]
 	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
 	public async Task<ActionResult> SignUpAsync(SignUpDto dto, CancellationToken cancellationToken)
 	{
-		_= await service.SignUpAsync(dto, cancellationToken);
+		var frontendUrl = Request.Headers["X-Frontend-Url"].ToString();
+
+		_ = await service.SignUpAsync(dto, frontendUrl, cancellationToken);
 
 		return Created();
 	}
@@ -135,5 +137,28 @@ internal class AccountController(
 		await service.UpdateProfileAsync(context.Identity.Id, dto, cancellationToken);
 
 		return NoContent();
+	}
+
+	[HttpPost("confirm-email")]
+	[AllowAnonymous]
+	[ProducesResponseType(200)]
+	[ProducesResponseType(400)]
+	public async Task<ActionResult> ConfirmEmailTokenAsync(ConfirmEmailDto dto, CancellationToken cancellationToken)
+	{
+		await service.ConfirmEmailTokenAsync(dto, cancellationToken);
+		return Ok();
+	}
+
+	[HttpPost("resend-confirm-email")]
+	[AllowAnonymous]
+	[EnableCors("cors-fronturl-header")]
+	[ProducesResponseType(200)]
+	[ProducesResponseType(400)]
+	public async Task<ActionResult> ResendConfirmEmailTokenAsync(string email, CancellationToken cancellationToken)
+	{
+		var frontendUrl = Request.Headers["X-Frontend-Url"].ToString();
+
+		await service.ResendConfirmEmailTokenAsync(email, frontendUrl, cancellationToken);
+		return Ok();
 	}
 }

@@ -1,17 +1,25 @@
+import type { IErrorMessage } from "./IErrorMessage";
+
 export interface IApiError {
-  errors: { code: string, message: string }[];
+  code: string;
+  detail: string;
+  instance: string;
+  message: string;
+  status: number;
+  title: string;
+  validationErrors: IErrorMessage[];
 }
 
 export function isApiError(obj: any): obj is IApiError {
     return (
         obj !== null &&
         typeof obj === "object" &&
-        Array.isArray(obj.errors) &&
-        obj.errors.every(
-          (error: any) =>
-            typeof error === "object" &&
-            typeof error.code === "string" &&
-            typeof error.message === "string"
+        typeof obj.code === "string" &&
+        typeof obj.message === "string" &&
+        typeof obj.status === "number" &&
+        Array.isArray(obj.validationErrors) &&
+        obj.validationErrors.every(
+          (error: any) => error.isErrorMessage(error)
         )
       );
 }

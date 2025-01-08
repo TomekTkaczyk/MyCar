@@ -1,3 +1,5 @@
-﻿namespace MyCar.Module.Users.Core.Exceptions;
+﻿using Microsoft.AspNetCore.Http;
 
-internal class EmailIsInUseException() : UserException("Email is already taken.") { }
+namespace MyCar.Module.Users.Core.Exceptions;
+
+internal class EmailIsInUseException() : UserException("Email is already taken.", StatusCodes.Status400BadRequest) { }

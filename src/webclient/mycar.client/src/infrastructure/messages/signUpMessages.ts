@@ -1,6 +1,6 @@
 const signUpMessages: { [code: string]: string } = {
-  "email_is_in_use": 'Adres email jest już zajęty.',
-  "name_is_in_use": 'Nazwa jest już zajęta.',
+  "email_is_unavailable": 'Adres email jest niedostępny.',
+  "name_is_unavailable": 'Nazwa jest już zajęta.',
 }
 
 export default signUpMessages;
