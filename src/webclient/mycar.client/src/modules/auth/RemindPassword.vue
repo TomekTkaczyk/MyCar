@@ -50,7 +50,7 @@
       emailMessages.value = [];
 
       try {
-        await authStore.forgotPassword(body);
+        await authStore.reamindPassword(body);
       } catch (error) {
           console.error('Remind failed', error);
       }

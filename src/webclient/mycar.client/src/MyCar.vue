@@ -1,8 +1,10 @@
 <script setup lang="ts">
-    import Navbar from '@/components/NavBar.vue'
-    import Footbar from '@/components/FootBar.vue'
+  import Navbar from '@/components/NavBar.vue'
+  import Footbar from '@/components/FootBar.vue'
+  import Spinner from '@/components/Spinner.vue';
+  import { useLoadingStore } from '@/stores/LoadingStore';
 
-
+  const loadingStore = useLoadingStore();
 </script>
 
 <template>
@@ -11,9 +13,10 @@
             <Navbar />
         </header>
         <main role="main" class="flex-grow-1 overflow-auto">
-            <div class="router-view">
-                <RouterView />
-            </div>
+          <Spinner :isLoading="loadingStore.isLoading" />
+          <div class="router-view">
+            <RouterView />
+          </div>
         </main>
         <footer>
             <Footbar />

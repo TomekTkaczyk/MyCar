@@ -1,3 +1,3 @@
 export default interface IMessageProvider {
-  GetMessage(messageCode: string): string;
+  GetMessage(error: {code: string, message: string}): string;
 }

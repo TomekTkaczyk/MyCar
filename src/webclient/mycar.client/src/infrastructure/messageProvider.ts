@@ -10,7 +10,7 @@ class MessageProvider implements IMessageProvider {
     signIn: () => import('@/infrastructure/messages/signInMessages'),
     signUp: () => import('@/infrastructure/messages/signUpMessages'),
     getUser: () => import('@/infrastructure/messages/getUserMessages'),
-    forgotPassword: () => import('@/infrastructure/messages/forgotPasswordMessages'),
+    forgotPassword: () => import('@/infrastructure/messages/remaindPasswordMessages'),
     logout: () => import('@/infrastructure/messages/logoutMessages'),
     updateProfile: () => import('@/infrastructure/messages/updateProfileMessages'),
     changeEmail: () => import('@/infrastructure/messages/changeEmailMessages'),

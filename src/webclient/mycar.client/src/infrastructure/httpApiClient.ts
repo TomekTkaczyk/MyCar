@@ -28,28 +28,29 @@ const processQueue = (error: any, token: string | null = null): void => {
   failedQueue = [];
 };
 
+
 httpApiClient.interceptors.request.use(
   config => {
-    const LoadingStore = useLoadingStore();
-    LoadingStore.isLoading = true;
+    const loadingStore = useLoadingStore();
+    loadingStore.startLoading();
     return config;
   },
   error => {
     const LoadingStore = useLoadingStore();
-    LoadingStore.isLoading = true;
-    return Promise.reject(error)
+    LoadingStore.stopLoading();
+    return Promise.reject(error);
   }
 );
 
 httpApiClient.interceptors.response.use(
   response => {
     const LoadingStore = useLoadingStore();
-    LoadingStore.isLoading = false;
+    LoadingStore.stopLoading();
     return response;
   },
   async error => {
     const LoadingStore = useLoadingStore();
-    LoadingStore.isLoading = false;
+    LoadingStore.stopLoading();
     const originalRequest = error.config as AxiosRequestConfig;
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
