@@ -13,10 +13,16 @@
 
 
     const errors = ref<string[]>([]);
-    const identifierMessages= ref<string[]>([]);
+    const identifierMessages = ref<string[]>([]);
     const passwordMessages = ref<string[]>([]);
+
     const authStore = useAuthStore();
     const isFormValid = ref(false);
+
+    const touchedFields = ref({
+      identifier: false,
+      password: false,
+    });
 
     const formData = ref<ISignInCommand>({
         identifier: '',
@@ -33,7 +39,9 @@
       passwordMessages.value = [];
 
       try {
+        if(validateForm()) {
           await authStore.signInUser(body);
+        }
       } catch (error: any) {
           if(isApiError(error)){
             error.validationErrors.forEach((value) => {
@@ -43,7 +51,6 @@
             const {code, message} = error;
             errors.value = [messageProvider.GetMessage({code, message})];
           } else {
-            console.log("To nie ApiError");
             errors.value = ["Nierozpoznany błąd systemowy."];
           };
       };
@@ -51,6 +58,7 @@
 
     const onChangeIdentifier = (value: string) => {
       formData.value.identifier = value;
+      touchedFields.value.identifier = true;
       identifierMessages.value = [];
       if(!(value.length > 0)){
         identifierMessages.value.push("Wymagany jest identyfikator lub adres email.");
@@ -59,21 +67,39 @@
 
     const onChangePassword = (value: string) => {
       formData.value.password = value;
+      touchedFields.value.password = true;
       passwordMessages.value = [];
-      if(!(value.length > 0)){
-        passwordMessages.value.push("Hasło jest wymagane.");
-      }
+      if(!(value.length > 0)) passwordMessages.value.push("Hasło jest wymagane.");
     };
+
+    const identifierValid = (value: string) => {
+      identifierMessages.value = [];
+      if (!value) identifierMessages.value.push("Identyfikator jest wymagany.");
+
+      return identifierMessages.value.length === 0;
+    }
+
+    const passwordValid = (value: string) => {
+      passwordMessages.value = [];
+      if ((!value) && touchedFields.value.identifier) passwordMessages.value.push("Hasło jest wymagane.");
+
+      return passwordMessages.value.length === 0;
+    }
 
     const validateForm = () => {
       const { identifier, password } = formData.value;
-      return identifier !== '' && password !== '';
+      return (
+        (identifierValid(identifier)) &&
+        (passwordValid(password))
+      );
     };
 
-    watchEffect(() => {
-      isFormValid.value = validateForm();
-      errors.value= [];
-    });
+    // watchEffect(() => {
+    //   isFormValid.value = validateForm();
+    //   console.log("FormData: ",formData.value);
+    //   console.log("TouchFiled: ",touchedFields.value);
+    //   console.log("IsValid: ",isFormValid.value);
+    // });
 </script>
 
 <!-- ***************************************************  -->
@@ -100,7 +126,7 @@
               :messages="passwordMessages"
               @input="onChangePassword"/>
           </div>
-          <button type="submit" v-if="isFormValid">Zaloguj</button>
+          <button type="submit">Zaloguj</button>
           <p></p>
           <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
           <div><RouterLink to="remindpassword">Nie pamiętam hasła</RouterLink></div>

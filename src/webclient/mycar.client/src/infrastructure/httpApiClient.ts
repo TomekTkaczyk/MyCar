@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/stores/AuthStore';
+import { useLoadingStore } from '@/stores/LoadingStore';
 import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 
 const httpApiClient = axios.create({
@@ -27,9 +28,28 @@ const processQueue = (error: any, token: string | null = null): void => {
   failedQueue = [];
 };
 
+httpApiClient.interceptors.request.use(
+  config => {
+    const LoadingStore = useLoadingStore();
+    LoadingStore.isLoading = true;
+    return config;
+  },
+  error => {
+    const LoadingStore = useLoadingStore();
+    LoadingStore.isLoading = true;
+    return Promise.reject(error)
+  }
+);
+
 httpApiClient.interceptors.response.use(
-  response => response,
+  response => {
+    const LoadingStore = useLoadingStore();
+    LoadingStore.isLoading = false;
+    return response;
+  },
   async error => {
+    const LoadingStore = useLoadingStore();
+    LoadingStore.isLoading = false;
     const originalRequest = error.config as AxiosRequestConfig;
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
