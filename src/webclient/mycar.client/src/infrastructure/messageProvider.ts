@@ -1,3 +1,4 @@
+import type { IValidationError } from '@/types/IValidationError';
 import type IMessageProvider from '@/types/IMessageProvider';
 import { errorMessages } from 'vue/compiler-sfc';
 

@@ -3,7 +3,7 @@
 <!-- ***************************************************  -->
 
 <script setup lang="ts">
-  import { ref, watchEffect } from 'vue';
+  import { ref } from 'vue';
   import type ISignInCommand from './requests/signin-command';
   import TextInput from "@/components/TextInput.vue";
   import HintList from '@/components/HintList.vue';
@@ -44,7 +44,7 @@
         if(isApiError(error)){
           error.validationErrors.forEach((value) => {
             const {code, message} = value;
-            errors.value.push(messageProvider.GetMessage({code, message}));
+            errors.value.push(messageProvider.GetMessage({field, code, message}));
           });
           const {code, message} = error;
           errors.value = [messageProvider.GetMessage({code, message})];
@@ -87,18 +87,10 @@
   const validateForm = () => {
     const { identifier, password } = formData.value;
     return (
-      true ||
       (identifierValid(identifier)) &&
       (passwordValid(password))
     );
   };
-
-  // watchEffect(() => {
-  //   isFormValid.value = validateForm();
-  //   console.log("FormData: ",formData.value);
-  //   console.log("TouchFiled: ",touchedFields.value);
-  //   console.log("IsValid: ",isFormValid.value);
-  // });
 </script>
 
 <!-- ***************************************************  -->

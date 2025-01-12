@@ -1,24 +1,6 @@
-<template>
-  <div class="remindpassword-form">
-      <h2>Reset hasła</h2>
-      <form @submit.prevent="remindPassword(formData)">
-        <div class="form-group">
-              <TextInput v-model="formData.email"
-                type="text"
-                id="email"
-                label="Email"
-                :messages="emailMessages"
-                @input="onChangeEmail"/>
-            </div>
-          <button type="submit" v-if="isFormValid">Wyślij</button>
-          <p></p>
-          <div><RouterLink to="signin">Chcę się zalogować</RouterLink></div>
-          <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
-          <HintList :messages="errors"/>
-
-      </form>
-  </div>
-</template>
+<!-- ***************************************************  -->
+<!-- * Script section                                  *  -->
+<!-- ***************************************************  -->
 
 <script setup lang="ts">
     import { ref, watchEffect } from 'vue';
@@ -27,8 +9,6 @@
     import HintList from '@/components/HintList.vue';
     import { useAuthStore } from '@/stores/AuthStore';
     import MessageProvider from '@/infrastructure/messageProvider';
-    import { AxiosError, isAxiosError, type AxiosResponse } from 'axios';
-    import {isApiError, type IApiError} from '@/types/IApiError';
     import { isValidEmail } from '@/helpers/email-validator'
 
 
@@ -67,7 +47,35 @@
 
 </script>
 
+<!-- ***************************************************  -->
+<!-- * Template section                                *  -->
+<!-- ***************************************************  -->
 
+<template>
+  <div class="remindpassword-form">
+      <h2>Reset hasła</h2>
+      <form @submit.prevent="remindPassword(formData)">
+        <div class="form-group">
+              <TextInput v-model="formData.email"
+                type="text"
+                id="email"
+                label="Email"
+                :messages="emailMessages"
+                @input="onChangeEmail"/>
+            </div>
+          <button type="submit" v-if="isFormValid">Wyślij</button>
+          <p></p>
+          <div><RouterLink to="signin">Chcę się zalogować</RouterLink></div>
+          <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
+          <HintList :messages="errors"/>
+
+      </form>
+  </div>
+</template>
+
+<!-- ***************************************************  -->
+<!-- * Style section                                   *  -->
+<!-- ***************************************************  -->
 
 <style scoped>
     .remindpassword-form {

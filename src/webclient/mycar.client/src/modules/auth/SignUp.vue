@@ -10,14 +10,11 @@
     import { useAuthStore } from '@/stores/AuthStore';
     import MessageProvider from '@/infrastructure/messageProvider';
     import { isApiError } from '@/types/IApiError';
-
-    const errors = ref<string[]>([]);
-    const userNameMessages = ref<string[]>([]);
-    const emailMessages  = ref<string[]>([]);
-    const passwordMessages = ref<string[]>([]);
-    const retypePasswordMessages = ref<string[]>([]);
+    import { FormErrors } from '@/types/FormErrors';
 
     const authStore = useAuthStore();
+
+    const errors = ref<FormErrors>(new FormErrors());
     const isFormValid = ref(false);
 
     const touchedFields = ref({
@@ -35,28 +32,25 @@
     });
 
     async function signUpUser(data: ISignUpCommand) {
-      const { userName, email, password } = data;
-      const body: ISignUpCommand = {userName, email, password};
-      const messageProvider = new MessageProvider("signUp");
-      await messageProvider.Initialize();
-      errors.value = [];
-      userNameMessages.value = [];
-      emailMessages.value = [];
-      passwordMessages.value = [];
-      retypePasswordMessages.value = [];
-
+      errors.value.Add("UserName", "Identyfikator jest wymagany.");
       try {
-          await authStore.signUpUser(body);
+        if(isFormValid){
+          await authStore.signUpUser(data);
+        }
       } catch (error: any) {
+        const messageProvider = new MessageProvider("signUp");
+        await messageProvider.Initialize();
+        errors.value.ClearAll();
         if(isApiError(error)){
           error.validationErrors.forEach((value) => {
             const {code, message} = value;
-            errors.value.push(messageProvider.GetMessage({code,message}));
+            const translateMessage = messageProvider.GetMessage({code, message});
+            errors.value.Add(value.field, translateMessage);
           });
-          const {code, message} = error;
-          errors.value = [messageProvider.GetMessage({code,message})];
+          const message = messageProvider.GetMessage({code: error.code, message: error.message});
+          errors.value.messages.push(message);
         } else {
-          errors.value = ["Nierozpoznany błąd systemowy"];
+          errors.value.messages.push("Nierozpoznany błąd systemowy");
         }
       }
     }
@@ -65,15 +59,16 @@
       formData.value.userName = value;
       touchedFields.value.userName = true;
       if(!(value.length > 0)){
-        userNameMessages.value.push("Identyfikator jest wymagany.");
+        errors.value.Add("UserName", "Identyfikator jest wymagany.");
       }
     };
 
     const onChangeEmail = (value: string) => {
       formData.value.email = value;
       touchedFields.value.email = true;
+      errors.value.Clear("Email");
       if(!(value.length > 0)){
-        emailMessages.value.push("Email jest wymagany.");
+        errors.value.Add("Email", "Email jest wymagany.");
       }
     };
 
@@ -81,7 +76,7 @@
       formData.value.password = value;
       touchedFields.value.password = true;
       if(!(value.length > 0)){
-        passwordMessages.value.push("Hasło jest wymagane.");
+        errors.value.Add("Password", "Hasło jest wymagane.");
       }
     };
 
@@ -91,40 +86,40 @@
     };
 
     const usernameValid = (value: string): boolean => {
-      userNameMessages.value = [];
+      errors.value.Clear("UserName");
       const invalidCharsRegex = /[^a-zA-Z0-9_-]/;
+      if ((touchedFields.value.userName) && (!value)) errors.value.Add("UserName", "Nazwa użytkownika jest wymagana.");
+      if ((touchedFields.value.userName) && (value.length < 3)) errors.value.Add("UserName", "Nazwa użytkownika musi mieć co najmniej 3 znaki.");
+      if ((touchedFields.value.userName) && (value.length > 20)) errors.value.Add("UserName", "Nazwa użytkownika może mieć maksymalnie 20 znaków.");
+      if ((touchedFields.value.userName) && (invalidCharsRegex.test(value))) errors.value.Add("UserName", "Nazwa użytkownika może zawierać tylko litery, cyfry, myślniki i podkreślniki.");
 
-      if ((touchedFields.value.userName) && (!value)) userNameMessages.value.push("Nazwa użytkownika jest wymagana.");
-      if ((touchedFields.value.userName) && (value.length < 3)) userNameMessages.value.push("Nazwa użytkownika musi mieć co najmniej 3 znaki.");
-      if ((touchedFields.value.userName) && (value.length > 20)) userNameMessages.value.push("Nazwa użytkownika może mieć maksymalnie 20 znaków.");
-      if ((touchedFields.value.userName) && (invalidCharsRegex.test(value))) userNameMessages.value.push("Nazwa użytkownika może zawierać tylko litery, cyfry, myślniki i podkreślniki.");
-
-      return userNameMessages.value.length === 0;
+      return errors.value.Get("UserName").length === 0;
     }
 
     const emailValid = (value: string): boolean => {
-      emailMessages.value = [];
+      errors.value.Clear("Email");
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-      if((touchedFields.value.email) && !emailRegex.test(value)) emailMessages.value.push("Wymagany prawidłowy adres email.");
-
-      return emailMessages.value.length === 0;
+      if((touchedFields.value.email) && !emailRegex.test(value)) {
+        errors.value.Add("Email","Wymagany prawidłowy adres email.");
+      }
+      return errors.value.Get("Email").length === 0;
     }
 
     const passwordValid = (value: string): boolean => {
-        passwordMessages.value = [];
-
-        if((touchedFields.value.password) && (!value)) passwordMessages.value.push("Hasło jest wymagane");
-
-        return passwordMessages.value.length === 0;
+      errors.value.Clear("Password");
+      if((touchedFields.value.password) && (!value)) {
+        errors.value.Add("Password", "Hasło jest wymagane");
+      }
+      return errors.value.Get("Password").length === 0;
     }
 
     const retypePasswordValid = (value: string): boolean => {
-        retypePasswordMessages.value = [];
+      errors.value.Clear("RetypePassword");
+      if((touchedFields.value.retypePassword || touchedFields.value.password) && (value !== formData.value.password)) {
+        errors.value.Add("RetypePassword","Powtórzone hasło musi być identyczne.");
+      }
 
-        if((touchedFields.value.retypePassword || touchedFields.value.password) && (value !== formData.value.password)) retypePasswordMessages.value.push("Powtórzone hasło musi być identyczne.");
-
-        return retypePasswordMessages.value.length === 0;
+      return errors.value.Get("RetypePassword").length === 0;
     }
 
     const validateForm = () => {
@@ -138,9 +133,10 @@
     };
 
     watchEffect(() => {
-        isFormValid.value = validateForm() && (touchedFields.value.userName || touchedFields.value.email || touchedFields.value.password || touchedFields.value.retypePassword);
+        isFormValid.value = validateForm() &&
+          touchedFields.value.userName &&
+          touchedFields.value.email
     });
-
 </script>
 
 <!-- ***************************************************  -->
@@ -156,7 +152,7 @@
               type="text"
               id="username"
               label="Nazwa użytkownika"
-              :messages="userNameMessages"
+              :messages="errors.Get('UserName')"
               @input="onChangeUsername"/>
           </div>
           <div class="form-group">
@@ -164,7 +160,7 @@
               type="text"
               id="email"
               label="Adres email"
-              :messages="emailMessages"
+              :messages="errors.Get('Email')"
               @input="onChangeEmail"/>
           </div>
           <div class="form-group">
@@ -172,7 +168,7 @@
               type="password"
               id="password"
               label="Hasło"
-              :messages="passwordMessages"
+              :messages="errors.Get('Password')"
               @input="onChangePassword"/>
           </div>
           <div class="form-group">
@@ -180,13 +176,13 @@
               type="password"
               id="retypepassword"
               label="Powtórz hasło"
-              :messages="retypePasswordMessages"
+              :messages="errors.Get('RetypePassword')"
               @input="onChangeRetypePassword"/>
           </div>
-          <button type="submit" v-if="isFormValid">Zarejestruj</button>
+          <button v-if="isFormValid" type="submit">Zarejestruj</button>
           <p></p>
           <div><RouterLink to="signin">Chcę się zalogować</RouterLink></div>
-          <HintList style="margin-top: 10px;" :messages="errors"/>
+          <HintList style="margin-top: 10px;" :messages="errors.Get('Common')"/>
       </form>
   </div>
 </template>

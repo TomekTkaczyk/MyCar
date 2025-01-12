@@ -1,10 +1,10 @@
-export interface IErrorMessage {
+export interface IValidationError {
   field: string;
   code: string;
   message: string;
 }
 
-export function isErrorMessage(obj: any): obj is IErrorMessage {
+export function isValidationError(obj: any): obj is IValidationError {
     return (
         obj !== null &&
         typeof obj === "object" &&

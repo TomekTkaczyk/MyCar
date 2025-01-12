@@ -1,4 +1,4 @@
-import type { IErrorMessage } from "./IErrorMessage";
+import {isValidationError,  type IValidationError } from "./IValidationError";
 
 export interface IApiError {
   code: string;
@@ -7,7 +7,8 @@ export interface IApiError {
   message: string;
   status: number;
   title: string;
-  validationErrors: IErrorMessage[];
+  type: string;
+  validationErrors: IValidationError[];
 }
 
 export function isApiError(obj: any): obj is IApiError {
@@ -19,7 +20,7 @@ export function isApiError(obj: any): obj is IApiError {
         typeof obj.status === "number" &&
         Array.isArray(obj.validationErrors) &&
         obj.validationErrors.every(
-          (error: any) => error.isErrorMessage(error)
+          (error: any) => isValidationError(error)
         )
       );
 }
