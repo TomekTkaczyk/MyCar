@@ -3,19 +3,17 @@
 <!-- ***************************************************  -->
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { reactive, ref, watchEffect } from 'vue';
   import type ISignInCommand from './requests/signin-command';
   import TextInput from "@/components/TextInput.vue";
   import HintList from '@/components/HintList.vue';
-  import MessageProvider from '@/infrastructure/messageProvider';
-  import { isApiError } from '@/types/IApiError';
   import { useAuthStore } from '@/stores/AuthStore';
-
-  const errors = ref<string[]>([]);
-  const identifierMessages = ref<string[]>([]);
-  const passwordMessages = ref<string[]>([]);
+  import { FormErrors } from '@/types/FormErrors';
+  import { isValidEmail } from '@/helpers/email-validator';
 
   const authStore = useAuthStore();
+
+  const isFormValid = ref(false);
 
   const touchedFields = ref({
     identifier: false,
@@ -27,70 +25,64 @@
       password: '',
   });
 
-  async function signInUser(data: ISignInCommand) {
-    const { identifier, password } = data;
-    const body: ISignInCommand = {identifier, password};
-    const messageProvider = new MessageProvider("signIn");
-    await messageProvider.Initialize();
-    errors.value = [];
-    identifierMessages.value = [];
-    passwordMessages.value = [];
+  const errors = reactive<FormErrors>(new FormErrors());
 
+  async function signInUser(data: ISignInCommand) {
+    touchedFields.value.identifier = false;
+    touchedFields.value.password = false;
     try {
-      if(validateForm()) {
-        await authStore.signInUser(body);
+      if(isFormValid) {
+        await authStore.signInUser(data);
       }
     } catch (error: any) {
-        if(isApiError(error)){
-          error.validationErrors.forEach((value) => {
-            const {code, message} = value;
-            errors.value.push(messageProvider.GetMessage({field, code, message}));
-          });
-          const {code, message} = error;
-          errors.value = [messageProvider.GetMessage({code, message})];
-        } else {
-          errors.value = ["Nierozpoznany błąd systemowy."];
-        };
+      await errors.CatchApiError(error);
     };
-  }
+  };
 
   const onChangeIdentifier = (value: string) => {
     formData.value.identifier = value;
     touchedFields.value.identifier = true;
-    identifierMessages.value = [];
-    if(!(value.length > 0)){
-      identifierMessages.value.push("Wymagany jest identyfikator lub adres email.");
-    }
+    identifierValidate(value);
   };
 
   const onChangePassword = (value: string) => {
     formData.value.password = value;
     touchedFields.value.password = true;
-    passwordMessages.value = [];
-    if(!(value.length > 0)) passwordMessages.value.push("Hasło jest wymagane.");
+    passwordValidate(value);
   };
 
-  const identifierValid = (value: string) => {
-    identifierMessages.value = [];
-    if (!value) identifierMessages.value.push("Identyfikator jest wymagany.");
+  const identifierValidate = (value: string): boolean => {
+    errors.Clear("Identifier");
+    errors.messages.length = 0;
+    const invalidCharsRegex = /[^a-zA-Z0-9_-]/;
+    const generalAtRegex = /@/;
+    if (touchedFields.value.identifier && !value) {
+      errors.Add("Identifier", "Wymagany identyfikator lub email użytkownika.");
+    }
+    if(generalAtRegex.test(value)){
+      if((touchedFields.value.identifier) && !isValidEmail(value)) {
+        errors.Add("Identifier","Wymagany prawidłowy adres email.");
+      }
+    } else {
+      if (touchedFields.value.identifier && (value.length < 3)) errors.Add("Identifier", "Identyfikator użytkownika musi mieć co najmniej 3 znaki.");
+      if (touchedFields.value.identifier && (value.length > 20)) errors.Add("Identifier", "Identyfikator użytkownika może mieć maksymalnie 20 znaków.");
+      if (touchedFields.value.identifier && (invalidCharsRegex.test(value))) errors.Add("Identifier", "Identyfikator użytkownika może zawierać tylko litery, cyfry, myślniki i podkreślniki.");
+    }
 
-    return identifierMessages.value.length === 0;
+    return errors.Get("Identifier").length === 0;
   }
 
-  const passwordValid = (value: string) => {
-    passwordMessages.value = [];
-    if ((!value) && touchedFields.value.identifier) passwordMessages.value.push("Hasło jest wymagane.");
-
-    return passwordMessages.value.length === 0;
+  const passwordValidate = (value: string): boolean => {
+    errors.Clear("Password");
+    errors.messages.length = 0;
+    return errors.Get("Password").length === 0;
   }
 
-  const validateForm = () => {
-    const { identifier, password } = formData.value;
-    return (
-      (identifierValid(identifier)) &&
-      (passwordValid(password))
-    );
-  };
+  watchEffect(() => {
+    isFormValid.value = errors.Count === 0 &&
+      (touchedFields.value.identifier || formData.value.identifier.length > 0);
+  });
+
 </script>
 
 <!-- ***************************************************  -->
@@ -106,7 +98,7 @@
             type="text"
             id="identifier"
             label="Nazwa użytkownika (login/email)"
-            :messages="identifierMessages"
+            :messages="errors.Get('Identifier')"
             @input="onChangeIdentifier"/>
         </div>
         <div class="form-group">
@@ -114,17 +106,21 @@
             type="password"
             id="password"
             label="Hasło"
-            :messages="passwordMessages"
+            :messages="errors.Get('Password')"
             @input="onChangePassword"/>
         </div>
-        <button type="submit">Zaloguj</button>
+        <button v-if="isFormValid" type="submit">Zaloguj</button>
         <p></p>
         <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
         <div><RouterLink to="remindpassword">Nie pamiętam hasła</RouterLink></div>
-        <HintList style="margin-top: 10px;" :messages="errors"/>
+        <HintList style="margin-top: 10px;" :messages="errors.messages"/>
       </form>
   </div>
 </template>
+
+<!-- ***************************************************  -->
+<!-- * Style section                                   *  -->
+<!-- ***************************************************  -->
 
 <style scoped>
 .signin-form {

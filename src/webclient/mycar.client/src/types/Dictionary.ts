@@ -30,4 +30,12 @@ export class Dictionary<TValue> {
   public Clear(): void {
     this.dictionary = {};
   }
+
+  public GetDictionary() {
+    return this.dictionary;
+  }
+
+  public get Count(): number {
+    return Object.keys(this.dictionary).length;
+  }
 }

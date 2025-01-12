@@ -100,9 +100,10 @@ internal class AccountController(
 
 
 	[HttpPost("remaind-password")]
+	[AllowAnonymous]
 	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
-	public async Task<IActionResult> RemaindPasswordAsync(string email, CancellationToken cancellationToken)
+	public async Task<IActionResult> RemaindPasswordAsync([FromQuery] string email, CancellationToken cancellationToken)
 	{
 		await service.RemaindPasswordAsync(email, cancellationToken);
 		return NoContent();

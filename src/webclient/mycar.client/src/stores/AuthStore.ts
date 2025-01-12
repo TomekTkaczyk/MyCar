@@ -13,7 +13,6 @@ import type IUpdateProfileCommand from '@/modules/auth/requests/updateprofile-co
 import type IUser from '@/types/IUser';
 import type IAuthState from '@/types/IAuthState';
 import type IChangeEmailCommand from '@/modules/auth/requests/changeemail-command';
-import type IRemaindPasswordCommand from '@/modules/auth/requests/remaindpassword-command';
 import { isAxiosError, type AxiosError } from 'axios';
 import { ApiError } from '@/infrastructure/errors/ApiError';
 
@@ -48,8 +47,10 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async logout() {
       try {
+        this.isAuthenticated = false;
+        this.accessToken = null;
+        this.refreshToken = null;
         await httpApiClient.post('/users-module/Account/logout');
-        this.$reset();
         router.push('/signin');
       } catch (error) {
         errorHanle(error);
@@ -79,9 +80,9 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async reamindPassword(command: IRemaindPasswordCommand) {
+    async reamindPassword(email: string) {
       try {
-        await httpApiClient.post('/users-module/Account/remaind-password', command);
+        await httpApiClient.post('/users-module/Account/remaind-password', null, { params: { email: email}});
         router.push('/signin');
         alert('Wysłaliśmy link do zmiany hasła na twój adres email.\nZaloguj się do aplikacji.')
       } catch (error) {
@@ -98,9 +99,9 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async changeEmail(command: IChangeEmailCommand) {
+    async changeEmail(email: string) {
       try{
-        await httpApiClient.post('/users-module/Account/change-email', command);
+        await httpApiClient.post('/users-module/Account/change-email', null, {params: {email: email}});
         alert('Adres email został zmieniony.');
       } catch (error) {
         errorHanle(error);

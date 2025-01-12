@@ -53,23 +53,25 @@ httpApiClient.interceptors.response.use(
     LoadingStore.stopLoading();
     const originalRequest = error.config as AxiosRequestConfig;
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
       const authStore = useAuthStore();
-      if (authStore.isRefreshing) {
-        return new Promise<any>((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then(() => httpApiClient(originalRequest));
-      };
-      authStore.isRefreshing = true;
-      try {
-        await httpApiClient.post('/users-module/Account/refresh-token');
-        return axios(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError);
-        authStore.logout();
-        return Promise.reject(refreshError);
-      } finally {
-        authStore.isRefreshing = false;
+      if(authStore.isAuthenticated) {
+        originalRequest._retry = true;
+        if (authStore.isRefreshing) {
+          return new Promise<any>((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          }).then(() => httpApiClient(originalRequest));
+        };
+        authStore.isRefreshing = true;
+        try {
+          await httpApiClient.post('/users-module/Account/refresh-token');
+          return axios(originalRequest);
+        } catch (refreshError) {
+          processQueue(refreshError);
+          authStore.logout();
+          return Promise.reject(refreshError);
+        } finally {
+          authStore.isRefreshing = false;
+        }
       }
     };
     return Promise.reject(error);

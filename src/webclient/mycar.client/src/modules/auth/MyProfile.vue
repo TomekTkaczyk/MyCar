@@ -14,7 +14,7 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-7 col-md-7 col-lg-5 col-xl-4 col-xxl-3">
+      <div class="myprofile-content col-sm-7 col-md-7 col-lg-5 col-xl-4 col-xxl-3">
         <component :is="currentComponent" />
       </div>
     </div>
@@ -41,6 +41,13 @@
 
 <style scoped>
     .myprofile-form {
+        margin: 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .myprofile-content {
         margin: 0;
         padding: 10px;
         border: 1px solid #ccc;

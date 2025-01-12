@@ -1,4 +1,7 @@
+import type { ApiError } from "@/infrastructure/errors/ApiError";
 import { Dictionary } from "./Dictionary";
+import { isApiError, type IApiError } from "./IApiError";
+import MessageProvider from "@/infrastructure/messageProvider";
 
 export class FormErrors {
   public readonly _dictionary: Dictionary<string[]> = new Dictionary<string[]>();
@@ -11,11 +14,11 @@ export class FormErrors {
     } else {
       this._dictionary.Set(field, [message]);
     }
-    console.log(this._dictionary);
   }
 
   public ClearAll(): void {
     this._dictionary.Clear();
+    this.messages.length = 0;
   }
 
   public Clear(field: string): void {
@@ -30,5 +33,25 @@ export class FormErrors {
       return items;
     }
     return [];
+  }
+
+  public get Count(): number {
+    return this.messages.length + this._dictionary.Count;
+  }
+
+  public async CatchApiError(error: any) {
+    if(isApiError(error)){
+      const messageProvider = new MessageProvider("signUp");
+      await messageProvider.Initialize();
+      this.ClearAll();
+      error.validationErrors.forEach((value) => {
+        const {code, message} = value;
+        this.Add(value.field, messageProvider.GetMessage({code, message}));
+      });
+      const message = messageProvider.GetMessage({code: error.code, message: error.message});
+      this.messages.push(message);
+    } else {
+      this.messages.push("Nierozpoznany błąd systemowy");
+    };
   }
 }

@@ -3,46 +3,48 @@
 <!-- ***************************************************  -->
 
 <script setup lang="ts">
-    import { ref, watchEffect } from 'vue';
-    import type IRemindPasswordCommand from './requests/remaindpassword-command';
+    import { reactive, ref, watchEffect } from 'vue';
     import TextInput from "@/components/TextInput.vue";
     import HintList from '@/components/HintList.vue';
     import { useAuthStore } from '@/stores/AuthStore';
-    import MessageProvider from '@/infrastructure/messageProvider';
     import { isValidEmail } from '@/helpers/email-validator'
+    import { FormErrors } from '@/types/FormErrors';
 
-
-    const errors = ref<string[]>([]);
-    const emailMessages= ref<string[]>([]);
     const authStore = useAuthStore();
+
     const isFormValid = ref(false);
 
-    const formData = ref<IRemindPasswordCommand>({
-        email: '',
-    });
+    const formData = ref('');
 
-    async function remindPassword(data: {email: string}) {
-      const { email } = data;
-      const body: IRemindPasswordCommand = {email};
-      const messageProvider = new MessageProvider("forgotPassword");
-      await messageProvider.Initialize();
-      errors.value = [];
-      emailMessages.value = [];
+    const errors = reactive<FormErrors>(new FormErrors());
 
+    async function remindPassword(email: string) {
       try {
-        await authStore.reamindPassword(body);
+        if(isFormValid) {
+          await authStore.reamindPassword(email);
+        }
       } catch (error) {
-          console.error('Remind failed', error);
+          await errors.CatchApiError(error);
       }
     };
 
     const onChangeEmail = (value: string) => {
-      formData.value.email = value;
-      emailHintFlag.value = !isValidEmail(value);
+      formData.value = value;
+      emailValidate(value);
+    }
+
+    const emailValidate = (value: string): boolean => {
+      errors.Clear("Email");
+      errors.messages.length = 0;
+      if(!isValidEmail(value)){
+        errors.Add("Email", "Wymagany prawidłowy adres eamil.");
+      };
+      return errors.Get("Email").length === 0;
     }
 
     watchEffect(() => {
-        isFormValid.value = isValidEmail(formData.value.email);
+        isFormValid.value = errors.Count === 0 &&
+          (formData.value.length > 0);
     });
 
 </script>
@@ -56,18 +58,18 @@
       <h2>Reset hasła</h2>
       <form @submit.prevent="remindPassword(formData)">
         <div class="form-group">
-              <TextInput v-model="formData.email"
+              <TextInput v-model="formData"
                 type="text"
                 id="email"
                 label="Email"
-                :messages="emailMessages"
+                :messages="errors.Get('Email')"
                 @input="onChangeEmail"/>
             </div>
-          <button type="submit" v-if="isFormValid">Wyślij</button>
+          <button v-if="isFormValid" type="submit">Wyślij</button>
           <p></p>
           <div><RouterLink to="signin">Chcę się zalogować</RouterLink></div>
           <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
-          <HintList :messages="errors"/>
+          <HintList :messages="errors.messages"/>
 
       </form>
   </div>
@@ -109,5 +111,7 @@
         border: none;
         border-radius: 5px;
         cursor: pointer;
+        margin-top: 10px;
+        margin-bottom: 5px;
     }
 </style>
