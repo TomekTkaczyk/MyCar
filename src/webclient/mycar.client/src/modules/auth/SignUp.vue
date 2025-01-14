@@ -48,7 +48,7 @@
   const onChangeUsername = (value: string) => {
     formData.value.userName = value;
     touchedFields.value.userName = true;
-    usernameValidate(value);
+    userNameValidate(value);
   };
 
   const onChangeEmail = (value: string) => {
@@ -69,16 +69,16 @@
       retypePasswordValidate(value);
     };
 
-  const usernameValidate = (value: string): boolean => {
-    errors.Clear("UserName");
+  const userNameValidate = (value: string): boolean => {
+    errors.Clear("Username");
     errors.messages.length = 0;
     const invalidCharsRegex = /[^a-zA-Z0-9_-]/;
-    if (touchedFields.value.userName && !value) errors.Add("UserName", "Nazwa użytkownika jest wymagana.");
-    if (touchedFields.value.userName && (value.length < 3)) errors.Add("UserName", "Nazwa użytkownika musi mieć co najmniej 3 znaki.");
-    if (touchedFields.value.userName && (value.length > 20)) errors.Add("UserName", "Nazwa użytkownika może mieć maksymalnie 20 znaków.");
-    if (touchedFields.value.userName && (invalidCharsRegex.test(value))) errors.Add("UserName", "Nazwa użytkownika może zawierać tylko litery, cyfry, myślniki i podkreślniki.");
+    if (touchedFields.value.userName && !value) errors.Add("Username", "Nazwa użytkownika jest wymagana.");
+    if (touchedFields.value.userName && (value.length < 3)) errors.Add("Username", "Nazwa użytkownika musi mieć co najmniej 3 znaki.");
+    if (touchedFields.value.userName && (value.length > 20)) errors.Add("Username", "Nazwa użytkownika może mieć maksymalnie 20 znaków.");
+    if (touchedFields.value.userName && (invalidCharsRegex.test(value))) errors.Add("Username", "Nazwa użytkownika może zawierać tylko litery, cyfry, myślniki i podkreślniki.");
 
-    return errors.Get("UserName").length === 0;
+    return errors.Get("Username").length === 0;
   }
 
   const emailValidate = (value: string): boolean => {
@@ -128,9 +128,9 @@
          <div class="form-group">
               <TextInput v-model="formData.userName"
               type="text"
-              id="username"
+              id="userName"
               label="Nazwa użytkownika"
-              :messages="errors.Get('UserName')"
+              :messages="errors.Get('Username')"
               @input="onChangeUsername"/>
           </div>
           <div class="form-group">

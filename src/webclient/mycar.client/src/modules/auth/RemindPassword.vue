@@ -21,7 +21,7 @@
     async function remindPassword(email: string) {
       try {
         if(isFormValid) {
-          await authStore.reamindPassword(email);
+          await authStore.remindPassword(email);
         }
       } catch (error) {
           await errors.CatchApiError(error);

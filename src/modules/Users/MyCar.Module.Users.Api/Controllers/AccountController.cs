@@ -38,6 +38,18 @@ internal class AccountController(
 		return Created();
 	}
 
+	[HttpPost("change-email")]
+	[EnableCors("cors-fronturl-header")]
+	[ProducesResponseType(204)]
+	[ProducesResponseType(400)]
+	public async Task<IActionResult> ChangeEmailAsync([FromQuery] string email, CancellationToken cancellationToken)
+	{
+		var frontendUrl = Request.Headers["X-Frontend-Url"].ToString();
+
+		await service.ChangeEmailAsync(context.Identity.Id, email, frontendUrl, cancellationToken);
+		return NoContent();
+	}
+
 	[HttpPost("sign-in")]
 	[AllowAnonymous]
 	[ProducesResponseType(204)]
@@ -101,11 +113,14 @@ internal class AccountController(
 
 	[HttpPost("remaind-password")]
 	[AllowAnonymous]
+	[EnableCors("cors-fronturl-header")]
 	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
 	public async Task<IActionResult> RemaindPasswordAsync([FromQuery] string email, CancellationToken cancellationToken)
 	{
-		await service.RemaindPasswordAsync(email, cancellationToken);
+		var frontendUrl = Request.Headers["X-Frontend-Url"].ToString();
+
+		await service.RemaindPasswordAsync(email, frontendUrl, cancellationToken);
 		return NoContent();
 	}
 
@@ -116,16 +131,6 @@ internal class AccountController(
 	public async Task<IActionResult> ChangePasswordAsync(ChangePasswordDto dto, CancellationToken cancellationToken)
 	{
 		await service.ChangePasswordAsync(context.Identity.Id, dto, cancellationToken);
-		return NoContent();
-	}
-
-
-	[HttpPost("change-email")]
-	[ProducesResponseType(204)]
-	[ProducesResponseType(400)]
-	public async Task<IActionResult> ChangeEmailAsync(ChangeEmailDto dto, CancellationToken cancellationToken)
-	{
-		await service.ChangeEmailAsync(context.Identity.Id, dto, cancellationToken);
 		return NoContent();
 	}
 
@@ -144,9 +149,9 @@ internal class AccountController(
 	[AllowAnonymous]
 	[ProducesResponseType(200)]
 	[ProducesResponseType(400)]
-	public async Task<ActionResult> ConfirmEmailTokenAsync(ConfirmEmailDto dto, CancellationToken cancellationToken)
+	public async Task<ActionResult> ConfirmEmailAsync([FromQuery] string token, CancellationToken cancellationToken)
 	{
-		await service.ConfirmEmailTokenAsync(dto, cancellationToken);
+		await service.ConfirmEmailAsync(token, cancellationToken);
 		return Ok();
 	}
 

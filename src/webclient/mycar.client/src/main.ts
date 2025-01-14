@@ -7,6 +7,7 @@ import '@/assets/main.css';
 import { createApp } from 'vue';
 import App from './MyCar.vue';
 import { createPinia } from 'pinia';
+import { useAuthStore } from '@/stores/AuthStore';
 
 import router from "@/router";
 
@@ -16,5 +17,11 @@ const mycar = createApp(App);
 
 mycar
     .use(pinia)
-    .use(router)
-    .mount('#mycar');
+    .use(router);
+
+const authStore = useAuthStore();
+authStore.initialize();
+
+mycar.mount('#mycar');
+
+

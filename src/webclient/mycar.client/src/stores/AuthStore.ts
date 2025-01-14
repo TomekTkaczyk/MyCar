@@ -9,11 +9,9 @@ import type ISignUpCommand from '@/modules/auth/requests/signup-command';
 import type IConfirmEmailCommand from '@/modules/auth/requests/confirmemail-command';
 import type IChangePasswordCommand from '@/modules/auth/requests/changepassword-command';
 import type IUpdateProfileCommand from '@/modules/auth/requests/updateprofile-command';
-
-import type IUser from '@/types/IUser';
+import { AlerMessage } from '@/infrastructure/AlertMessage';
 import type IAuthState from '@/types/IAuthState';
-import type IChangeEmailCommand from '@/modules/auth/requests/changeemail-command';
-import { isAxiosError, type AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import { ApiError } from '@/infrastructure/errors/ApiError';
 
 const errorHanle = (error: any) => {
@@ -50,6 +48,7 @@ export const useAuthStore = defineStore('auth', {
         this.isAuthenticated = false;
         this.accessToken = null;
         this.refreshToken = null;
+        sessionStorage.removeItem('auth');
         await httpApiClient.post('/users-module/Account/logout');
         router.push('/signin');
       } catch (error) {
@@ -70,21 +69,25 @@ export const useAuthStore = defineStore('auth', {
 
     async signUpUser(command: ISignUpCommand) {
       try {
-        await httpApiClient.post('/users-module/Account/sign-up', command, {headers: {
-          'X-Frontend-Url': window.location.origin+"/ConfirmEmail",
-        }});
+        await httpApiClient.post('/users-module/Account/sign-up', command,
+          {headers:
+            {'X-Frontend-Url': window.location.origin+"/ConfirmEmail"}
+          }
+        );
         router.push('/signin');
-        alert('Wysłaliśmy aktywację na twój adres email. Zaloguj się po potwierdzeniu adresu email.')
+        const alertMessage = new AlerMessage();
+        alertMessage.Show('Wysłaliśmy aktywację na twój adres email. Zaloguj się po potwierdzeniu adresu email.')
       } catch (error) {
         errorHanle(error);
       }
     },
 
-    async reamindPassword(email: string) {
+    async remindPassword(email: string) {
       try {
         await httpApiClient.post('/users-module/Account/remaind-password', null, { params: { email: email}});
         router.push('/signin');
-        alert('Wysłaliśmy link do zmiany hasła na twój adres email.\nZaloguj się do aplikacji.')
+        const alertMessage = new AlerMessage();
+        alertMessage.Show('Wysłaliśmy link do zmiany hasła na twój adres email.\nZaloguj się do aplikacji.')
       } catch (error) {
         errorHanle(error);
       }
@@ -93,7 +96,8 @@ export const useAuthStore = defineStore('auth', {
     async changePassword(command: IChangePasswordCommand) {
       try{
         await httpApiClient.post('/users-module/Account/change-password', command);
-        alert('Hasło zostało zmienione.');
+        const alertMessage = new AlerMessage();
+        alertMessage.Show('Hasło zostało zmienione.');
       } catch (error) {
         errorHanle(error);
       }
@@ -101,24 +105,35 @@ export const useAuthStore = defineStore('auth', {
 
     async changeEmail(email: string) {
       try{
-        await httpApiClient.post('/users-module/Account/change-email', null, {params: {email: email}});
-        alert('Adres email został zmieniony.');
+        await httpApiClient.post('/users-module/Account/change-email', null,
+          {
+            params: {email: email},
+            headers: {'X-Frontend-Url': window.location.origin+"/ConfirmEmail"}
+          }
+        );
+        const alertMessage = new AlerMessage();
+        alertMessage.Show('Na podany adres został wysłany link aktywacyjny.');
       } catch (error) {
         errorHanle(error);
       }
     },
 
-    async confirmEmail(command: IConfirmEmailCommand) : Promise<void> {
+    async confirmEmail(token: string) {
       try{
-        await httpApiClient.post('users-module/Account/confirm-email', command)
+        await httpApiClient.post('users-module/Account/confirm-email', null,
+          {
+            params: {token: token},
+          }
+        )
         router.push("/signin");
-        alert('Adres email został potwierdzony.\nZaloguj się do aplikacji.');
+        const alertMessage = new AlerMessage();
+        alertMessage.Show('Adres email został potwierdzony.\nZaloguj się do aplikacji.');
       } catch (error) {
         errorHanle(error);
       }
     },
 
-    async resendConfirmEmail(email: string) : Promise<void> {
+    async resendConfirmEmail(email: string) {
       try{
         await httpApiClient.post('users-module/Account/resend-confirm-email', email)
       } catch (error) {
@@ -135,17 +150,34 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+
     async getUser() {
       const userReponse = await httpApiClient.get('/users-module/Account');
-      const user: IUser = userReponse.data;
-      this.id = user.id;
-      this.name = user.name;
-      this.email = user.email;
-      this.firstName = user.firstName;
-      this.lastName = user.lastName;
-      this.role = user.role;
-      this.claims = user.claims;
-      this.isConfirmed = user.isConfirmed;
+      this.id = userReponse.data.id;
+      this.name = userReponse.data.name;
+      this.email = userReponse.data.email;
+      this.firstName = userReponse.data.firstName;
+      this.lastName = userReponse.data.lastName;
+      this.role = userReponse.data.role;
+      this.claims = userReponse.data.claims;
+      this.isConfirmed = userReponse.data.isConfirmed;
+
+      sessionStorage.setItem('auth', JSON.stringify({
+        accessToken: this.accessToken,
+        refreshToken: this.refreshToken,
+        isAuthenticated: this.isAuthenticated
+      }))
+    },
+
+    async initialize() {
+      const authData = sessionStorage.getItem('auth');
+      if(authData) {
+        const {accessToken, refreshToken, isAuthenticated} = JSON.parse(authData);
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.isAuthenticated = isAuthenticated;
+        await this.getUser();
+      };
     },
 
     setTokens(accessToken: string, refreshToken: string) {
@@ -155,3 +187,4 @@ export const useAuthStore = defineStore('auth', {
     }
   },
 });
+

@@ -26,7 +26,8 @@ internal class JwtEmailConfirmer(AuthOptions options, IClock clock) : IEmailConf
 	public string GetConfirmEmailBody(Guid userId, string email, string confirmUrl)
 	{
 		CreateToken(userId, email);
-		string applicationUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "http://localhost:5000";
+
+		_ = Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "http://localhost:5000";
 
 
 		return ConfirmToken;
@@ -55,7 +56,7 @@ internal class JwtEmailConfirmer(AuthOptions options, IClock clock) : IEmailConf
 		return true;
 	}
 
-	private void CreateToken(Guid userId, string email)
+	private string CreateToken(Guid userId, string email)
 	{
 		var now = clock.CurrentDate();
 		if(options.EmailConfirmExpiry.TotalSeconds < 1) {
@@ -63,8 +64,9 @@ internal class JwtEmailConfirmer(AuthOptions options, IClock clock) : IEmailConf
 		}
 		var expires = now.Add(options.EmailConfirmExpiry);
 		var claims = new List<Claim> {
-			new("code", GenerateVerificationCode()),
-			new("email", email)
+			new("id", userId.ToString()),
+			new("email", email),
+			new("code", GenerateVerificationCode())
 		};
 
 		var jwt = new JwtSecurityToken(
@@ -73,6 +75,8 @@ internal class JwtEmailConfirmer(AuthOptions options, IClock clock) : IEmailConf
 			claims: claims);
 
 		ConfirmToken = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+		return ConfirmToken;
 	}
 
 	private static string GenerateVerificationCode()

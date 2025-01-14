@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/stores/AuthStore';
 import { useLoadingStore } from '@/stores/LoadingStore';
-import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import axios, { type AxiosRequestConfig } from 'axios';
 
 const httpApiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,

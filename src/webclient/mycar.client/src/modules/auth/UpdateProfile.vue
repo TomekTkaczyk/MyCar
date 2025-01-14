@@ -1,3 +1,77 @@
+<!-- ***************************************************  -->
+<!-- * Script section                                  *  -->
+<!-- ***************************************************  -->
+
+<script setup lang="ts">
+  import { onBeforeMount, reactive, ref, watchEffect } from 'vue';
+  import type IUpdateProfileCommand from './requests/updateprofile-command.ts';
+  import TextInput from "@/components/TextInput.vue";
+  import { useAuthStore } from '@/stores/AuthStore';
+  import { FormErrors } from '@/types/FormErrors.ts';
+
+  const authStore = useAuthStore();
+
+  const isFormValid = ref(false);
+
+  const touchedFields = ref({
+    firstName: false,
+    lastName: false,
+  });
+
+  const formData = ref<IUpdateProfileCommand>({
+      firstName: authStore.firstName as string || '',
+      lastName: authStore.lastName as string || '',
+  });
+
+  const errors = reactive<FormErrors>(new FormErrors());
+
+  async function updateProfile(data: IUpdateProfileCommand) {
+    try{
+      touchedFields.value.firstName = false;
+      touchedFields.value.lastName = false;
+      await authStore.updateProfile(data);
+      await authStore.getUser();
+    } catch (error: any) {
+      await errors.CatchApiError(error);
+    }
+  };
+
+  const onChangeFirstname = (value: string) => {
+    formData.value.firstName = value;
+    touchedFields.value.firstName = true;
+    firstNameValidate(value);
+  }
+
+  const onChangeLastname = (value: string) => {
+    formData.value.lastName = value;
+    touchedFields.value.lastName = true;
+    lastNameValidate(value);
+  }
+
+  const firstNameValidate = (value: string): boolean => {
+    errors.Clear("Firstname");
+    errors.messages.length = 0;
+    return errors.Get("Firstname").length === 0;;
+  }
+
+  const lastNameValidate = (value: string): boolean => {
+    errors.Clear("lastName");
+    errors.messages.length = 0;
+    return errors.Get("Lastname").length === 0;;
+  }
+
+  watchEffect(() => {
+    isFormValid.value = errors.Count === 0 &&
+      (touchedFields.value.firstName || touchedFields.value.lastName);
+  });
+
+
+</script>
+
+<!-- ***************************************************  -->
+<!-- * Template section                                *  -->
+<!-- ***************************************************  -->
+
 <template>
   <div class="updateprofile-form">
     <h4>Zmiana nazwy</h4>
@@ -5,55 +79,27 @@
         <div class="form-group">
               <TextInput v-model="formData.firstName"
                 type="text"
-                id="firstname"
+                id="firstName"
                 label="Imię"
-                @input="onChangeFirstName"/>
+                :messages="errors.Get('Firstname')"
+                @input="onChangeFirstname"/>
             </div>
             <div class="form-group">
               <TextInput v-model="formData.lastName"
                 type="text"
-                id="lastname"
+                id="lastName"
                 label="Nazwisko"
-                @input="onChangeLastName"/>
+                :messages="errors.Get('Lastname')"
+                @input="onChangeLastname"/>
             </div>
-            <button class="btn btn-outline-primary" type="submit">Wyślij</button>
+            <button v-if="isFormValid" type="submit">Wyślij</button>
       </form>
   </div>
 </template>
 
-<script setup lang="ts">
-    import { ref, watchEffect } from 'vue';
-    import type IUpdateProfileCommand from './requests/updateprofile-command.ts';
-    import TextInput from "@/components/TextInput.vue";
-    import { useAuthStore } from '@/stores/AuthStore';
-
-    const authStore = useAuthStore();
-
-    const formData = ref<IUpdateProfileCommand>({
-        firstName: authStore.firstName as string || '',
-        lastName: authStore.lastName as string || '',
-    });
-
-    const isFormValid = ref(false);
-
-    async function updateProfile(data: IUpdateProfileCommand) {
-      // Tutaj można wywołać funkcję do rejestracji użytkownika
-      // np. poprzez wywołanie API, przekazując formData.value
-      const { firstName, lastName } = data;
-      const body: IUpdateProfileCommand = {firstName, lastName};
-      await authStore.updateProfile(body);
-    };
-
-    const onChangeFirstName = (value: string) => {
-      formData.value.firstName = value;
-    }
-
-    const onChangeLastName = (value: string) => {
-      formData.value.lastName = value;
-    }
-</script>
-
-
+<!-- ***************************************************  -->
+<!-- * Style section                                   *  -->
+<!-- ***************************************************  -->
 
 <style scoped>
     .form-group {

@@ -73,7 +73,7 @@ internal sealed class TokenProvider : ITokenProvider
 				new Claim("email", email),
 			]),
 			Issuer = "MyCar",
-			Expires = now.Add(_options.EmailConfirmExpiry),
+			Expires = now.Add(_options.EmailConfirmExpiry != default ? _options.EmailConfirmExpiry : TimeSpan.FromHours(1)),
 			SigningCredentials = _credentials,
 		};
 

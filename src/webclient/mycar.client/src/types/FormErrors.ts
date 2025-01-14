@@ -1,9 +1,8 @@
-import type { ApiError } from "@/infrastructure/errors/ApiError";
 import { Dictionary } from "./Dictionary";
 import { isApiError, type IApiError } from "./IApiError";
-import MessageProvider from "@/infrastructure/messageProvider";
+import MessageProvider from "@/infrastructure/MessageProvider";
 
-export class FormErrors {
+class FormErrors {
   public readonly _dictionary: Dictionary<string[]> = new Dictionary<string[]>();
   public readonly messages: string[] = [];
 
@@ -51,7 +50,9 @@ export class FormErrors {
       const message = messageProvider.GetMessage({code: error.code, message: error.message});
       this.messages.push(message);
     } else {
-      this.messages.push("Nierozpoznany błąd systemowy");
+      this.messages.push("Nierozpoznany błąd systemowy.");
     };
   }
 }
+
+export { FormErrors };

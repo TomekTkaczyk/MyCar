@@ -3,58 +3,54 @@
 <!-- ***************************************************  -->
 
 <script setup lang="ts">
-    import { reactive, ref, watchEffect } from 'vue';
-    import type IChangeEmailCommand from './requests/changeemail-command.ts';
-    import TextInput from "@/components/TextInput.vue";
-    import HintList from '@/components/HintList.vue';
-    import { useAuthStore } from '@/stores/AuthStore';
-    import { isValidEmail } from '@/helpers/email-validator'
-    import MessageProvider from '@/infrastructure/messageProvider';
-    import { isAxiosError, type AxiosError, type AxiosResponse } from 'axios';
-    import {isApiError, type IApiError} from '@/types/IApiError';
-import { FormErrors } from '@/types/FormErrors.ts';
+  import { reactive, ref, watchEffect } from 'vue';
+  import TextInput from "@/components/TextInput.vue";
+  import HintList from '@/components/HintList.vue';
+  import { useAuthStore } from '@/stores/AuthStore';
+  import { isValidEmail } from '@/helpers/email-validator'
+  import { FormErrors } from '@/types/FormErrors.ts';
 
-    const authStore = useAuthStore();
+  const authStore = useAuthStore();
 
-    const isFormValid = ref(false);
+  const isFormValid = ref(false);
 
-    const errors = reactive<FormErrors>(new FormErrors);
+  const touchedFields = ref({
+    email: false,
+  });
 
-    const emailMessages = ref<string[]>([]);
+  const formData = ref(authStore.email as string);
 
-    const formData = ref(authStore.email as string);
+  const errors = reactive<FormErrors>(new FormErrors);
 
-    async function changeEmail(email: string) {
-      try {
-        if(isFormValid) {
-          await authStore.changeEmail(email);
-        }
-      } catch (error) {
-        await errors.CatchApiError(error);
+  async function changeEmail(email: string) {
+    touchedFields.value.email = false;
+    try {
+      if(isFormValid) {
+        await authStore.changeEmail(email);
       }
-    };
-
-    const onChangeEmail = (value: string) => {
-      formData.value = value;
-      if(!isValidEmail(formData.value)){
-        emailMessages.value.push("Wymagany jest prawidłowy adres email.");
-      }
+    } catch (error) {
+      await errors.CatchApiError(error);
     }
+  };
 
-    const emailValidate = (value: string): boolean => {
-      errors.Clear("Email");
-      errors.messages.length = 0;
-      if(!isValidEmail(formData.value)) {
-        errors.Add("Email", "Wymagany prawidłowy adres eamil.");
-      };
-      return errors.Get("Email").length === 0;
-    };
+  const onChangeEmail = (value: string) => {
+    formData.value = value;
+    touchedFields.value.email = true;
+    emailValidate(value);
+  }
 
-    watchEffect(() => {
-        isFormValid.value = errors.Count === 0 &&
-          formData.value.length > 0;
-    });
+  const emailValidate = (value: string): boolean => {
+    errors.Clear("Email");
+    errors.messages.length = 0;
+    if((touchedFields.value.email) && !isValidEmail(value)) {
+      errors.Add("Email","Wymagany prawidłowy adres email.");
+    }
+    return errors.Get("Email").length === 0;
+  };
 
+  watchEffect(() => {
+    isFormValid.value = errors.Count === 0 && touchedFields.value.email;
+  });
 </script>
 
 <!-- ***************************************************  -->
