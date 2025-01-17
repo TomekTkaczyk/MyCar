@@ -129,6 +129,7 @@ export const useAuthStore = defineStore('auth', {
         const alertMessage = new AlerMessage();
         alertMessage.Show('Adres email został potwierdzony.\nZaloguj się do aplikacji.');
       } catch (error) {
+        console.error();
         errorHanle(error);
       }
     },

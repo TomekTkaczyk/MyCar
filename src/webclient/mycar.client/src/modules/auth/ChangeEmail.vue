@@ -3,7 +3,7 @@
 <!-- ***************************************************  -->
 
 <script setup lang="ts">
-  import { reactive, ref, watchEffect } from 'vue';
+  import { computed, reactive, ref, watchEffect } from 'vue';
   import TextInput from "@/components/TextInput.vue";
   import HintList from '@/components/HintList.vue';
   import { useAuthStore } from '@/stores/AuthStore';
@@ -21,6 +21,8 @@
   const formData = ref(authStore.email as string);
 
   const errors = reactive<FormErrors>(new FormErrors);
+
+  const emailLabel = computed(() => {return authStore.isConfirmed ? "Email" : "Email (nie potwierdzony)"});
 
   async function changeEmail(email: string) {
     touchedFields.value.email = false;
@@ -65,10 +67,10 @@
               <TextInput v-model="formData"
                 type="text"
                 id="email"
-                label="Email"
+                :label="emailLabel"
                 :messages="errors.Get('Email')"
                 @input="onChangeEmail"/>
-            </div>
+          </div>
           <button v-if="isFormValid" type="submit">Wyślij</button>
           <HintList :messages="errors.messages"/>
         </form>
@@ -88,30 +90,37 @@
         border-radius: 5px;
     }
 
-    .form-group {
-        margin-bottom: 15px;
-    }
+  .form-group {
+      margin-bottom: 1px;
+      margin-top: 5px;
+  }
 
-    label {
-        display: block;
-        margin-bottom: 5px;
-    }
+  label {
+      display: block;
+      margin-bottom: 5px;
+  }
 
-    input {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
+  input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+  }
 
-    button {
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-top: 10px;
-        margin-bottom: 5px;
-    }
+  button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      margin-bottom: 5px;
+  }
+
+  .small-text {
+    font-size: 0.85em;
+    margin-top: 2px;
+  }
+
 </style>

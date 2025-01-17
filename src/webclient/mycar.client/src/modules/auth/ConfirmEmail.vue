@@ -30,13 +30,14 @@ const confirmEmail = async () => {
     await authStore.confirmEmail( confirmToken );
     isConfirmed.value = true;
   } catch (error) {
-    switch((error as ApiError).message){
+    console.error(error);
+    switch((error as ApiError).code){
       case "email_already_confirmed": {
         errorMessage.value = 'Adres email jest już potwierdzony.';
         break;
       }
       case "invalid_email_token": {
-        errorMessage.value = 'Napotkano błąd przy potwierdzaniu adresu email.';
+        errorMessage.value = 'Żądanie straciło ważność.\nZaloguj się do aplikacji ustaw ponownie adres email.\nŻądanie zostanie wysłane ponownie.';
         break;
       }
       default:{
@@ -95,6 +96,7 @@ confirmEmail();
 .error {
   color: red;
   font-weight: bold;
+  white-space: pre-line;
 }
 
 .button {

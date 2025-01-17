@@ -42,7 +42,13 @@
               <ul class="navbar-nav ms-auto mb-lg-0" v-if="authStore.isAuthenticated">
                 <li class="dropdown nav-item" v-if="authStore.isAuthenticated">
                       <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Witaj &nbsp <span class="navbar-brand">{{ authStore.name }}</span>
+                          Witaj &nbsp
+                          <span class="navbar-brand">
+                            {{ authStore.name }}
+                          </span>
+                          <span class="text-danger" v-if="!authStore.isConfirmed">
+                            (nie potwierdzony)
+                          </span>
                       </a>
                       <ul class="dropdown-menu">
                           <li><RouterLink class="dropdown-item" to="/MyProfile">Mój profil</RouterLink></li>
@@ -75,6 +81,5 @@
 
     .navbar-brand {
       padding: auto;
-/*      margin: auto;   */
     }
 </style>
