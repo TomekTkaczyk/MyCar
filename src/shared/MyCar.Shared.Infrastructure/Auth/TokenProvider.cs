@@ -27,12 +27,14 @@ internal sealed class TokenProvider : ITokenProvider
 		var now = _clock.CurrentDate();
 		var formattedClaims = new Dictionary<string, object>();
 
-		foreach(var claim in claims) {
-			if(claim.Value is IEnumerable<string> enumerable) {
-				formattedClaims[claim.Key] = enumerable.Count() == 1 ? enumerable.First() : enumerable.ToArray();
-			}
-			else {
-				formattedClaims[claim.Key] = claim.Value;
+		if(claims is not null) {
+			foreach(var claim in claims) {
+				if(claim.Value is IEnumerable<string> enumerable) {
+					formattedClaims[claim.Key] = enumerable.Count() == 1 ? enumerable.First() : enumerable.ToArray();
+				}
+				else {
+					formattedClaims[claim.Key] = claim.Value;
+				}
 			}
 		}
 

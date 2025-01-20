@@ -38,9 +38,9 @@ internal class UserRepository(UsersDbContext context) : IUserRepository
 		await _context.SaveChangesAsync();
 	}
 
-	public async Task<IReadOnlyList<User>> GetAllAsync()
+	public IQueryable<User> GetAll()
 	{
-		return await _users.AsNoTracking().ToListAsync();
+		return _users.AsNoTracking();
 	}
 
 }

@@ -30,7 +30,6 @@ const confirmEmail = async () => {
     await authStore.confirmEmail( confirmToken );
     isConfirmed.value = true;
   } catch (error) {
-    console.error(error);
     switch((error as ApiError).code){
       case "email_already_confirmed": {
         errorMessage.value = 'Adres email jest już potwierdzony.';

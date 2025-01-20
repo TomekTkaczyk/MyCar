@@ -3,7 +3,7 @@
 <!-- ***************************************************  -->
 
 <script setup lang="ts">
-  import { onBeforeMount, reactive, ref, watchEffect } from 'vue';
+  import { reactive, ref, watchEffect } from 'vue';
   import type IUpdateProfileCommand from './requests/updateprofile-command.ts';
   import TextInput from "@/components/TextInput.vue";
   import { useAuthStore } from '@/stores/AuthStore';

@@ -8,6 +8,6 @@ public class AccountDto
 	public string FirstName { get; set; }
 	public string LastName { get; set; }
 	public string Role { get; set; }
-	public Dictionary<string, IEnumerable<string>> Claims { get; set; }
+	public IDictionary<string, IEnumerable<string>> Claims { get; set; }
 	public bool IsConfirmed { get; set; }
 }

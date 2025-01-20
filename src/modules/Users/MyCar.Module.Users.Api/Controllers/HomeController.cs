@@ -1,10 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyCar.Module.Users.Core.DTO;
+using MyCar.Module.Users.Core.Services;
 
 namespace MyCar.Module.Users.Api.Controllers;
 
 [Route(UserModule.BasePath)]
-internal class HomeController : HomeControllerBase
+// [Authorize]
+internal class HomeController(IUserService service) : HomeControllerBase
 {
 	[HttpGet]
-	public ActionResult<string> Get() => "Users API";
+	public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+	{
+		return Ok(await service.GetUsers(cancellationToken));
+	}
+
+	[HttpGet("{id}")]
+	public async Task<IActionResult> GetUser(Guid id, CancellationToken cancellationToken)
+	{
+		return Ok(await service.GetUser(id, cancellationToken));
+	}
+
+	[HttpPost("update-privilege")]
+	public async Task<IActionResult> UpdatePrivilege([FromBody] UserPrivilegeDto command, CancellationToken cancellationToken)
+	{
+		await service.UpdateClaims(command, cancellationToken);
+
+		return NoContent();
+	}
 }

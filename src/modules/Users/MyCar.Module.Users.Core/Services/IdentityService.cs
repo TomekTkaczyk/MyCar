@@ -34,9 +34,9 @@ internal class IdentityService(
 				Email = user.Email,
 				FirstName = user.FirstName,
 				LastName = user.LastName,
-				Role = user.Role,
-				Claims = user.Claims,
 				IsConfirmed = user.EmailConfirm,
+				Role = user.Role,
+				Claims = user.Claims
 			};
 	}
 
@@ -82,10 +82,10 @@ internal class IdentityService(
 			Email = dto.Email.ToLowerInvariant(),
 			Password = password,
 			Role = "user",
+			Claims = null,
 			CreatedAt = clock.CurrentDate(),
 			IsActive = true,
 			EmailConfirm = false,
-			Claims = []
 		};
 
 		await userRepository.AddAsync(user);
@@ -208,7 +208,7 @@ internal class IdentityService(
 		await userRepository.UpdateAsync(user);
 	}
 
-	public async Task UpdateProfileAsync(Guid id, UpdateProfileDto dto, CancellationToken cancellationToken)
+	public async Task UpdateProfileAsync(Guid id, UserProfileDto dto, CancellationToken cancellationToken)
 	{
 		var user = await userRepository.GetAsync(id)
 			?? throw new InvalidCredentialsException();
@@ -275,6 +275,13 @@ internal class IdentityService(
 		//await userRepository.UpdateAsync(user);
 	}
 
+	public async Task<string[]> GetAllPermissionsAsync(CancellationToken cancellationToken)
+	{
+		await Task.CompletedTask;
+		throw new NotImplementedException();
+	}
+
+
 	#region Private methods
 	private static async Task CreateEmail(string frontendConfirmEmailUrl, string emailAddress, string token, CancellationToken cancellationToken)
 	{
@@ -325,6 +332,7 @@ internal class IdentityService(
 
 		return tokenHandler.ReadJwtToken(token);
 	}
+
 
 	#endregion
 }

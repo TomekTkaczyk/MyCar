@@ -31,7 +31,7 @@
 
   const errors = reactive<FormErrors>(new FormErrors());
 
-  async function signUpUser(data: ISignUpCommand) {
+  const signUpUser = async (data: ISignUpCommand) => {
     touchedFields.value.userName = false;
     touchedFields.value.email = false;
     touchedFields.value.password = false;

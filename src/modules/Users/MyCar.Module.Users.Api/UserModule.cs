@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyCar.Module.Users.Core;
+using MyCar.Module.Users.Core.Services;
 using MyCar.Shared.Abstractions.Modules;
 
 namespace MyCar.Module.Users.Api;
@@ -28,5 +29,11 @@ internal class UserModule : IModule
 
 	public void Use(IApplicationBuilder app)
 	{
+		using(var scope = app.ApplicationServices.CreateScope()) {
+			scope.ServiceProvider
+				.GetRequiredService<IDataInitializerService>()
+				.Initialize()
+				.Wait();
+		}
 	}
 }

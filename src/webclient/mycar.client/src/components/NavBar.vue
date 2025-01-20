@@ -8,39 +8,21 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav me-auto mb-lg-0">
-                  <li class="dropdown nav-item" v-if="authStore.isAuthenticated">
-                      <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <li class="nav-item" v-if="authStore.isAuthenticated">
+                      <RouterLink class="nav-link" to="/UserManager">Użytkownicy</RouterLink>
+                </li>
+                <li class="dropdown nav-item" v-if="false">
+                      <a class="nav-link dropdown-toggle" v-if="privilege.anotherAction" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                           Agenci
                       </a>
                       <ul class="dropdown-menu">
                           <li><RouterLink class="dropdown-item" :to="{name:'Home'}">Kartoteka</RouterLink></li>
                           <li><RouterLink class="dropdown-item" :to="{name:'Home'}">Struktura</RouterLink></li>
                       </ul>
-                  </li>
-                  <li class="nav-item" v-if="authStore.isAuthenticated">
-                      <RouterLink class="nav-link" to="/">Polisy</RouterLink>
-                  </li>
-                  <li class="nav-item" v-if="authStore.isAuthenticated">
-                      <RouterLink class="nav-link" to="/" exact="false">Gotówka</RouterLink>
-                  </li>
-                  <li class="dropdown nav-item" v-if="authStore.isAuthenticated">
-                      <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Rozliczenia
-                      </a>
-                      <ul class="dropdown-menu">
-                          <li><RouterLink class="dropdown-item" to="/SignIn">Banki</RouterLink></li>
-                          <li><RouterLink class="dropdown-item" to="/">Prowizje</RouterLink></li>
-                      </ul>
-                  </li>
-                  <li class="nav-item" v-if="authStore.isAuthenticated">
-                      <RouterLink class="nav-link" to="/">Użytkownicy</RouterLink>
-                  </li>
-                  <li class="nav-item" v-if="authStore.isAuthenticated">
-                      <RouterLink class="nav-link" to="/SignUp">Ustawienia</RouterLink>
-                  </li>
+                </li>
               </ul>
               <ul class="navbar-nav ms-auto mb-lg-0" v-if="authStore.isAuthenticated">
-                <li class="dropdown nav-item" v-if="authStore.isAuthenticated">
+                <li class="dropdown nav-item">
                       <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                           Witaj &nbsp
                           <span class="navbar-brand">
@@ -68,8 +50,23 @@
 
 <script setup lang="ts">
     import { useAuthStore } from '@/stores/AuthStore';
+    import { ref } from 'vue';
 
     const authStore = useAuthStore();
+
+    interface IPrivilege {
+      users: boolean,
+      agents: boolean;
+      anotherAction: boolean;
+    }
+
+    const privilege = ref<IPrivilege>(
+      {
+        users: authStore.isAuthenticated && authStore.role === "admin",
+        agents: authStore.isAuthenticated,
+        anotherAction: true
+      }
+    );
 
     const logout = () => authStore.logout();
 </script>

@@ -1,5 +1,5 @@
 ﻿namespace MyCar.Module.Users.Core.DTO;
-public class UpdateProfileDto
+public class UserProfileDto
 {
 	public string FirstName { get; set; }
 

@@ -7,12 +7,30 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/modules/home/Home.vue'),
   },
   {
-    path: '/MyProfile',
+    path: '/MyProfile/:option?',
     name: 'MyProfile',
     component: () => import('@/modules/auth/MyProfile.vue'),
     meta: {
       requiresAuth: true,
       role: 'user',
+    }
+  },
+  {
+    path: '/UserManager',
+    name: 'UserManager',
+    component: () => import('@/modules/users/UserManager.vue'),
+    meta: {
+      requiresAuth: true,
+      role: 'admin'
+    }
+  },
+  {
+    path: '/UserPrivilege/:id',
+    name: 'UserPrivilege',
+    component: () => import('@/modules/users/UserPrivilege.vue'),
+    meta: {
+      requiresAuth: true,
+      role: 'admin'
     }
   },
   {

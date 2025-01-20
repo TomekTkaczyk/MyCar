@@ -15,7 +15,7 @@ internal interface IUserRepository
 
 	Task UpdateAsync(User user);
 
-	Task<IReadOnlyList<User>> GetAllAsync();
+	IQueryable<User> GetAll();
 
 	Task DeleteAsync(User user);
 }

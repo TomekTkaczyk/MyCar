@@ -138,7 +138,7 @@ internal class AccountController(
 	[HttpPut("update-profile")]
 	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
-	public async Task<IActionResult> UpdateProfileAsync(UpdateProfileDto dto, CancellationToken cancellationToken)
+	public async Task<IActionResult> UpdateProfileAsync(UserProfileDto dto, CancellationToken cancellationToken)
 	{
 		await service.UpdateProfileAsync(context.Identity.Id, dto, cancellationToken);
 
@@ -166,5 +166,14 @@ internal class AccountController(
 
 		await service.ResendConfirmEmailTokenAsync(email, frontendUrl, cancellationToken);
 		return Ok();
+	}
+
+	[HttpGet("get-permissions")]
+	[ProducesResponseType(200)]
+	[ProducesResponseType(401)]
+	public async Task<ActionResult<IEnumerable<string>>> GetPermissionsAsync(CancellationToken cancellationToken)
+	{
+		var permissions = await service.GetAllPermissionsAsync(cancellationToken);
+		return Ok(permissions);
 	}
 }

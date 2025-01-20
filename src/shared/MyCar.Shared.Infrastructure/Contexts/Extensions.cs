@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using MyCar.Shared.Abstractions.Contexts;
 
 namespace MyCar.Shared.Infrastructure.Contexts;

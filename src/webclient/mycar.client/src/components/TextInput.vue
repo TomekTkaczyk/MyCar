@@ -1,12 +1,6 @@
-<template>
-  <label :for="props.id">{{props.label}}</label>
-  <input :type="props.type"
-    :id="props.id"
-    :value="props.modelValue"
-    :placeholder="props.placeholder"
-    @input="$emit('input',($event.target as HTMLInputElement).value)"/>
-  <HintList :messages="props.messages"/>
-</template>
+<!-- ***************************************************  -->
+<!-- * Script section                                  *  -->
+<!-- ***************************************************  -->
 
 <script setup lang='ts'>
 
@@ -33,6 +27,24 @@
 
   const emit = defineEmits(['input']);
 </script>
+
+<!-- ***************************************************  -->
+<!-- * Template section                                *  -->
+<!-- ***************************************************  -->
+
+<template>
+  <label :for="props.id">{{props.label}}</label>
+  <input :type="props.type"
+    :id="props.id"
+    :value="props.modelValue"
+    :placeholder="props.placeholder"
+    @input="$emit('input',($event.target as HTMLInputElement).value)"/>
+  <HintList :messages="props.messages"/>
+</template>
+
+<!-- ***************************************************  -->
+<!-- * Style section                                   *  -->
+<!-- ***************************************************  -->
 
 <style scoped>
 

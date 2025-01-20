@@ -13,7 +13,8 @@ public interface IIdentityService
 	Task LogoutAsync(Guid id, CancellationToken cancellationToken);
 	Task ChangePasswordAsync(Guid id, ChangePasswordDto dto, CancellationToken cancellationToken);
 	Task ChangeEmailAsync(Guid id, string email, string frontendConfirmEmailUrl, CancellationToken cancellationToken);
-	Task UpdateProfileAsync(Guid id, UpdateProfileDto dto, CancellationToken cancellationToken);
+	Task UpdateProfileAsync(Guid id, UserProfileDto dto, CancellationToken cancellationToken);
 	Task ConfirmEmailAsync(string token, CancellationToken cancellationToken);
 	Task ResendConfirmEmailTokenAsync(string email, string frontendConfirmEmailUrl, CancellationToken cancellationToken);
+	Task<string[]> GetAllPermissionsAsync(CancellationToken cancellationToken);
 }
