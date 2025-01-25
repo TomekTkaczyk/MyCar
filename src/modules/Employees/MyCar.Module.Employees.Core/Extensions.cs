@@ -6,7 +6,6 @@ using MyCar.Module.Employees.Core.Policies;
 using MyCar.Module.Employees.Core.Repositories;
 using MyCar.Module.Employees.Core.Services;
 using MyCar.Shared.Infrastructure.Database;
-using System.Runtime.CompilerServices;
 
 namespace MyCar.Module.Employees.Core;
 

@@ -76,6 +76,7 @@ export const useAuthStore = defineStore('auth', {
 
     async changePassword(command: IChangePasswordCommand) {
       try{
+        console.error(command)
         await httpApiClient.post('/users-module/Account/change-password', command);
         const alertMessage = new AlerMessage();
         alertMessage.Show('Hasło zostało zmienione.');
@@ -133,15 +134,19 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async getUser() {
-      const userReponse = await httpApiClient.get('/users-module/Account');
-      this.id = userReponse.data.id;
-      this.name = userReponse.data.name;
-      this.email = userReponse.data.email || "";
-      this.firstName = userReponse.data.firstName || "";
-      this.lastName = userReponse.data.lastName || "";
-      this.role = userReponse.data.role;
-      this.claims = userReponse.data.claims;
-      this.isConfirmed = userReponse.data.isConfirmed;
+      const userResponse = await httpApiClient.get('/users-module/Account');
+      this.id = userResponse.data.id;
+      this.name = userResponse.data.name;
+      this.email = userResponse.data.email
+        ? (userResponse.data.email as string).toLowerCase()
+        : "";
+      this.firstName = userResponse.data.firstName || "";
+      this.lastName = userResponse.data.lastName || "";
+      this.role = userResponse.data.role
+        ? (userResponse.data.role as string).toLowerCase()
+        : "";
+      this.claims = userResponse.data.claims;
+      this.isConfirmed = userResponse.data.isConfirmed;
 
       sessionStorage.setItem('auth', JSON.stringify({
         accessToken: this.accessToken,

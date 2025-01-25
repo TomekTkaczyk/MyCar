@@ -3,15 +3,13 @@
 <!-- ***************************************************  -->
 
 <script setup lang="ts">
-  import { reactive, ref, watchEffect } from 'vue';
+  import { computed, reactive, ref } from 'vue';
   import type IUpdateProfileCommand from './requests/updateprofile-command.ts';
   import TextInput from "@/components/TextInput.vue";
   import { useAuthStore } from '@/stores/AuthStore';
   import { FormErrors } from '@/types/FormErrors.ts';
 
   const authStore = useAuthStore();
-
-  const isFormValid = ref(false);
 
   const touchedFields = ref({
     firstName: false,
@@ -32,7 +30,7 @@
       await authStore.updateProfile(data);
       await authStore.getUser();
     } catch (error: any) {
-      await errors.CatchApiError(error);
+      await errors.CatchApiError("UpdateProfile", error);
     }
   };
 
@@ -49,19 +47,19 @@
   }
 
   const firstNameValidate = (value: string): boolean => {
-    errors.Clear("Firstname");
+    errors.Clear("FirstName");
     errors.messages.length = 0;
-    return errors.Get("Firstname").length === 0;;
+    return errors.Get("FirstName").length === 0;;
   }
 
   const lastNameValidate = (value: string): boolean => {
-    errors.Clear("lastName");
+    errors.Clear("LastName");
     errors.messages.length = 0;
-    return errors.Get("Lastname").length === 0;;
+    return errors.Get("LastName").length === 0;;
   }
 
-  watchEffect(() => {
-    isFormValid.value = errors.Count === 0 &&
+  const isFormValid = computed(() => {
+    return errors.Count === 0 &&
       (touchedFields.value.firstName || touchedFields.value.lastName);
   });
 

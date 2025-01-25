@@ -3,7 +3,7 @@
 <!-- ***************************************************  -->
 
 <script setup lang="ts">
-    import { reactive, ref, watchEffect } from 'vue';
+    import { computed, reactive, ref } from 'vue';
     import TextInput from "@/components/TextInput.vue";
     import HintList from '@/components/HintList.vue';
     import { useAuthStore } from '@/stores/AuthStore';
@@ -11,8 +11,6 @@
     import { FormErrors } from '@/types/FormErrors';
 
     const authStore = useAuthStore();
-
-    const isFormValid = ref(false);
 
     const formData = ref('');
 
@@ -24,7 +22,7 @@
           await authStore.remindPassword(email);
         }
       } catch (error) {
-          await errors.CatchApiError(error);
+          await errors.CatchApiError("RemaindPassword", error);
       }
     };
 
@@ -42,8 +40,8 @@
       return errors.Get("Email").length === 0;
     }
 
-    watchEffect(() => {
-        isFormValid.value = errors.Count === 0 &&
+    const isFormValid = computed(() => {
+        return errors.Count === 0 &&
           (formData.value.length > 0);
     });
 
@@ -66,11 +64,10 @@
                 @input="onChangeEmail"/>
             </div>
           <button v-if="isFormValid" type="submit">Wyślij</button>
-          <p></p>
+          <br/>
           <div><RouterLink to="signin">Chcę się zalogować</RouterLink></div>
           <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
           <HintList :messages="errors.messages"/>
-
       </form>
   </div>
 </template>

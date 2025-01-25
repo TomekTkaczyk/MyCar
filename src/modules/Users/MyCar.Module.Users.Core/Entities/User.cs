@@ -1,9 +1,10 @@
-﻿namespace MyCar.Module.Users.Core.Entities;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using MyCar.Shared.Infrastructure.Entities;
 
-public class User
+namespace MyCar.Module.Users.Core.Entities;
+
+public class User : EntityBase
 {
-	public Guid Id { get; set; }
-	public DateTime CreatedAt { get; set; }
 	public string Email { get; set; }
 	public string Name { get; set; }
 	public string Password { get; set; }

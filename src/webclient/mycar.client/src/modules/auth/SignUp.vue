@@ -3,7 +3,7 @@
 <!-- ***************************************************  -->
 
 <script setup lang="ts">
-  import { reactive, ref, watchEffect } from 'vue';
+  import { computed, reactive, ref } from 'vue';
   import type ISignUpCommand from './requests/signup-command';
   import TextInput from "@/components/TextInput.vue";
   import HintList from '@/components/HintList.vue';
@@ -12,8 +12,6 @@
   import { isValidEmail } from '@/helpers/email-validator';
 
   const authStore = useAuthStore();
-
-  const isFormValid = ref(false);
 
   const touchedFields = ref({
     userName: false,
@@ -41,7 +39,7 @@
         await authStore.signUpUser(data);
       }
     } catch (error: any) {
-      await errors.CatchApiError(error);
+      await errors.CatchApiError("SignUp", error.response?.data);
     };
   };
 
@@ -70,15 +68,15 @@
     };
 
   const userNameValidate = (value: string): boolean => {
-    errors.Clear("Username");
+    errors.Clear("UserName");
     errors.messages.length = 0;
     const invalidCharsRegex = /[^a-zA-Z0-9_-]/;
-    if (touchedFields.value.userName && !value) errors.Add("Username", "Nazwa użytkownika jest wymagana.");
-    if (touchedFields.value.userName && (value.length < 3)) errors.Add("Username", "Nazwa użytkownika musi mieć co najmniej 3 znaki.");
-    if (touchedFields.value.userName && (value.length > 20)) errors.Add("Username", "Nazwa użytkownika może mieć maksymalnie 20 znaków.");
-    if (touchedFields.value.userName && (invalidCharsRegex.test(value))) errors.Add("Username", "Nazwa użytkownika może zawierać tylko litery, cyfry, myślniki i podkreślniki.");
+    if (touchedFields.value.userName && !value) errors.Add("UserName", "Nazwa użytkownika jest wymagana.");
+    if (touchedFields.value.userName && (value.length < 3)) errors.Add("UserName", "Nazwa użytkownika musi mieć co najmniej 3 znaki.");
+    if (touchedFields.value.userName && (value.length > 20)) errors.Add("UserName", "Nazwa użytkownika może mieć maksymalnie 20 znaków.");
+    if (touchedFields.value.userName && (invalidCharsRegex.test(value))) errors.Add("UserName", "Nazwa użytkownika może zawierać tylko litery, cyfry, myślniki i podkreślniki.");
 
-    return errors.Get("Username").length === 0;
+    return errors.Get("UserName").length === 0;
   }
 
   const emailValidate = (value: string): boolean => {
@@ -110,10 +108,10 @@
     return errors.Get("RetypePassword").length === 0;
   }
 
-  watchEffect(() => {
-    isFormValid.value = errors.Count === 0 &&
-      (touchedFields.value.userName || formData.value.userName.length > 0) &&
-      (touchedFields.value.email || formData.value.email.length > 0);
+  const isFormValid = computed(() => {
+    return errors.Count === 0 &&
+    (touchedFields.value.userName || formData.value.userName.length > 0) &&
+    (touchedFields.value.email || formData.value.email.length > 0);
   });
 </script>
 
@@ -130,7 +128,7 @@
               type="text"
               id="userName"
               label="Nazwa użytkownika"
-              :messages="errors.Get('Username')"
+              :messages="errors.Get('UserName')"
               @input="onChangeUsername"/>
           </div>
           <div class="form-group">

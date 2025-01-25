@@ -38,17 +38,19 @@ class FormErrors {
     return this.messages.length + this._dictionary.Count;
   }
 
-  public async CatchApiError(error: any) {
+  public async CatchApiError(formName: string, error: any) {
     if(isApiError(error)){
-      const messageProvider = new MessageProvider("signUp");
+      const messageProvider = new MessageProvider(formName);
       await messageProvider.Initialize();
       this.ClearAll();
       error.validationErrors.forEach((value) => {
         const {code, message} = value;
         this.Add(value.field, messageProvider.GetMessage({code, message}));
       });
-      const message = messageProvider.GetMessage({code: error.code, message: error.message});
-      this.messages.push(message);
+      if(error.code){
+        const message = messageProvider.GetMessage({code: error.code, message: error.message});
+        this.messages.push(message);
+      }
     } else {
       this.messages.push("Nierozpoznany błąd systemowy.");
     };

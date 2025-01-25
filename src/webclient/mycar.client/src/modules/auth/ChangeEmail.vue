@@ -3,16 +3,14 @@
 <!-- ***************************************************  -->
 
 <script setup lang="ts">
-  import { computed, reactive, ref, watchEffect } from 'vue';
+  import { computed, reactive, ref } from 'vue';
   import TextInput from "@/components/TextInput.vue";
   import HintList from '@/components/HintList.vue';
   import { useAuthStore } from '@/stores/AuthStore';
   import { isValidEmail } from '@/helpers/email-validator'
-  import { FormErrors } from '@/types/FormErrors.ts';
+  import { FormErrors } from '@/types/FormErrors';
 
   const authStore = useAuthStore();
-
-  const isFormValid = ref(false);
 
   const touchedFields = ref({
     email: false,
@@ -31,7 +29,7 @@
         await authStore.changeEmail(email);
       }
     } catch (error) {
-      await errors.CatchApiError(error);
+      await errors.CatchApiError("ChangeEmail", error);
     }
   };
 
@@ -50,8 +48,9 @@
     return errors.Get("Email").length === 0;
   };
 
-  watchEffect(() => {
-    isFormValid.value = errors.Count === 0 && touchedFields.value.email;
+  const isFormValid = computed(() => {
+    return errors.Count === 0 &&
+      touchedFields.value.email;
   });
 </script>
 

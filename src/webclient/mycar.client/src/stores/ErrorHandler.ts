@@ -10,7 +10,7 @@ const ErrorHandler = (error: any) => {
         break;
       };
       case "ERR_BAD_REQUEST": {
-        throw error.response?.data;
+        throw error;
       };
       default: {
         throw error;

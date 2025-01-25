@@ -13,4 +13,5 @@ internal interface IEmployeeService
 	Task UpdateAsync(EmployeeDetailsDto dto, CancellationToken cancellationToken);
 
 	Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+
 }

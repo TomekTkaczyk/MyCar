@@ -70,6 +70,10 @@ public class Program
 		_assemblies.Clear();
 		_modules.Clear();
 
+		var path = configuration.GetSection("StoredFilePath:path");
+		var temp = Path.Combine(path.Value, Path.GetTempFileName());
+		Console.WriteLine(temp);
+
 		app.Run();
 	}
 }

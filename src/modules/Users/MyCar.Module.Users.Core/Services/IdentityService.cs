@@ -22,7 +22,7 @@ internal class IdentityService(
 {
 	public async Task<AccountDto> GetAsync(Guid id, CancellationToken cancellationToken)
 	{
-		var user = await userRepository.GetAsync(id)
+		var user = await userRepository.GetAsync(id, cancellationToken)
 			?? throw new InvalidCredentialsException();
 
 		return user is null
@@ -42,7 +42,7 @@ internal class IdentityService(
 
 	public async Task<JsonWebToken> SignInAsync(SignInDto dto, CancellationToken cancellationToken)
 	{
-		var user = await GetByIdentifier(dto.Identifier.ToLowerInvariant())
+		var user = await GetByIdentifier(dto.Identifier.ToLowerInvariant(), cancellationToken)
 			?? throw new InvalidCredentialsException();
 
 		if(passwordHasher.VerifyHashedPassword(default, user.Password, dto.Password) is not PasswordVerificationResult.Success) {
@@ -51,7 +51,7 @@ internal class IdentityService(
 
 		var jwt = GetTokens(user);
 
-		await StoreRefreshToken(user, jwt.RefreshToken);
+		await StoreRefreshToken(user, jwt.RefreshToken, cancellationToken);
 
 		return jwt;
 	}
@@ -59,18 +59,21 @@ internal class IdentityService(
 	public async Task<Guid> SignUpAsync(SignUpDto dto, string frontendConfirmEmailUrl, CancellationToken cancellationToken)
 	{
 		var error = new ApiError();
-		var user = await userRepository.GetByEmailAsync(dto.Email.ToLowerInvariant());
+		var user = await userRepository.GetByEmailAsync(dto.Email.ToLowerInvariant(), cancellationToken);
 		if(user is not null) {
 			error.AddValidationError("Email", "email_is_unavailable", "Email is unavailable.");
 		}
 
-		user = await userRepository.GetByNameAsync(dto.UserName.ToLowerInvariant());
+		user = await userRepository.GetByNameAsync(dto.UserName.ToLowerInvariant(), cancellationToken);
 		if(user is not null) {
 			error.AddValidationError("UserName", "username_is_unavailable", "UserName is unavailable.");
 		}
 
 		if(error.ValidationErrors.Any()) {
-			throw new InvalidCredentialsException();
+			throw new InvalidCredentialsException()
+			{
+				Error = error
+			};
 		}
 
 		var password = passwordHasher.HashPassword(default, dto.Password);
@@ -81,14 +84,14 @@ internal class IdentityService(
 			Name = dto.UserName.ToLowerInvariant(),
 			Email = dto.Email.ToLowerInvariant(),
 			Password = password,
-			Role = "user",
+			Role = "User",
 			Claims = null,
 			CreatedAt = clock.CurrentDate(),
 			IsActive = true,
 			EmailConfirm = false,
 		};
 
-		await userRepository.AddAsync(user);
+		await userRepository.AddAsync(user, cancellationToken);
 
 		var token = tokenProvider.GenerateConfirmEmailToken(user.Id, user.Email);
 
@@ -100,12 +103,12 @@ internal class IdentityService(
 			token,
 			cancellationToken);
 
-		await userRepository.UpdateAsync(user);
+		await userRepository.UpdateAsync(user, cancellationToken);
 
 		return user.Id;
 	}
 
-	public async Task<JsonWebToken> RefreshTokenAsync(string token, CancellationToken cancellationToken)
+	public async Task<JsonWebToken> RefreshTokenAsync(string token, CancellationToken cancellationToken = default)
 	{
 		var handler = new JwtSecurityTokenHandler();
 		var jwtToken = handler.ReadJwtToken(token);
@@ -121,7 +124,7 @@ internal class IdentityService(
 			throw new UnauthorisedException();
 		};
 
-		var user = await userRepository.GetAsync(new Guid(sub))
+		var user = await userRepository.GetAsync(new Guid(sub), cancellationToken)
 			?? throw new UnauthorisedException();
 
 		if(!user.IsActive) {
@@ -134,14 +137,14 @@ internal class IdentityService(
 
 		var jwt = GetTokens(user);
 
-		await StoreRefreshToken(user, jwt.RefreshToken);
+		await StoreRefreshToken(user, jwt.RefreshToken, cancellationToken);
 
 		return jwt;
 	}
 
 	public async Task RemaindPasswordAsync(string email, string frontendConfirmEmailUrl, CancellationToken cancellationToken)
 	{
-		var user = await userRepository.GetByEmailAsync(email)
+		var user = await userRepository.GetByEmailAsync(email, cancellationToken)
 			?? throw new InvalidCredentialsException();
 
 		var emailConfirmer = emailConfirmerFactory.GetEmailConfirmer();
@@ -158,17 +161,17 @@ internal class IdentityService(
 
 	public async Task LogoutAsync(Guid id, CancellationToken cancellationToken)
 	{
-		var user = await userRepository.GetAsync(id)
+		var user = await userRepository.GetAsync(id, cancellationToken)
 			?? throw new InvalidCredentialsException();
 
 		user.RefreshToken = null;
 
-		await userRepository.UpdateAsync(user);
+		await userRepository.UpdateAsync(user, cancellationToken);
 	}
 
 	public async Task ChangePasswordAsync(Guid id, ChangePasswordDto dto, CancellationToken cancellationToken)
 	{
-		var user = await userRepository.GetAsync(id)
+		var user = await userRepository.GetAsync(id, cancellationToken)
 			?? throw new InvalidCredentialsException();
 
 		if(passwordHasher.VerifyHashedPassword(default, user.Password, dto.CurrentPassword) is not PasswordVerificationResult.Success) {
@@ -178,15 +181,15 @@ internal class IdentityService(
 		var password = passwordHasher.HashPassword(default, dto.Password);
 		user.Password = password;
 
-		await userRepository.UpdateAsync(user);
+		await userRepository.UpdateAsync(user, cancellationToken);
 	}
 
 	public async Task ChangeEmailAsync(Guid id, string emailAddress, string frontendConfirmEmailUrl, CancellationToken cancellationToken)
 	{
-		var user = await userRepository.GetAsync(id)
+		var user = await userRepository.GetAsync(id, cancellationToken)
 			?? throw new InvalidCredentialsException();
 
-		var anotherUser = await userRepository.GetByEmailAsync(emailAddress);
+		var anotherUser = await userRepository.GetByEmailAsync(emailAddress, cancellationToken);
 
 		if(anotherUser is not null) {
 			if(!user.Id.Equals(anotherUser.Id)) {
@@ -205,18 +208,18 @@ internal class IdentityService(
 			token,
 			cancellationToken);
 
-		await userRepository.UpdateAsync(user);
+		await userRepository.UpdateAsync(user, cancellationToken);
 	}
 
 	public async Task UpdateProfileAsync(Guid id, UserProfileDto dto, CancellationToken cancellationToken)
 	{
-		var user = await userRepository.GetAsync(id)
+		var user = await userRepository.GetAsync(id, cancellationToken)
 			?? throw new InvalidCredentialsException();
 
 		user.FirstName = dto.FirstName;
 		user.LastName = dto.LastName;
 
-		await userRepository.UpdateAsync(user);
+		await userRepository.UpdateAsync(user, cancellationToken);
 	}
 
 	public async Task ConfirmEmailAsync(string token, CancellationToken cancellationToken)
@@ -233,7 +236,7 @@ internal class IdentityService(
 		var emailClaim = confirmToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value
 			?? throw new InvalidEmailTokenException();
 
-		var user = await userRepository.GetAsync(id)
+		var user = await userRepository.GetAsync(id, cancellationToken)
 			?? throw new InvalidEmailTokenException();
 
 		if(!user.IsActive) {
@@ -249,7 +252,7 @@ internal class IdentityService(
 		user.EmailConfirm = true;
 		user.EmailConfirmToken = null;
 
-		await userRepository.UpdateAsync(user);
+		await userRepository.UpdateAsync(user, cancellationToken);
 	}
 
 	public async Task ResendConfirmEmailTokenAsync(string email, string frontendConfirmEmailUrl, CancellationToken cancellationToken)
@@ -297,10 +300,10 @@ internal class IdentityService(
 		EmailsQueue.Add(email);
 	}
 
-	private async Task<User> GetByIdentifier(string identifier)
+	private async Task<User> GetByIdentifier(string identifier, CancellationToken cancellationToken = default)
 	{
-		var user = await userRepository.GetByNameAsync(identifier);
-		user ??= await userRepository.GetByEmailAsync(identifier);
+		var user = await userRepository.GetByNameAsync(identifier, cancellationToken);
+		user ??= await userRepository.GetByEmailAsync(identifier, cancellationToken);
 
 		return user;
 	}
@@ -316,10 +319,10 @@ internal class IdentityService(
 		return jwt;
 	}
 
-	private async Task StoreRefreshToken(User user, string token)
+	private async Task StoreRefreshToken(User user, string token, CancellationToken cancellationToken = default)
 	{
 		user.RefreshToken = token;
-		await userRepository.UpdateAsync(user);
+		await userRepository.UpdateAsync(user, cancellationToken);
 	}
 
 	private static JwtSecurityToken DecodeJwt(string token)

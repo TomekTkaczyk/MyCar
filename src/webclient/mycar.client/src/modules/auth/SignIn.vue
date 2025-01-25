@@ -3,7 +3,7 @@
 <!-- ***************************************************  -->
 
 <script setup lang="ts">
-  import { reactive, ref, watchEffect } from 'vue';
+  import { computed, reactive, ref, watchEffect } from 'vue';
   import type ISignInCommand from './requests/signin-command';
   import TextInput from "@/components/TextInput.vue";
   import HintList from '@/components/HintList.vue';
@@ -12,8 +12,6 @@
   import { isValidEmail } from '@/helpers/email-validator';
 
   const authStore = useAuthStore();
-
-  const isFormValid = ref(false);
 
   const touchedFields = ref({
     identifier: false,
@@ -35,7 +33,7 @@
         await authStore.signInUser(data);
       }
     } catch (error: any) {
-      await errors.CatchApiError(error);
+      await errors.CatchApiError("SignIn", error);
     };
   };
 
@@ -78,8 +76,8 @@
     return errors.Get("Password").length === 0;
   }
 
-  watchEffect(() => {
-    isFormValid.value = errors.Count === 0 &&
+  const isFormValid = computed(() => {
+    return errors.Count === 0 &&
       (touchedFields.value.identifier || formData.value.identifier.length > 0);
   });
 

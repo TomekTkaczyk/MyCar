@@ -5,17 +5,17 @@ namespace MyCar.Module.Users.Core.Repositories;
 internal interface IUserRepository
 {
 
-	Task<User> GetAsync(Guid id);
+	Task<User> GetAsync(Guid id, CancellationToken cancellationToken);
 
-	Task<User> GetByEmailAsync(string email);
+	Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken);
 
-	Task<User> GetByNameAsync(string name);
+	Task<User> GetByNameAsync(string name, CancellationToken cancellationToken);
 
-	Task AddAsync(User user);
+	Task AddAsync(User user, CancellationToken cancellationToken);
 
-	Task UpdateAsync(User user);
+	Task UpdateAsync(User user, CancellationToken cancellationToken);
 
 	IQueryable<User> GetAll();
 
-	Task DeleteAsync(User user);
+	Task DeleteAsync(User user, CancellationToken cancellationToken);
 }

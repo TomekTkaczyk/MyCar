@@ -1,9 +1,9 @@
-﻿namespace MyCar.Module.Employees.Core.Entities;
+﻿using MyCar.Shared.Infrastructure.Entities;
 
-public class Employee
+namespace MyCar.Module.Employees.Core.Entities;
+
+public class Employee : EntityBase
 {
-	public Guid Id { get; set; }
-
 	public string Firstname { get; set; }
 
 	public string Lastname { get; set; }

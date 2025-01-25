@@ -22,6 +22,10 @@
     <InternalsVisibleTo Include="InfrastructureTests" />
     <InternalsVisibleTo Include="MyCar.Bootstraper" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="DAL\Migrations\" />
+  </ItemGroup>
 
 
 </Project>

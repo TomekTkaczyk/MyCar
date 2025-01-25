@@ -8,11 +8,11 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav me-auto mb-lg-0">
-                <li class="nav-item" v-if="authStore.isAuthenticated">
+                <li class="nav-item" v-if="privilege.admins">
                       <RouterLink class="nav-link" to="/UserManager">Użytkownicy</RouterLink>
                 </li>
-                <li class="dropdown nav-item" v-if="false">
-                      <a class="nav-link dropdown-toggle" v-if="privilege.anotherAction" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <li class="dropdown nav-item" v-if="privilege.users">
+                      <a class="nav-link dropdown-toggle" v-if="privilege.users" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                           Agenci
                       </a>
                       <ul class="dropdown-menu">
@@ -50,22 +50,15 @@
 
 <script setup lang="ts">
     import { useAuthStore } from '@/stores/AuthStore';
-    import { ref } from 'vue';
+    import { computed } from 'vue';
 
     const authStore = useAuthStore();
 
-    interface IPrivilege {
-      users: boolean,
-      agents: boolean;
-      anotherAction: boolean;
-    }
-
-    const privilege = ref<IPrivilege>(
-      {
-        users: authStore.isAuthenticated && authStore.role === "admin",
-        agents: authStore.isAuthenticated,
-        anotherAction: true
-      }
+    const privilege = computed(() =>
+      ({
+        admins: authStore.isAuthenticated && (authStore.role === "admin"),
+        users: authStore.isAuthenticated && (authStore.role === "user"),
+      })
     );
 
     const logout = () => authStore.logout();

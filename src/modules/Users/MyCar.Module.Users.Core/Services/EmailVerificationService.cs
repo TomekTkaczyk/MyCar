@@ -13,7 +13,7 @@ internal class EmailVerificationService(
 	{
 		//ConfirmToken decode !!! and compliance check !!! 
 
-		var user = await userRepository.GetByEmailAsync(dto.Email)
+		var user = await userRepository.GetByEmailAsync(dto.Email, cancellationToken)
 			?? throw new InvalidCredentialsException();
 
 		if(!user.IsActive) {
@@ -29,7 +29,7 @@ internal class EmailVerificationService(
 		user.EmailConfirm = true;
 		user.EmailConfirmToken = null;
 
-		await userRepository.UpdateAsync(user);
+		await userRepository.UpdateAsync(user, cancellationToken);
 	}
 
 	public async Task SendSample(CancellationToken cancellationToken)

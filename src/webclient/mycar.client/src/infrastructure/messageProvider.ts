@@ -6,14 +6,14 @@ class MessageProvider implements IMessageProvider {
   private messageGroup: string;
 
   messageModules: { [key: string]: () => Promise<{ default: { [code: string]: string } }> } = {
-    signIn: () => import('@/infrastructure/messages/signInMessages'),
-    signUp: () => import('@/infrastructure/messages/signUpMessages'),
-    getUser: () => import('@/infrastructure/messages/getUserMessages'),
-    forgotPassword: () => import('@/infrastructure/messages/remaindPasswordMessages'),
-    logout: () => import('@/infrastructure/messages/logoutMessages'),
-    updateProfile: () => import('@/infrastructure/messages/updateProfileMessages'),
-    changeEmail: () => import('@/infrastructure/messages/changeEmailMessages'),
-    changePassword: () => import('@/infrastructure/messages/changePasswordMessages'),
+    SignIn: () => import('@/infrastructure/messages/signInMessages'),
+    SignUp: () => import('@/infrastructure/messages/signUpMessages'),
+    GetUser: () => import('@/infrastructure/messages/getUserMessages'),
+    RemindPassword: () => import('@/infrastructure/messages/remindPasswordMessages'),
+    Logout: () => import('@/infrastructure/messages/logoutMessages'),
+    UpdateProfile: () => import('@/infrastructure/messages/updateProfileMessages'),
+    ChangeEmail: () => import('@/infrastructure/messages/changeEmailMessages'),
+    ChangePassword: () => import('@/infrastructure/messages/changePasswordMessages'),
   };
 
   constructor(messageGroup: string) {

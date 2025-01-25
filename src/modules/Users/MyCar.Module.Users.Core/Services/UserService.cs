@@ -16,18 +16,18 @@ internal class UserService(IUserRepository repository) : IUserService
 
 	public async Task<UserDto> GetUser(Guid id, CancellationToken cancellationToken)
 	{
-		var user = await repository.GetAsync(id);
+		var user = await repository.GetAsync(id, cancellationToken);
 
 		return UserDto.Create(user);
 	}
 
 	public async Task UpdateClaims(UserPrivilegeDto userClaimsDto, CancellationToken cancellationToken)
 	{
-		var user = await repository.GetAsync(userClaimsDto.Id);
+		var user = await repository.GetAsync(userClaimsDto.Id, cancellationToken);
 		user.Role = userClaimsDto.Role;
 		user.IsActive = userClaimsDto.IsActive;
 		user.Claims = userClaimsDto.Claims;
 
-		await repository.UpdateAsync(user);
+		await repository.UpdateAsync(user, cancellationToken);
 	}
 }
