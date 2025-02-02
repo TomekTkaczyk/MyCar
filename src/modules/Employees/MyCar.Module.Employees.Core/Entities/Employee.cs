@@ -1,4 +1,4 @@
-﻿using MyCar.Shared.Infrastructure.Entities;
+﻿using MyCar.Shared.Abstractions.Entities;
 
 namespace MyCar.Module.Employees.Core.Entities;
 

@@ -25,6 +25,7 @@
   
   <ItemGroup>
     <Folder Include="DAL\Migrations\" />
+    <Folder Include="Entities\" />
   </ItemGroup>
 
 

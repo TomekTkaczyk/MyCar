@@ -1,4 +1,4 @@
-﻿namespace MyCar.Shared.Infrastructure.Entities;
+﻿namespace MyCar.Shared.Abstractions.Entities;
 public abstract class EntityBase
 {
 	public Guid Id { get; set; }

@@ -1,5 +1,5 @@
-﻿namespace MyCar.Shared.Infrastructure.Entities;
-internal class StoredFile : EntityBase
+﻿namespace MyCar.Shared.Abstractions.Entities;
+public class StoredFile : EntityBase
 {
 	public string FileName { get; set; }
 	public string FileDescription { get; set; }

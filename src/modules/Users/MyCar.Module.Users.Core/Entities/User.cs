@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using MyCar.Shared.Infrastructure.Entities;
+using MyCar.Shared.Abstractions.Entities;
 
 namespace MyCar.Module.Users.Core.Entities;
 

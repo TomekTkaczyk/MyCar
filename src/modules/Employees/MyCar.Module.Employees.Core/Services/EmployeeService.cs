@@ -1,13 +1,16 @@
-﻿using MyCar.Module.Employees.Core.DTO;
+﻿using Microsoft.AspNetCore.Http;
+using MyCar.Module.Employees.Core.DTO;
 using MyCar.Module.Employees.Core.Entities;
 using MyCar.Module.Employees.Core.Exceptions;
 using MyCar.Module.Employees.Core.Policies;
 using MyCar.Module.Employees.Core.Repositories;
+using MyCar.Shared.Abstractions.Services;
 
 namespace MyCar.Module.Employees.Core.Services;
 
 internal class EmployeeService(
 	IEmployeeRepository employeeRepository,
+	IStoredFileRepository storedFileRepository,
 	IEmployeeDeletionPolicy employeeDeletionPolicy) : IEmployeeService
 {
 	private readonly IEmployeeRepository _employeeRepository = employeeRepository;
@@ -65,6 +68,16 @@ internal class EmployeeService(
 		await _employeeRepository.DeleteAsync(employee, cancellationToken);
 	}
 
+	public async Task<Guid> AddFileAsync(IFormFile file, CancellationToken cancellationToken)
+	{
+		return await storedFileRepository.AddAsync(file, cancellationToken);
+	}
+
+	public async Task<(byte[], string, string)> GetFileAsync(Guid id, CancellationToken cancellationToken)
+	{
+		return await storedFileRepository.GetFileAsync(id, cancellationToken);
+	}
+
 	private static T Map<T>(Employee employee) where T : EmployeeDto, new()
 	{
 		return new T()
@@ -74,4 +87,5 @@ internal class EmployeeService(
 			Lastname = employee.Lastname,
 		};
 	}
+
 }

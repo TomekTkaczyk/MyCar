@@ -20,7 +20,6 @@ using MyCar.Shared.Infrastructure.Database;
 using MyCar.Shared.Infrastructure.Exceptions;
 using MyCar.Shared.Infrastructure.Middleware;
 using MyCar.Shared.Infrastructure.Modules;
-using MyCar.Shared.Infrastructure.Repositories;
 using MyCar.Shared.Infrastructure.Services;
 using MyCar.Shared.Infrastructure.Time;
 

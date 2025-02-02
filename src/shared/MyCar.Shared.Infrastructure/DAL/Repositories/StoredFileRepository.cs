@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MyCar.Shared.Abstractions;
-using MyCar.Shared.Infrastructure.Entities;
-using MyCar.Shared.Infrastructure.Repositories;
+using MyCar.Shared.Abstractions.Entities;
+using MyCar.Shared.Abstractions.Services;
 
 namespace MyCar.Shared.Infrastructure.DAL.Repositories;
 internal class StoredFileRepository : IStoredFileRepository
@@ -36,7 +37,8 @@ internal class StoredFileRepository : IStoredFileRepository
 	public async Task<Guid> AddAsync(IFormFile file, CancellationToken cancellationToken = default)
 	{
 		var id = Guid.NewGuid();
-		var filePath = Path.Combine(_filesFolder, id.ToString() + Path.GetExtension(file.FileName));
+		var fileInfo = new FileInfo(file.FileName);
+		var filePath = Path.Combine(_filesFolder, id.ToString() + fileInfo.Extension);
 		using var stream = new FileStream(filePath, FileMode.Create);
 		await file.CopyToAsync(stream, cancellationToken);
 
@@ -55,12 +57,32 @@ internal class StoredFileRepository : IStoredFileRepository
 		return id;
 	}
 
+	public async Task<StoredFile> GetAsync(Guid id, CancellationToken cancellationToken = default)
+		=> await _storedFiles.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+
 	public async Task DeleteAsync(StoredFile file, CancellationToken cancellationToken = default)
 	{
 		_storedFiles.Remove(file);
 		await _context.SaveChangesAsync(cancellationToken);
+		if(File.Exists(file.FileStoragePath)) {
+			File.Delete(file.FileStoragePath);
+		}
 	}
 
-	public async Task<StoredFile> GetAsync(Guid id, CancellationToken cancellationToken = default)
-		=> await _storedFiles.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+	public async Task<(byte[], string, string)> GetFileAsync(Guid id, CancellationToken cancellationToken = default)
+	{
+		var file = await _storedFiles.SingleOrDefaultAsync(x => x.Id == id, cancellationToken)
+			?? throw new FileNotFoundException();
+
+		if(File.Exists(file.FileStoragePath)) {
+			var provider = new FileExtensionContentTypeProvider();
+			if(!provider.TryGetContentType(file.FileStorageName, out var contentType)) {
+				contentType = "application/octet-stream";
+			}
+			var bytes = await File.ReadAllBytesAsync(file.FileStorageName, cancellationToken);
+			return (bytes, contentType, file.FileName);
+		}
+
+		throw new FileNotFoundException(file.FileName);
+	}
 }

@@ -1,0 +1,1 @@
+dotnet ef database update %1 --startup-project ..\..\bootstraper\MyCar.Bootstraper\MyCar.Bootstraper.csproj --project .\MyCar.Shared.Infrastructure.csproj --context InfrastructureDbContext -v

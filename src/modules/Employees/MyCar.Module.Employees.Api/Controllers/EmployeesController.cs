@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using MyCar.Module.Employees.Core.DTO;
 using MyCar.Module.Employees.Core.Services;
+using System.Threading;
 
 namespace MyCar.Module.Employees.Api.Controllers;
 
 
 [Route(EmployeeModule.BasePath + "/[controller]")]
 internal class EmployeesController(
-	IEmployeeService service, 
-	IConfiguration configuration) : HomeControllerBase
+	IEmployeeService service) : HomeControllerBase
 {
 
 	[HttpGet("{id:Guid}")]
@@ -66,25 +65,19 @@ internal class EmployeesController(
 	}
 
 	[HttpPost("upload-file")]
-	public async Task<IActionResult> UploadExcelFile(List<IFormFile> file)
+	public async Task<IActionResult> UploadExcelFile(List<IFormFile> file, CancellationToken cancellationToken)
 	{
 		var size = file.Sum(f => f.Length);
+		var guids = new List<Guid>();
 
 		foreach(var formFile in file) {
-			if((formFile.Length > 0) && (Path.GetExtension(formFile.FileName).Equals(".pdf", StringComparison.InvariantCultureIgnoreCase))){
-				var directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configuration.GetSection("StoredFilePath:path").Value);
-				if(Directory.Exists(directory) is false) {
-					var info = Directory.CreateDirectory(directory);
-					if(info.Exists is false) {
-						throw new DirectoryNotFoundException();
-					}
-				}
-				var filePath = Path.Combine(directory, Guid.NewGuid().ToString() + Path.GetExtension(formFile.FileName));
-				using var stream = System.IO.File.Create(filePath);
-				await formFile.CopyToAsync(stream);
+			if(formFile.Length > 0) {
+				guids.Add(await service.AddFileAsync(formFile, cancellationToken));
 			}
 		}
 
-		return Ok(new { count = file.Count, size });
+		return Ok(new { count = file.Count, size, guids });
 	}
+
+
 }

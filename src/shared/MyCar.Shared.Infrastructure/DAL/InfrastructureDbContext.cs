@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyCar.Shared.Infrastructure.Entities;
+using MyCar.Shared.Abstractions.Entities;
 
 namespace MyCar.Shared.Infrastructure.DAL;
 internal class InfrastructureDbContext(DbContextOptions<InfrastructureDbContext> options) : DbContext(options)
