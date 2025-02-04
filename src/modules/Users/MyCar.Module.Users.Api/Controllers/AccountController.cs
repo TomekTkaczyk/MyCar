@@ -24,6 +24,7 @@ internal class AccountController(
 		return OkOrNotFound(await service.GetAsync(context.Identity.Id, cancellationToken));
 	}
 
+
 	[HttpPost("sign-up")]
 	[AllowAnonymous]
 	[EnableCors("cors-fronturl-header")]
@@ -38,6 +39,7 @@ internal class AccountController(
 		return Created();
 	}
 
+
 	[HttpPost("change-email")]
 	[EnableCors("cors-fronturl-header")]
 	[ProducesResponseType(204)]
@@ -49,6 +51,7 @@ internal class AccountController(
 		await service.ChangeEmailAsync(context.Identity.Id, email, frontendUrl, cancellationToken);
 		return NoContent();
 	}
+
 
 	[HttpPost("sign-in")]
 	[AllowAnonymous]
@@ -70,6 +73,7 @@ internal class AccountController(
 		return Ok();
 	}
 
+
 	[HttpPost("refresh-token")]
 	[AllowAnonymous]
 	[ProducesResponseType(204)]
@@ -90,6 +94,7 @@ internal class AccountController(
 
 		return NoContent();
 	}
+
 
 	[HttpPost("logout")]
 	[ProducesResponseType(204)]
@@ -145,6 +150,7 @@ internal class AccountController(
 		return NoContent();
 	}
 
+
 	[HttpPost("confirm-email")]
 	[AllowAnonymous]
 	[ProducesResponseType(200)]
@@ -156,8 +162,8 @@ internal class AccountController(
 	}
 
 	[HttpPost("resend-confirm-email")]
-	[AllowAnonymous]
 	[EnableCors("cors-fronturl-header")]
+	[AllowAnonymous]
 	[ProducesResponseType(200)]
 	[ProducesResponseType(400)]
 	public async Task<ActionResult> ResendConfirmEmailTokenAsync(string email, CancellationToken cancellationToken)
@@ -167,6 +173,7 @@ internal class AccountController(
 		await service.ResendConfirmEmailTokenAsync(email, frontendUrl, cancellationToken);
 		return Ok();
 	}
+
 
 	[HttpGet("get-permissions")]
 	[ProducesResponseType(200)]
