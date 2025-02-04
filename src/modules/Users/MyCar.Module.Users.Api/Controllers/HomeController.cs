@@ -5,7 +5,7 @@ using MyCar.Module.Users.Core.Services;
 namespace MyCar.Module.Users.Api.Controllers;
 
 [Route(UserModule.BasePath)]
-// [Authorize]
+// [Authorize]	// Only for users with UserManager claim
 internal class HomeController(IUserService service) : HomeControllerBase
 {
 	[HttpGet]
