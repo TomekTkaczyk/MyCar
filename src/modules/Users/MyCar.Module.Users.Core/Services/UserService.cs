@@ -9,7 +9,7 @@ internal class UserService(IUserRepository repository) : IUserService
 	public async Task<IReadOnlyList<UserDto>> GetUsers(CancellationToken cancellationToken = default)
 	{
 		return await repository.GetAll()
-			.Where(x => x.Name.ToLower() != "admin")
+			.Where(x => !x.Name.ToLower().Equals("admin"))
 			.Select(user => UserDto.Create(user))
 			.ToListAsync(cancellationToken);
 	}

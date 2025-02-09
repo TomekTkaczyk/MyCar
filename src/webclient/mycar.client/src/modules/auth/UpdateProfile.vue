@@ -21,7 +21,7 @@
       lastName: authStore.lastName as string || '',
   });
 
-  const errors = reactive<FormErrors>(new FormErrors());
+  const errors = new FormErrors();
 
   async function updateProfile(data: IUpdateProfileCommand) {
     try{
@@ -48,13 +48,13 @@
 
   const firstNameValidate = (value: string): boolean => {
     errors.Clear("FirstName");
-    errors.messages.length = 0;
+    errors.messages.value.length = 0;
     return errors.Get("FirstName").length === 0;;
   }
 
   const lastNameValidate = (value: string): boolean => {
     errors.Clear("LastName");
-    errors.messages.length = 0;
+    errors.messages.value.length = 0;
     return errors.Get("LastName").length === 0;;
   }
 

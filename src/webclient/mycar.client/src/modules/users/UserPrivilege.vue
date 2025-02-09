@@ -25,15 +25,16 @@ const touchedFields = ref({
   isActive: false,
 });
 
-const formData = ref<IUpdatePrivilegeCommand & {name: string}>({
+const formData = ref<IUpdatePrivilegeCommand & {name: string, claims: Record<string,string[]>}>({
   id: "",
   name: "",
   role: "",
   isActive: false,
-  claims: null,
+  claims: {},
 });
+const allClaims = ref<Record<string, string[]>>({});
 
-const errors = reactive<FormErrors>(new FormErrors());
+const errors = new FormErrors();
 
 const updatePrivilege = async (data: IUpdatePrivilegeCommand) => {
   try{
@@ -45,24 +46,6 @@ const updatePrivilege = async (data: IUpdatePrivilegeCommand) => {
     errorHandle(error);
   }
 }
-
-const onChangeRole = (value: string)=> {
-  touchedFields.value.role = true;
-  roleValidate(value);
-};
-
-const onChangeIsActive = (value: string) => {
-  touchedFields.value.isActive = true;
-};
-
-const roleValidate = (value: string): boolean => {
-  errors.Clear("Role");
-  errors.messages.length = 0;
-  if(!value) {
-    errors.Add("Role","Rola nie może być pusta.")
-  }
-  return errors.Get("Role").length === 0;
-};
 
 const roleOptions = [
   { label: 'Administrator', value: 'Admin' },
@@ -86,11 +69,43 @@ const fetchUser = async () => {
     formData.value.name = response?.data.name;
     formData.value.role = response?.data.role;
     formData.value.isActive = response?.data.isActive;
-    formData.value.claims = response?.data.claims;
+    formData.value.claims = response?.data.claims || {};
+
+    const claims = await userStore.getAllClaims();
+    allClaims.value = claims?.data || {};
   } catch (error) {
     errorHandle(error);
   }
 }
+
+const categoryTranslations: Record<string, string> = {
+  "user": "Moduł: Użytkownik",
+  "employee": "Moduł: Pracownik"
+};
+
+const translateClaimCategory = (category: string): string => {
+  return categoryTranslations[category] || category;
+};
+
+const onClaimChange = (category: string, claim: string, event: Event) => {
+  const checked = (event.target as HTMLInputElement).checked;
+
+  if (!formData.value.claims[category]) {
+    formData.value.claims[category] = [];
+  }
+
+  if (checked) {
+    if (!formData.value.claims[category].includes(claim)) {
+      formData.value.claims[category].push(claim);
+    }
+  } else {
+    formData.value.claims[category] = formData.value.claims[category].filter(c => c !== claim);
+
+    if (formData.value.claims[category].length === 0) {
+      delete formData.value.claims[category];
+    }
+  }
+};
 
 onMounted(fetchUser);
 
@@ -102,25 +117,45 @@ onMounted(fetchUser);
 
 <template>
   <div class="updateuser-form">
-      <h4>Edycja użytkownika</h4>
-      <div class="user-name">{{formData.name}}</div>
-      <form @submit.prevent="updatePrivilege(formData)">
-        <div class="form-group">
-          <ComboBox v-model="formData.role"
-            label="Rola w systemie"
-            :options="roleOptions"
-            :messages="errors.Get('Role')"
-          />
+    <a href="javascript:history.back()" class="back-link">&#8592; Powrót</a>
+    <br/>
+    <br/>
+    <h4>Edycja użytkownika</h4>
+    <div class="user-name">{{formData.name}}</div>
+    <form @submit.prevent="updatePrivilege(formData)">
+      <div class="form-group">
+        <ComboBox v-model="formData.role"
+          label="Rola w systemie"
+          :options="roleOptions"
+          :messages="errors.Get('Role')"
+        />
+      </div>
+      <div class="form-group">
+        <ComboBox v-model="formData.isActive"
+          label="Aktywny"
+          :options="isActiveOptions"
+          :messages="errors.Get('IsActive')"
+        />
+      </div>
+
+      <div class="claims-section">
+        <h5>Uprawnienia</h5>
+        <div v-for="(claims, category) in allClaims" :key="category" class="claim-group">
+          <h6 class="claim-category">{{ translateClaimCategory(category) }}</h6>
+          <div v-for="claim in claims" :key="claim" class="claim-item">
+            <label>
+              <input type="checkbox"
+                    :value="claim"
+                    :checked="formData.claims[category]?.includes(claim)"
+                    @change="onClaimChange(category, claim, $event)" />
+              {{ claim }}
+            </label>
+          </div>
         </div>
-        <div class="form-group">
-          <ComboBox v-model="formData.isActive"
-            label="Aktywny"
-            :options="isActiveOptions"
-            :messages="errors.Get('IsActive')"
-          />
-        </div>
-        <button v-if="true" type="submit">Zapisz</button>
-      </form>
+      </div>
+
+      <button v-if="true" type="submit">Zapisz</button>
+    </form>
   </div>
   </template>
 
@@ -146,15 +181,27 @@ onMounted(fetchUser);
   color: blue;
 }
 
-label {
-  display: block;
-  margin-bottom: 5px;
+.claims-section {
+  margin-top: 20px;
 }
 
-input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+.claim-group {
+  margin-bottom: 15px;
+}
+
+.claim-category {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.claim-item label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+input[type="checkbox"] {
+  margin: 0;
 }
 </style>

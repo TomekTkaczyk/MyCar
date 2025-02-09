@@ -14,6 +14,7 @@ public class User : EntityBase
 	public bool IsActive { get; set; }
 	public IDictionary<string, IEnumerable<string>> Claims { get; set; }
 	public bool EmailConfirm { get; set; }
+	public string EmailToConfirm { get; set; }
 	public string EmailConfirmToken { get; set; }
 	public DateTime EmailConfirmExpires { get; set; }
 	public string RefreshToken { get; set; }

@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
   import {computed, ref } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
+  import { useRoute } from 'vue-router';
   import { useAuthStore } from '@/stores/AuthStore';
   import UpdateProfile from './UpdateProfile.vue';
   import ChangeEmail from './ChangeEmail.vue';

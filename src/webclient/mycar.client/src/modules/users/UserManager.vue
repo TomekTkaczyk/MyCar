@@ -13,7 +13,7 @@ import UserItem from './UserItem.vue';
 const userStore = useUserStore();
 const router = useRouter()
 
-const errors = reactive<FormErrors>(new FormErrors());
+const errors = new FormErrors();
 const users = ref<any[]>([]);
 const isLoading = ref(false);
 const errorHandle = ErrorHandler;

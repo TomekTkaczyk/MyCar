@@ -2,10 +2,11 @@ import { isAxiosError } from "axios";
 import { Dictionary } from "./Dictionary";
 import { isApiError, type IApiError } from "./IApiError";
 import MessageProvider from "@/infrastructure/messageProvider";
+import { reactive, ref } from "vue";
 
 class FormErrors {
-  public readonly _dictionary: Dictionary<string[]> = new Dictionary<string[]>();
-  public readonly messages: string[] = [];
+  public readonly _dictionary = reactive(new Dictionary<string[]>());
+  public readonly messages = ref<string[]>([]);
 
   public Add(field: string, message: string): void {
     const item = this._dictionary.Get(field);
@@ -18,7 +19,7 @@ class FormErrors {
 
   public ClearAll(): void {
     this._dictionary.Clear();
-    this.messages.length = 0;
+    this.messages.value.length = 0;
   }
 
   public Clear(field: string): void {
@@ -36,7 +37,7 @@ class FormErrors {
   }
 
   public get Count(): number {
-    return this.messages.length + this._dictionary.Count;
+    return this.messages.value.length + this._dictionary.Count;
   }
 
   public async CatchApiError(formName: string, error: any) {
@@ -53,13 +54,13 @@ class FormErrors {
         if(data.code){
           console.log("CatchApiError1: ", data);
           const message = messageProvider.GetMessage({code: data.code, message: data.message});
-          this.messages.push(message);
+          this.messages.value.push(message);
         }
       } else {
-        this.messages.push("Nierozpoznana zawartość błędu WebApi.");
+        this.messages.value.push("Nierozpoznana zawartość błędu WebApi.");
       }
     } else {
-      this.messages.push("Nierozpoznany błąd systemowy.");
+      this.messages.value.push("Nierozpoznany błąd systemowy.");
     };
   }
 }

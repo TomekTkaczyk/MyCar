@@ -2,13 +2,15 @@
 </script>
 
 <template>
-    <div class="container-fluid flex-shrink-0 bg-dark footer text-center">
-        Copyright &copy;2024 by Tomasz Tkaczyk
+    <div class="d-flex footer justify-content-center align-items-center border-top">
+        Copyright &copy;2024-2025 by Tomasz Tkaczyk
     </div>
 </template>
 
 <style scope>
     .footer {
         color: #999999;
+        background-color: #343a40;
+        font-size: medium;
     }
 </style>

@@ -56,7 +56,7 @@ internal class IdentityService(
 		return jwt;
 	}
 
-	public async Task<Guid> SignUpAsync(SignUpDto dto, string frontendConfirmEmailUrl, CancellationToken cancellationToken)
+	public async Task<Guid> SignUpAsync(SignUpDto dto, string confirmEmailUrl, CancellationToken cancellationToken)
 	{
 		var error = new ApiError();
 		var user = await userRepository.GetByEmailAsync(dto.Email.ToLowerInvariant(), cancellationToken);
@@ -89,6 +89,7 @@ internal class IdentityService(
 			CreatedAt = clock.CurrentDate(),
 			IsActive = true,
 			EmailConfirm = false,
+			EmailToConfirm = dto.Email.ToLowerInvariant()
 		};
 
 		await userRepository.AddAsync(user, cancellationToken);
@@ -98,9 +99,8 @@ internal class IdentityService(
 		user.EmailConfirmToken = token;
 
 		await CreateEmail(
-			frontendConfirmEmailUrl, 
-			dto.Email,
-			token,
+			confirmEmailUrl.Replace("__token__", token),
+			user.EmailToConfirm,
 			cancellationToken);
 
 		await userRepository.UpdateAsync(user, cancellationToken);
@@ -184,8 +184,10 @@ internal class IdentityService(
 		await userRepository.UpdateAsync(user, cancellationToken);
 	}
 
-	public async Task ChangeEmailAsync(Guid id, string emailAddress, string frontendConfirmEmailUrl, CancellationToken cancellationToken)
+	public async Task ChangeEmailAsync(Guid id, string emailAddress, string confirmEmailUrl, CancellationToken cancellationToken)
 	{
+		emailAddress = emailAddress.ToLowerInvariant();
+
 		var user = await userRepository.GetAsync(id, cancellationToken)
 			?? throw new InvalidCredentialsException();
 
@@ -195,17 +197,21 @@ internal class IdentityService(
 			if(!user.Id.Equals(anotherUser.Id)) {
 				throw new EmailIsInUseException();
 			}
-			throw new EmailNotChanged();
+			if(user.Email.Equals(emailAddress) && user.EmailConfirm) {
+				throw new EmailNotChanged();
+			}
 		}
 
 		var token = tokenProvider.GenerateConfirmEmailToken(id, emailAddress);
 
 		user.EmailConfirmToken = token;
+		user.EmailToConfirm = emailAddress;
+
+		confirmEmailUrl += "?token=" + token;
 
 		await CreateEmail(
-			frontendConfirmEmailUrl,
+			confirmEmailUrl,
 			emailAddress,
-			token,
 			cancellationToken);
 
 		await userRepository.UpdateAsync(user, cancellationToken);
@@ -224,8 +230,8 @@ internal class IdentityService(
 
 	public async Task ConfirmEmailAsync(string token, CancellationToken cancellationToken)
 	{
-
 		var confirmToken = DecodeJwt(token);
+
 		var idClaim = confirmToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value
 			?? throw new InvalidEmailTokenException();
 
@@ -233,7 +239,7 @@ internal class IdentityService(
 			throw new InvalidEmailTokenException();
 		}
 
-		var emailClaim = confirmToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value
+		var emailClaim = confirmToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value.ToLowerInvariant()
 			?? throw new InvalidEmailTokenException();
 
 		var user = await userRepository.GetAsync(id, cancellationToken)
@@ -243,6 +249,10 @@ internal class IdentityService(
 			throw new UserNotActiveException(user.Id);
 		}
 
+		if(!user.EmailToConfirm.Equals(emailClaim)) {
+			throw new InvalidEmailTokenException();
+		}
+
 		var emailConfirmer = emailConfirmerFactory.GetEmailConfirmer(EmailConfirmTypes.Jwt);
 		if(!emailConfirmer.Confirm(user.EmailConfirmToken, token, emailClaim)) {
 			throw new UserEmailConfirmException();
@@ -250,32 +260,8 @@ internal class IdentityService(
 
 		user.Email = emailClaim;
 		user.EmailConfirm = true;
-		user.EmailConfirmToken = null;
 
 		await userRepository.UpdateAsync(user, cancellationToken);
-	}
-
-	public async Task ResendConfirmEmailTokenAsync(string email, string frontendConfirmEmailUrl, CancellationToken cancellationToken)
-	{
-		await Task.CompletedTask;
-		throw new NotImplementedException();
-
-		//var user = await userRepository.GetByEmailAsync(email)
-		//	?? throw new UserEmailConfirmException();
-
-		//if(!user.IsActive) {
-		//	throw new UserNotActiveException(user.Id);
-		//}
-
-		//var emailConfirmer = emailConfirmerFactory.GetEmailConfirmer();
-		//if(emailConfirmer is not null) {
-		//	await CreateEmail(frontendConfirmEmailUrl, email, cancellationToken);
-		//}
-		//else {
-		//	user.EmailConfirm = true;
-		//	user.EmailConfirmToken = null;
-		//}
-		//await userRepository.UpdateAsync(user);
 	}
 
 	public async Task<string[]> GetAllPermissionsAsync(CancellationToken cancellationToken)
@@ -286,14 +272,13 @@ internal class IdentityService(
 
 
 	#region Private methods
-	private static async Task CreateEmail(string frontendConfirmEmailUrl, string emailAddress, string token, CancellationToken cancellationToken)
+	private static async Task CreateEmail(string confirmEmailUrl, string emailAddress, CancellationToken cancellationToken)
 	{
 		var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "EmailConfirmTokenTemplate.html");
 		var template = await File.ReadAllTextAsync(path, cancellationToken);
-		var confirmUrl = $"{frontendConfirmEmailUrl}?ConfirmToken={token}";
 		var email = new Email
 		{
-			Body = template.Replace("{{ConfirmUrl}}", confirmUrl),
+			Body = template.Replace("{{ConfirmUrl}}", confirmEmailUrl),
 			Subject = "Potwierdzenie adresu email w aplikacji MyCar",
 			Recievers = [emailAddress]
 		};

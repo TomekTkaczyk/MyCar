@@ -25,6 +25,14 @@ export const useUserStore = defineStore('users',{
       }
     },
 
+    async getAllClaims() {
+      try {
+        return await httpApiClient.get(`/claims`);
+      } catch (error) {
+        errorHandle(error);
+      }
+    },
+
     async updatePrivilege(command: IUpdatePrivilegeCommand) {
       try{
         await httpApiClient.post('/users-module/update-privilege', command);

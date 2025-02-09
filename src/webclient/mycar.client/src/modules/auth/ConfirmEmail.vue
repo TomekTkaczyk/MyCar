@@ -9,7 +9,7 @@ import { useAuthStore } from '@/stores/AuthStore';
 import type { ApiError } from '@/infrastructure/errors/ApiError';
 
 const route = useRoute();
-const confirmToken = route.query.ConfirmToken as string;
+const confirmToken = route.query.token as string;
 const authStore = useAuthStore();
 
 const isLoading = ref(false);

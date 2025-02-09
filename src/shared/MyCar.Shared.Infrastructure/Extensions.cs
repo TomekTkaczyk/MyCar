@@ -72,7 +72,7 @@ public static class Extensions
 				x.WithOrigins(configuration.GetSection("AllowedHost").Get<string>())
 				 .AllowCredentials()
 				 .WithMethods("POST", "PUT", "DELETE")
-				 .WithHeaders("Content-Type", "Authorization", "X-Frontend-Url");
+				 .WithHeaders("Content-Type", "Authorization", "X-Frontend-Url", "X-ConfirmEmail-Url");
 			});
 		});
 		services.AddAuth(configuration, modules);

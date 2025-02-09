@@ -51,6 +51,16 @@ public class Program
 			return context.Response.WriteAsJsonAsync(moduleInfoProvider);
 		});
 
+		// read claims form all modules !!!
+		app.MapGet("claims", context =>
+		{
+			IDictionary<string, IEnumerable<string>> claims = new Dictionary<string, IEnumerable<string>>();
+			claims.Add("user", ["add","remove","create"]);
+			claims.Add("employee", ["add","create"]);
+
+			return context.Response.WriteAsJsonAsync(claims);
+		});
+
 		//app.MapGet("email", context =>
 		//{
 		//	var confirmer = context.RequestServices
@@ -69,10 +79,6 @@ public class Program
 
 		_assemblies.Clear();
 		_modules.Clear();
-
-		var path = configuration.GetSection("StoredFilePath:path");
-		var temp = Path.Combine(path.Value, Path.GetTempFileName());
-		Console.WriteLine(temp);
 
 		app.Run();
 	}

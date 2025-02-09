@@ -18,15 +18,16 @@
 
   const formData = ref(authStore.email as string);
 
-  const errors = reactive<FormErrors>(new FormErrors);
+  const errors = new FormErrors();
 
   const emailLabel = computed(() => {return authStore.isConfirmed ? "Email" : "Email (nie potwierdzony)"});
 
   async function changeEmail(email: string) {
     touchedFields.value.email = false;
     try {
-      if(isFormValid) {
+      if(isValidEmail(formData.value)) {
         await authStore.changeEmail(email);
+        touchedFields.value.email = false;
       }
     } catch (error) {
       await errors.CatchApiError("ChangeEmail", error);
@@ -41,17 +42,17 @@
 
   const emailValidate = (value: string): boolean => {
     errors.Clear("Email");
-    errors.messages.length = 0;
+    errors.messages.value.length = 0;
     if((touchedFields.value.email) && !isValidEmail(value)) {
       errors.Add("Email","Wymagany prawidłowy adres email.");
     }
     return errors.Get("Email").length === 0;
   };
 
-  const isFormValid = computed(() => {
-    return errors.Count === 0 &&
-      touchedFields.value.email;
+  const buttonVisible = computed(() => {
+    return isValidEmail(formData.value) && (!authStore.isConfirmed || authStore.email !== formData.value);
   });
+
 </script>
 
 <!-- ***************************************************  -->
@@ -70,8 +71,8 @@
                 :messages="errors.Get('Email')"
                 @input="onChangeEmail"/>
           </div>
-          <button v-if="isFormValid" type="submit">Wyślij</button>
-          <HintList :messages="errors.messages"/>
+          <button v-if="buttonVisible" type="submit">Wyślij</button>
+          <HintList :messages="errors.messages.value"/>
         </form>
   </div>
 </template>

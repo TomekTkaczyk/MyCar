@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MyCar.Module.Users.Core.DTO;
 using MyCar.Module.Users.Core.Services;
 using MyCar.Shared.Abstractions.Contexts;
@@ -13,7 +14,8 @@ namespace MyCar.Module.Users.Api.Controllers;
 [Authorize]
 internal class AccountController(
 	IIdentityService service,
-	IContext context) : HomeControllerBase
+	IContext context,
+	IHttpContextAccessor httpContextAccessor) : HomeControllerBase
 {
 	[HttpGet]
 	[ProducesResponseType(200)]
@@ -32,9 +34,19 @@ internal class AccountController(
 	[ProducesResponseType(400)]
 	public async Task<ActionResult> SignUpAsync(SignUpDto dto, CancellationToken cancellationToken)
 	{
-		var frontendUrl = Request.Headers["X-Frontend-Url"].ToString();
+		var confirmEmailUrl = Request.Headers["X-Confirmemail-Url"].ToString();
+		if(confirmEmailUrl.IsNullOrEmpty()) {
+			confirmEmailUrl = Url.Action(
+				"ConfirmEmail",
+				ControllerContext.ActionDescriptor.ControllerName,
+				new { token = @"__token__" },
+				httpContextAccessor.HttpContext.Request.Scheme
+			);
+		} else {
+			confirmEmailUrl += @"?token=__token__";
+		}
 
-		_ = await service.SignUpAsync(dto, frontendUrl, cancellationToken);
+		_ = await service.SignUpAsync(dto, confirmEmailUrl, cancellationToken);
 
 		return Created();
 	}
@@ -46,7 +58,11 @@ internal class AccountController(
 	[ProducesResponseType(400)]
 	public async Task<IActionResult> ChangeEmailAsync([FromQuery] string email, CancellationToken cancellationToken)
 	{
-		var frontendUrl = Request.Headers["X-Frontend-Url"].ToString();
+		var frontendUrl = Request.Headers["X-Confirmemail-Url"].ToString();
+
+		if(frontendUrl.IsNullOrEmpty()) {
+			frontendUrl = Url.Action("ConfirmEmail", "Account", null, Request.Scheme);
+		}
 
 		await service.ChangeEmailAsync(context.Identity.Id, email, frontendUrl, cancellationToken);
 		return NoContent();
@@ -151,26 +167,13 @@ internal class AccountController(
 	}
 
 
-	[HttpPost("confirm-email")]
+	[HttpGet("confirm-email")]
 	[AllowAnonymous]
 	[ProducesResponseType(200)]
 	[ProducesResponseType(400)]
 	public async Task<ActionResult> ConfirmEmailAsync([FromQuery] string token, CancellationToken cancellationToken)
 	{
 		await service.ConfirmEmailAsync(token, cancellationToken);
-		return Ok();
-	}
-
-	[HttpPost("resend-confirm-email")]
-	[EnableCors("cors-fronturl-header")]
-	[AllowAnonymous]
-	[ProducesResponseType(200)]
-	[ProducesResponseType(400)]
-	public async Task<ActionResult> ResendConfirmEmailTokenAsync(string email, CancellationToken cancellationToken)
-	{
-		var frontendUrl = Request.Headers["X-Frontend-Url"].ToString();
-
-		await service.ResendConfirmEmailTokenAsync(email, frontendUrl, cancellationToken);
 		return Ok();
 	}
 

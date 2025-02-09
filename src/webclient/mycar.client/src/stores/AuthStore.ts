@@ -52,7 +52,9 @@ export const useAuthStore = defineStore('auth', {
       try {
         await httpApiClient.post('/users-module/Account/sign-up', command,
           {headers:
-            {'X-Frontend-Url': window.location.origin+"/ConfirmEmail"}
+            {
+              'X-Confirmemail-Url': window.location.origin+"/ConfirmEmail"
+            }
           }
         );
         router.push('/signin');
@@ -90,7 +92,7 @@ export const useAuthStore = defineStore('auth', {
         await httpApiClient.post('/users-module/Account/change-email', null,
           {
             params: {email: email},
-            headers: {'X-Frontend-Url': window.location.origin+"/ConfirmEmail"}
+            headers: {'X-Confirmemail-Url': window.location.origin+"/ConfirmEmail"}
           }
         );
         const alertMessage = new AlerMessage();
@@ -102,11 +104,8 @@ export const useAuthStore = defineStore('auth', {
 
     async confirmEmail(token: string) {
       try{
-        await httpApiClient.post('users-module/Account/confirm-email', null,
-          {
-            params: {token: token},
-          }
-        )
+        console.log(token);
+        await httpApiClient.get('users-module/Account/confirm-email?token='+token);
         router.push("/signin");
         const alertMessage = new AlerMessage();
         alertMessage.Show('Adres email został potwierdzony.\nZaloguj się do aplikacji.');

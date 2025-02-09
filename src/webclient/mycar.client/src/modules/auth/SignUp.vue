@@ -27,7 +27,7 @@
     retypePassword: '',
   });
 
-  const errors = reactive<FormErrors>(new FormErrors());
+  const errors = new FormErrors();
 
   const signUpUser = async (data: ISignUpCommand) => {
     touchedFields.value.userName = false;
@@ -69,7 +69,7 @@
 
   const userNameValidate = (value: string): boolean => {
     errors.Clear("UserName");
-    errors.messages.length = 0;
+    errors.messages.value.length = 0;
     const invalidCharsRegex = /[^a-zA-Z0-9_-]/;
     if (touchedFields.value.userName && !value) errors.Add("UserName", "Nazwa użytkownika jest wymagana.");
     if (touchedFields.value.userName && (value.length < 3)) errors.Add("UserName", "Nazwa użytkownika musi mieć co najmniej 3 znaki.");
@@ -81,7 +81,7 @@
 
   const emailValidate = (value: string): boolean => {
     errors.Clear("Email");
-    errors.messages.length = 0;
+    errors.messages.value.length = 0;
     if((touchedFields.value.email) && !isValidEmail(value)) {
       errors.Add("Email","Wymagany prawidłowy adres email.");
     }
@@ -91,7 +91,7 @@
   const passwordValidate = (value: string): boolean => {
     errors.Clear("Password");
     errors.Clear("RetypePassword");
-    errors.messages.length = 0;
+    errors.messages.value.length = 0;
     if(value !== formData.value.retypePassword) {
       errors.Add("RetypePassword","Powtórzone hasło musi być identyczne.");
     }
@@ -101,7 +101,7 @@
   const retypePasswordValidate = (value: string): boolean => {
     errors.Clear("Password");
     errors.Clear("RetypePassword");
-    errors.messages.length = 0;
+    errors.messages.value.length = 0;
     if(value !== formData.value.password) {
       errors.Add("RetypePassword","Powtórzone hasło musi być identyczne.");
     }
@@ -158,7 +158,7 @@
           <button v-if="isFormValid" type="submit">Zarejestruj</button>
           <p></p>
           <div><RouterLink to="signin">Chcę się zalogować</RouterLink></div>
-          <HintList style="margin-top: 10px;" :messages="errors.messages"/>
+          <HintList style="margin-top: 10px;" :messages="errors.messages.value"/>
       </form>
   </div>
 </template>

@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MyCar.Module.Users.Core.Entities;
 
 namespace MyCar.Module.Users.Core.DAL;
-internal class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContext(options)
+internal class UsersDbContext(DbContextOptions<UsersDbContext> options, ILogger<UsersDbContext> logger) : DbContext(options)
 {
 	public DbSet<User> Users { get; set; }
 
@@ -10,5 +11,7 @@ internal class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbCont
 	{
 		modelBuilder.HasDefaultSchema("Users");
 		modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+		Database.Migrate();
+		logger.LogInformation("Database migration {DbContext}", this.GetType().Name.Replace("DbContext", ""));
 	}
 }

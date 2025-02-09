@@ -14,7 +14,7 @@
 
     const formData = ref('');
 
-    const errors = reactive<FormErrors>(new FormErrors());
+    const errors = new FormErrors();
 
     async function remindPassword(email: string) {
       try {
@@ -33,7 +33,7 @@
 
     const emailValidate = (value: string): boolean => {
       errors.Clear("Email");
-      errors.messages.length = 0;
+      errors.messages.value.length = 0;
       if(!isValidEmail(value)){
         errors.Add("Email", "Wymagany prawidłowy adres eamil.");
       };
@@ -67,7 +67,7 @@
           <br/>
           <div><RouterLink to="signin">Chcę się zalogować</RouterLink></div>
           <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
-          <HintList :messages="errors.messages"/>
+          <HintList :messages="errors.messages.value"/>
       </form>
   </div>
 </template>

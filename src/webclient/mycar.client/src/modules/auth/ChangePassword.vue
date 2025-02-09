@@ -24,7 +24,7 @@
     retypePassword: '',
   });
 
-  const errors = reactive<FormErrors>(new FormErrors());
+  const errors = new FormErrors();
 
   async function changePassword(data: IChangePasswordCommand) {
     touchedFields.value.oldPassword = false;
@@ -59,14 +59,14 @@
 
   const oldPasswordValidate = (value: string): boolean => {
     errors.Clear("OldPassword");
-    errors.messages.length = 0;
+    errors.messages.value.length = 0;
     return errors.Get("OldPassword").length === 0;
   }
 
   const newPasswordValidate = (value: string): boolean => {
     errors.Clear("NewPassword");
     errors.Clear("RetypePassword");
-    errors.messages.length = 0;
+    errors.messages.value.length = 0;
     if(value !== formData.value.retypePassword) {
       errors.Add("RetypePassword", "Powtórzone hasło musi być identyczne.");
     }
@@ -75,7 +75,7 @@
 
   const retypePasswordValidate = (value: string): boolean => {
     errors.Clear("RetypePassword");
-    errors.messages.length = 0;
+    errors.messages.value.length = 0;
     if(value !== formData.value.newPassword) {
       errors.Add("RetypePassword", "Powtórzone hasło musi być identyczne.");
     }
@@ -122,7 +122,7 @@
         </div>
         <button v-if="isFormValid" type="submit">Zmień hasło</button>
         <br/>
-        <HintList :messages="errors.messages"/>
+        <HintList :messages="errors.messages.value"/>
       </form>
   </div>
 </template>

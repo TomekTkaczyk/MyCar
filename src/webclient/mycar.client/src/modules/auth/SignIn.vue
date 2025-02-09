@@ -23,7 +23,7 @@
       password: '',
   });
 
-  const errors = reactive<FormErrors>(new FormErrors());
+  const errors = new FormErrors();
 
   async function signInUser(data: ISignInCommand) {
     touchedFields.value.identifier = false;
@@ -51,7 +51,7 @@
 
   const identifierValidate = (value: string): boolean => {
     errors.Clear("Identifier");
-    errors.messages.length = 0;
+    errors.messages.value.length = 0;
     const invalidCharsRegex = /[^a-zA-Z0-9_-]/;
     const generalAtRegex = /@/;
     if (touchedFields.value.identifier && !value) {
@@ -72,7 +72,7 @@
 
   const passwordValidate = (value: string): boolean => {
     errors.Clear("Password");
-    errors.messages.length = 0;
+    errors.messages.value.length = 0;
     return errors.Get("Password").length === 0;
   }
 
@@ -111,7 +111,7 @@
         <p></p>
         <div><RouterLink to="signup">Chcę się zarejestrować</RouterLink></div>
         <div><RouterLink to="remindpassword">Nie pamiętam hasła</RouterLink></div>
-        <HintList style="margin-top: 10px;" :messages="errors.messages"/>
+        <HintList style="margin-top: 10px;" :messages="errors.messages.value"/>
       </form>
   </div>
 </template>

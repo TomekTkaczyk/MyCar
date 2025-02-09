@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MyCar.Shared.Abstractions.Services;
 
 namespace MyCar.Shared.Infrastructure.Services;
 internal class AppInitializer(IServiceProvider serviceProvider, ILogger<AppInitializer> logger) : IHostedService
@@ -25,8 +24,6 @@ internal class AppInitializer(IServiceProvider serviceProvider, ILogger<AppIniti
 				await dbContext.Database.MigrateAsync(cancellationToken);
 				_logger.LogInformation("Database migration {DbContext}", dbContext.GetType().Name.Replace("DbContext", ""));
 			}
-
-			var bodyCreator = scope.ServiceProvider.GetService<IConfirmEmailTokenCreator>();
 		}
 
 		CreateTemplatesDirectory();

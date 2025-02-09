@@ -3,7 +3,7 @@ export default interface userDto {
   name: string,
   firstName: string,
   lastName: string,
-  claims: string[],
+  claims: {},
   email: string,
   emailConfirm: boolean,
   isActive: boolean,
