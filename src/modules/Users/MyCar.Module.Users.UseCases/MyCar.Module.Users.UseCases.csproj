@@ -6,18 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\shared\MyCar.Shared.Infrastructure\MyCar.Shared.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DAL\Migrations\" />
-    <Folder Include="ValueObjects\" />
+    <ProjectReference Include="..\MyCar.Module.Users.Core\MyCar.Module.Users.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="UsersTests" />
     <InternalsVisibleTo Include="MyCar.Module.Users.Api" />
-    <InternalsVisibleTo Include="MyCar.Module.Users.UseCases" />
   </ItemGroup>
 
 </Project>

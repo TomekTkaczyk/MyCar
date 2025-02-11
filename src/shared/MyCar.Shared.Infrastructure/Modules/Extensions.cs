@@ -12,6 +12,11 @@ public static class Extensions
 		var moduleInfo = modules?.Select(x => new ModuleInfo(x.Name, x.Path, x.Policies ?? [])) ?? [];
 
 		moduleInfoProvider.MolueInfos.AddRange(moduleInfo);
+
+		services.AddMediatR(cfg => {
+			cfg.RegisterServicesFromAssemblies(modules.Select(x => x.GetType().Assembly).ToArray());
+		});
+
 		services.AddSingleton(moduleInfoProvider);
 
 		return services;

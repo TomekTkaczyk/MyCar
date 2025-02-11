@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyCar.Module.Users.Core\MyCar.Module.Users.Core.csproj" />
+    <ProjectReference Include="..\MyCar.Module.Users.UseCases\MyCar.Module.Users.UseCases.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -19,10 +19,14 @@ internal class EmployeeModule : IModule
 	{
 		services.AddCore(configuration);
 
-		//using(var scope = services.BuildServiceProvider()) {
-		//	var configuration = scope.GetRequiredService<IConfiguration>();
-		//	services.AddCore(configuration);
-		//}
+		services.AddMediatR(cfg =>
+		{
+			var assemblies = AppDomain.CurrentDomain
+			.GetAssemblies()
+			.Where(x => x.GetName().Name.StartsWith("MyCar.Module.Employees.", StringComparison.CurrentCultureIgnoreCase))
+			.ToArray();
+			cfg.RegisterServicesFromAssemblies(assemblies);
+		});
 	}
 
 	public void Use(IApplicationBuilder app)

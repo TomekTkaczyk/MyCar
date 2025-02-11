@@ -22,6 +22,7 @@ using MyCar.Shared.Infrastructure.Middleware;
 using MyCar.Shared.Infrastructure.Modules;
 using MyCar.Shared.Infrastructure.Services;
 using MyCar.Shared.Infrastructure.Time;
+using System.Runtime.InteropServices;
 
 namespace MyCar.Shared.Infrastructure;
 
@@ -138,6 +139,8 @@ public static class Extensions
 
 			swagger.AddSecurityRequirement(securityRequirement);
 		});
+
+
 
 		return services;
 	}

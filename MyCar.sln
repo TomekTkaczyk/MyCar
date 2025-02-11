@@ -50,6 +50,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfrastructureTests", "test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyCar.Shared.OpenXML", "src\shared\MyCar.Shared.OpenXML\MyCar.Shared.OpenXML\MyCar.Shared.OpenXML.csproj", "{8D69FAFC-E73A-4E98-8134-9B01041DADEC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyCar.Module.Users.UseCases", "src\modules\Users\MyCar.Module.Users.UseCases\MyCar.Module.Users.UseCases.csproj", "{60F56CCA-8F2D-4F38-80C5-D2A4B36212C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +104,10 @@ Global
 		{8D69FAFC-E73A-4E98-8134-9B01041DADEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D69FAFC-E73A-4E98-8134-9B01041DADEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D69FAFC-E73A-4E98-8134-9B01041DADEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60F56CCA-8F2D-4F38-80C5-D2A4B36212C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60F56CCA-8F2D-4F38-80C5-D2A4B36212C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60F56CCA-8F2D-4F38-80C5-D2A4B36212C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60F56CCA-8F2D-4F38-80C5-D2A4B36212C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,6 +132,7 @@ Global
 		{1DFD850A-F77A-4AD2-B1F0-8034BB44BBAF} = {7946FEE0-BF8C-4702-B5AE-DB8A46094A71}
 		{0B916E87-F960-41C4-8ABD-A8BBD278E3D7} = {1DFD850A-F77A-4AD2-B1F0-8034BB44BBAF}
 		{8D69FAFC-E73A-4E98-8134-9B01041DADEC} = {CAFE2E0A-D48A-43EE-8AC4-7F30F318EFF2}
+		{60F56CCA-8F2D-4F38-80C5-D2A4B36212C2} = {01536723-4E98-4ECA-AEA6-AE6CE99E663F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1BF09D59-9778-48BC-9B37-74A570C5541D}

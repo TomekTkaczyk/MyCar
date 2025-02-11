@@ -21,10 +21,28 @@ internal class UserModule : IModule
 	{
 		services.AddCore(configuration);
 
-		//using(var scope = services.BuildServiceProvider()) {
-		//	var configuration = scope.GetRequiredService<IConfiguration>();
-		//	services.AddCore(configuration);
-		//}
+
+		services.AddMediatR(cfg =>
+		{
+			var assemblies = AppDomain.CurrentDomain
+			.GetAssemblies()
+			.Where(x => x.GetName().Name.StartsWith("MyCar.Module.Users.", StringComparison.CurrentCultureIgnoreCase))
+			.ToArray();
+			cfg.RegisterServicesFromAssemblies(assemblies);
+		});
+
+		//services.Scan(scan => scan
+		//	.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
+		//	.AddClasses(classes => classes.AssignableTo(typeof(IRequestHandler<,>)))
+		//	.AsImplementedInterfaces()
+		//	.WithScopedLifetime()
+		//);
+		//services.Scan(scan => scan
+		//	.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
+		//	.AddClasses(classes => classes.AssignableTo(typeof(IRequest)))
+		//	.AsImplementedInterfaces()
+		//	.WithScopedLifetime()
+		//);
 	}
 
 	public void Use(IApplicationBuilder app)
