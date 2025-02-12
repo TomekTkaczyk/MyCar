@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using MyCar.Shared.Abstractions.Auth;
 using MyCar.Shared.Abstractions.Modules;
 using MyCar.Shared.Abstractions.Services;
+using MyCar.Shared.Infrastructure.Middleware;
 using System.Text;
 
 namespace MyCar.Shared.Infrastructure.Auth;
@@ -91,7 +93,6 @@ public static class Extensions
 						return Task.CompletedTask;
 					}
 				};
-				// end add cookies
 
 				optionsFactory?.Invoke(o);
 			});
@@ -99,11 +100,13 @@ public static class Extensions
 		services.AddSingleton(authOptions);
 		services.AddSingleton(tokenValidationParameters);
 
-		var policies = modules?.SelectMany(x => x.Policies ?? []) ?? [];
-		services.AddAuthorization(authorization =>
+		services.AddAuthorization(auth =>
 		{
-			foreach(var policy in policies) {
-				authorization.AddPolicy(policy, x => x.RequireClaim("permissions", policy));
+			foreach(var module in modules) {
+				foreach(var policy in module.Policies) {
+					var policyName = $"{module.Name}.{policy}";
+					auth.AddPolicy(policyName, policy => policy.RequireClaim("permissions", policyName));
+				}
 			}
 		});
 

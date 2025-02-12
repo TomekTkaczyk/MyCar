@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyCar.Module.Users.UseCases.Commands.UpdateClaims;
 using MyCar.Module.Users.UseCases.Queries.GetUser;
@@ -7,9 +8,11 @@ using MyCar.Module.Users.UseCases.Queries.GetUsers;
 namespace MyCar.Module.Users.Api.Controllers;
 
 [Route(UserModule.BasePath)]
-// [Authorize]	// Only for users with UserManager claim
+[Authorize(Policy ="Users.UserManager")]
 internal class HomeController(IMediator mediator) : HomeControllerBase
 {
+	private readonly IMediator mediator = mediator;
+
 	[HttpGet]
 	public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
 	{

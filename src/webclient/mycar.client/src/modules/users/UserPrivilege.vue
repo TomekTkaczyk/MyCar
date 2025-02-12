@@ -79,8 +79,8 @@ const fetchUser = async () => {
 }
 
 const categoryTranslations: Record<string, string> = {
-  "user": "Moduł: Użytkownik",
-  "employee": "Moduł: Pracownik"
+  "Users": "Moduł: Użytkownik",
+  "Employees": "Moduł: Pracownik"
 };
 
 const translateClaimCategory = (category: string): string => {

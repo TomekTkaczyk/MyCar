@@ -9,13 +9,13 @@ namespace MyCar.Module.Users.Api;
 
 internal class UserModule : IModule
 {
-	public const string BasePath = "users-module";
+	public const string BasePath = "/users-module";
 
 	public string Name { get; } = "Users";
 
 	public string Path => BasePath;
 
-	public IEnumerable<string> Policies { get; } = ["users"];
+	public IEnumerable<string> Policies { get; } = ["UserManager", "UserUprawnienie1", "UserUprawnienie2"];
 
 	public void Register(IServiceCollection services, IConfiguration configuration)
 	{

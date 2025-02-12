@@ -51,12 +51,20 @@ public class Program
 			return context.Response.WriteAsJsonAsync(moduleInfoProvider);
 		});
 
-		// read claims form all modules !!!
 		app.MapGet("claims", context =>
 		{
+			var moduleInfoProvider = context.RequestServices.GetRequiredService<ModuleInfoProvider>();
 			IDictionary<string, IEnumerable<string>> claims = new Dictionary<string, IEnumerable<string>>();
-			claims.Add("user", ["add","remove","create"]);
-			claims.Add("employee", ["add","create"]);
+			foreach(var module in moduleInfoProvider.MolueInfos) {
+				foreach(var policy in module.Policies) {
+					if(claims.ContainsKey(module.Name)) {
+						claims[module.Name] = claims[module.Name].Union(module.Policies);
+					}
+					else {
+						claims.Add(module.Name, module.Policies);
+					}
+				}
+			}
 
 			return context.Response.WriteAsJsonAsync(claims);
 		});

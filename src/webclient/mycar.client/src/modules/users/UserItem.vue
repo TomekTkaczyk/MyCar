@@ -17,9 +17,9 @@ defineProps<{
 
 <template>
   <div class="user-item">
-    <h3>{{ user.name }}</h3>
-    <p>Email: {{ user.email }}</p>
-    <p>Rola: {{ user.role }}</p>
+    <h3 class="user-name">{{ user.name }}</h3>
+    <p class="content-item">Email: {{ user.email }}</p>
+    <p class="content-item">Rola: {{ user.role }}</p>
   </div>
 </template>
 
@@ -40,5 +40,15 @@ defineProps<{
 .user-item:hover {
   background-color: #f9f9f9;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.user-name {
+  font-size: 25px;
+  color: blue;
+}
+
+.content-item {
+  margin-bottom: 0px;
+  padding: 0px;
 }
 </style>

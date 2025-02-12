@@ -11,6 +11,8 @@ internal interface IUserRepository
 
 	Task<User> GetByNameAsync(string name, CancellationToken cancellationToken);
 
+	Task<User> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken);
+
 	Task AddAsync(User user, CancellationToken cancellationToken);
 
 	Task UpdateAsync(User user, CancellationToken cancellationToken);

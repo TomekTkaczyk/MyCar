@@ -15,8 +15,6 @@ internal static class Extensions
 	public static IServiceCollection AddCore(this IServiceCollection services, IConfiguration configuration)
 	{
 		services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
-		services.AddTransient<IIdentityService, IdentityService>();
-		services.AddScoped<IUserService, UserService>();
 		services.AddScoped<IDataInitializerService, DataInitializerService>();
 		services.AddScoped<IUserRepository, UserRepository>();
 		services.AddScoped<IEmailVerificationService, EmailVerificationService>();

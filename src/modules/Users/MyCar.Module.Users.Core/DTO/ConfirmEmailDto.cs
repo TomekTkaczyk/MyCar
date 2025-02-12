@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace MyCar.Module.Users.Core.DTO;
-public class ConfirmEmailDto
+public sealed record ConfirmEmailDto
 {
 	[Required]
 	[EmailAddress]

@@ -5,7 +5,7 @@ export default interface userDto {
   lastName: string,
   claims: {},
   email: string,
-  emailConfirm: boolean,
+  isConfirmed: boolean,
   isActive: boolean,
   role: string
 }

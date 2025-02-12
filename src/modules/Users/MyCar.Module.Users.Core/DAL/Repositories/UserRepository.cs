@@ -43,4 +43,11 @@ internal class UserRepository(UsersDbContext context) : IUserRepository
 		return _users.AsNoTracking();
 	}
 
+	public async Task<User> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken)
+	{
+		var user = await GetByNameAsync(identifier, cancellationToken);
+		user ??= await GetByEmailAsync(identifier, cancellationToken);
+
+		return user;
+	}
 }

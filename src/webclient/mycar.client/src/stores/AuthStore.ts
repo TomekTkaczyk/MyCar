@@ -7,7 +7,7 @@ import { httpApiClient } from '@/infrastructure/httpApiClient';
 import type ISignInCommand from '@/modules/auth/requests/signin-command';
 import type ISignUpCommand from '@/modules/auth/requests/signup-command';
 import type IChangePasswordCommand from '@/modules/auth/requests/changepassword-command';
-import type IUpdateProfileCommand from '@/modules/auth/requests/updateprofile-command';
+import type IUpdateNameCommand from '@/modules/auth/requests/updatename-command';
 import { AlerMessage } from '@/infrastructure/AlertMessage';
 import type IAuthState from '@/types/IAuthState';
 import ErrorHandler from './ErrorHandler';
@@ -67,7 +67,7 @@ export const useAuthStore = defineStore('auth', {
 
     async remindPassword(email: string) {
       try {
-        await httpApiClient.post('/users-module/Account/remaind-password', null, { params: { email: email}});
+        await httpApiClient.post('/users-module/Account/remind-password', null, { params: { email: email}});
         router.push('/signin');
         const alertMessage = new AlerMessage();
         alertMessage.Show('Wysłaliśmy link do zmiany hasła na twój adres email.\nZaloguj się do aplikacji.')
@@ -78,7 +78,6 @@ export const useAuthStore = defineStore('auth', {
 
     async changePassword(command: IChangePasswordCommand) {
       try{
-        console.error(command)
         await httpApiClient.post('/users-module/Account/change-password', command);
         const alertMessage = new AlerMessage();
         alertMessage.Show('Hasło zostało zmienione.');
@@ -104,13 +103,11 @@ export const useAuthStore = defineStore('auth', {
 
     async confirmEmail(token: string) {
       try{
-        console.log(token);
         await httpApiClient.get('users-module/Account/confirm-email?token='+token);
         router.push("/signin");
         const alertMessage = new AlerMessage();
         alertMessage.Show('Adres email został potwierdzony.\nZaloguj się do aplikacji.');
       } catch (error) {
-        console.error();
         errorHandle(error);
       }
     },
@@ -123,9 +120,9 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async updateProfile(command: IUpdateProfileCommand) {
+    async updateName(command: IUpdateNameCommand) {
       try{
-        await httpApiClient.put('/users-module/Account/update-profile', command);
+        await httpApiClient.put('/users-module/Account/update-name', command);
         await this.getUser();
       } catch (error) {
         errorHandle(error);

@@ -17,8 +17,7 @@ internal class AppInitializer(IServiceProvider serviceProvider, ILogger<AppIniti
 
 		using(var scope = _serviceProvider.CreateScope()) {
 			foreach(var dbType in dbContextTypes) {
-				var dbContext = scope.ServiceProvider.GetService(dbType) as DbContext;
-				if(dbContext is null) {
+				if(scope.ServiceProvider.GetService(dbType) is not DbContext dbContext) {
 					continue;
 				}
 				await dbContext.Database.MigrateAsync(cancellationToken);

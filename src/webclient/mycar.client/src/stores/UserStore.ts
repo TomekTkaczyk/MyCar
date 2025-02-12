@@ -11,7 +11,9 @@ export const useUserStore = defineStore('users',{
   actions: {
     async getUsers() {
       try{
-        return await httpApiClient.get('/users-module');
+
+        const result = await httpApiClient.get('/users-module');
+    return result;
       } catch (error) {
         errorHandle(error);
       }

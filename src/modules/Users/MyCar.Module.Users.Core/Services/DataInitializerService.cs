@@ -13,7 +13,7 @@ internal class DataInitializerService(IUserRepository repository, IPasswordHashe
 		}
 	}
 
-	private async Task  AddAdmin()
+	private async Task AddAdmin()
 	{
 		var user = new User
 		{
@@ -23,6 +23,10 @@ internal class DataInitializerService(IUserRepository repository, IPasswordHashe
 			Role = "admin",
 			IsActive = true,
 			EmailConfirm = true,
+			Claims = new Dictionary<string, IEnumerable<string>>()
+			{
+				{ "Users", new List<string> { "UserManager" } }
+			}
 		};
 
 		await repository.AddAsync(user, default);

@@ -16,7 +16,7 @@ internal class JwtEmailConfirmer(AuthOptions options, IClock clock) : IEmailConf
 		return ConfirmToken;
 	}
 
-	public string GetRemaindPasswordBody(Guid userId, string email)
+	public string GetRemindPasswordBody(Guid userId, string email)
 	{
 		CreateToken(userId, email);
 

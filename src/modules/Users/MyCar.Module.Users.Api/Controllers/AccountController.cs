@@ -6,6 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MyCar.Module.Users.Core.DTO;
 using MyCar.Module.Users.Core.Services;
+using MyCar.Module.Users.UseCases.Commands.ChangeEmail;
+using MyCar.Module.Users.UseCases.Commands.ChangePassword;
+using MyCar.Module.Users.UseCases.Commands.ConfirmEmail;
+using MyCar.Module.Users.UseCases.Commands.Logout;
+using MyCar.Module.Users.UseCases.Commands.RefreshToken;
+using MyCar.Module.Users.UseCases.Commands.RemindPassword;
+using MyCar.Module.Users.UseCases.Commands.SignIn;
+using MyCar.Module.Users.UseCases.Commands.SignUp;
+using MyCar.Module.Users.UseCases.Commands.UpdateName;
+using MyCar.Module.Users.UseCases.Queries.GetUser;
 using MyCar.Shared.Abstractions.Contexts;
 
 namespace MyCar.Module.Users.Api.Controllers;
@@ -13,18 +23,43 @@ namespace MyCar.Module.Users.Api.Controllers;
 
 [Route(UserModule.BasePath + "/[controller]")]
 [Authorize]
+
 internal class AccountController(
-	IIdentityService service,
+	IMediator mediator,
 	IContext context,
 	IHttpContextAccessor httpContextAccessor) : HomeControllerBase
 {
+	private readonly IMediator mediator = mediator;
+	private readonly IContext context = context;
+	private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor;
+
 	[HttpGet]
 	[ProducesResponseType(200)]
 	[ProducesResponseType(401)]
 	[ProducesResponseType(404)]
-	public async Task<ActionResult<AccountDto>> GetAsync(CancellationToken cancellationToken)
+	public async Task<ActionResult<UserDto>> GetAsync(CancellationToken cancellationToken)
 	{
-		return OkOrNotFound(await service.GetAsync(context.Identity.Id, cancellationToken));
+		return OkOrNotFound(await mediator.Send(new GetUserQuery(context.Identity.Id), cancellationToken));
+	}
+
+
+	[HttpPost("sign-in")]
+	[AllowAnonymous]
+	[ProducesResponseType(204)]
+	[ProducesResponseType(400)]
+	[ProducesResponseType(401)]
+	public async Task<ActionResult> SignInAsync(SignInCommand command, CancellationToken cancellationToken)
+	{
+		var response = await mediator.Send(command, cancellationToken);
+		var cookieOptions = new CookieOptions
+		{
+			HttpOnly = true,
+			SameSite = SameSiteMode.Strict,
+		};
+		Response.Cookies.Append("accessToken", response.AccessToken, cookieOptions);
+		Response.Cookies.Append("refreshToken", response.RefreshToken, cookieOptions);
+
+		return Ok();
 	}
 
 
@@ -33,7 +68,7 @@ internal class AccountController(
 	[EnableCors("cors-fronturl-header")]
 	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
-	public async Task<ActionResult> SignUpAsync(SignUpDto dto, CancellationToken cancellationToken)
+	public async Task<ActionResult> SignUpAsync(SignUpRequest request, CancellationToken cancellationToken)
 	{
 		var confirmEmailUrl = Request.Headers["X-Confirmemail-Url"].ToString();
 		if(confirmEmailUrl.IsNullOrEmpty()) {
@@ -47,7 +82,14 @@ internal class AccountController(
 			confirmEmailUrl += @"?token=__token__";
 		}
 
-		_ = await service.SignUpAsync(dto, confirmEmailUrl, cancellationToken);
+		var command = new SignUpCommand() {
+			UserName = request.UserName,
+			Email = request.Email,
+			Password = request.Password,
+			ConfirmEmailUrl = confirmEmailUrl
+		};
+
+		await mediator.Send(command, cancellationToken);
 
 		return Created();
 	}
@@ -59,36 +101,24 @@ internal class AccountController(
 	[ProducesResponseType(400)]
 	public async Task<IActionResult> ChangeEmailAsync([FromQuery] string email, CancellationToken cancellationToken)
 	{
-		var frontendUrl = Request.Headers["X-Confirmemail-Url"].ToString();
+		var confirmEmailUrl = Request.Headers["X-Confirmemail-Url"].ToString();
 
-		if(frontendUrl.IsNullOrEmpty()) {
-			frontendUrl = Url.Action("ConfirmEmail", "Account", null, Request.Scheme);
+		if(confirmEmailUrl.IsNullOrEmpty()) {
+			confirmEmailUrl = Url.Action("ConfirmEmail", "Account", null, Request.Scheme);
 		}
 
-		await service.ChangeEmailAsync(context.Identity.Id, email, frontendUrl, cancellationToken);
+		var command = new ChangeEmailCommand()
+		{
+			Id = context.Identity.Id,
+			Email = email,
+			ConfirmEmailUrl = confirmEmailUrl
+		};
+
+		await mediator.Send(command, cancellationToken);
+
 		return NoContent();
 	}
 
-
-	[HttpPost("sign-in")]
-	[AllowAnonymous]
-	[ProducesResponseType(204)]
-	[ProducesResponseType(400)]
-	[ProducesResponseType(401)]
-	public async Task<ActionResult> SignInAsync(SignInDto dto, CancellationToken cancellationToken)
-	{
-		var response = await service.SignInAsync(dto, cancellationToken);
-
-		var cookieOptions = new CookieOptions
-		{
-			HttpOnly = true,
-			SameSite = SameSiteMode.Strict,
-		};
-		Response.Cookies.Append("accessToken", response.AccessToken, cookieOptions);
-		Response.Cookies.Append("refreshToken", response.RefreshToken, cookieOptions);
-
-		return Ok();
-	}
 
 
 	[HttpPost("refresh-token")]
@@ -98,16 +128,17 @@ internal class AccountController(
 	public async Task<ActionResult> RefreshToken(CancellationToken cancellationToken)
 	{
 		var refreshToken = Request.Cookies["refreshtoken"];
+		var command = new RefreshTokenCommand(refreshToken);
 
-		var response = await service.RefreshTokenAsync(refreshToken, cancellationToken);
+		var jwt = await mediator.Send(command, cancellationToken);
 
 		var cookieOptions = new CookieOptions
 		{
 			HttpOnly = true,
 			SameSite = SameSiteMode.Strict,
 		};
-		Response.Cookies.Append("accessToken", response.AccessToken, cookieOptions);
-		Response.Cookies.Append("refreshToken", response.RefreshToken, cookieOptions);
+		Response.Cookies.Append("accessToken", jwt.AccessToken, cookieOptions);
+		Response.Cookies.Append("refreshToken", jwt.RefreshToken, cookieOptions);
 
 		return NoContent();
 	}
@@ -118,7 +149,8 @@ internal class AccountController(
 	[ProducesResponseType(401)]
 	public async Task<ActionResult> Logout(CancellationToken cancellationToken)
 	{
-		await service.LogoutAsync(context.Identity.Id, cancellationToken);
+
+		await mediator.Send(new LogoutCommand(context.Identity.Id), cancellationToken);
 
 		var cookieOptions = new CookieOptions
 		{
@@ -133,16 +165,19 @@ internal class AccountController(
 	}
 
 
-	[HttpPost("remaind-password")]
+	[HttpPost("remind-password")]
 	[EnableCors("cors-fronturl-header")]
 	[AllowAnonymous]
 	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
-	public async Task<IActionResult> RemaindPasswordAsync([FromQuery] string email, CancellationToken cancellationToken)
+	public async Task<IActionResult> RemindPasswordAsync([FromQuery] string email, CancellationToken cancellationToken)
 	{
-		var frontendUrl = Request.Headers["X-Frontend-Url"].ToString();
+		var resetPasswordUrl = Request.Headers["X-Frontend-Url"].ToString();
 
-		await service.RemaindPasswordAsync(email, frontendUrl, cancellationToken);
+		await mediator.Send(new RemindPasswordCommand() {
+			Email = email,
+			ResetPasswordUrl = resetPasswordUrl}, cancellationToken);
+
 		return NoContent();
 	}
 
@@ -150,19 +185,32 @@ internal class AccountController(
 	[HttpPost("change-password")]
 	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
-	public async Task<IActionResult> ChangePasswordAsync(ChangePasswordDto dto, CancellationToken cancellationToken)
+	public async Task<IActionResult> ChangePasswordAsync(ChangePasswordRequest request, CancellationToken cancellationToken)
 	{
-		await service.ChangePasswordAsync(context.Identity.Id, dto, cancellationToken);
+		var command = new ChangePasswordCommand()
+		{
+			Id = context.Identity.Id,
+			CurrentPassword = request.CurrentPassword,
+			Password = request.Password
+		};
+		await mediator.Send(command, cancellationToken);
+
 		return NoContent();
 	}
 
 
-	[HttpPut("update-profile")]
+	[HttpPut("update-name")]
 	[ProducesResponseType(204)]
 	[ProducesResponseType(400)]
-	public async Task<IActionResult> UpdateProfileAsync(UserProfileDto dto, CancellationToken cancellationToken)
+	public async Task<IActionResult> UpdateNameAsync(UpdateNameRequest request, CancellationToken cancellationToken)
 	{
-		await service.UpdateProfileAsync(context.Identity.Id, dto, cancellationToken);
+		var command = new UpdateNameCommand()
+		{
+			Id = context.Identity.Id,
+			FirstName = request.FirstName,
+			LastName = request.LastName
+		};
+		await mediator.Send(command, cancellationToken);
 
 		return NoContent();
 	}
@@ -174,17 +222,8 @@ internal class AccountController(
 	[ProducesResponseType(400)]
 	public async Task<ActionResult> ConfirmEmailAsync([FromQuery] string token, CancellationToken cancellationToken)
 	{
-		await service.ConfirmEmailAsync(token, cancellationToken);
+		await mediator.Send(new ConfirmEmailCommand(token), cancellationToken);
+
 		return Ok();
-	}
-
-
-	[HttpGet("get-permissions")]
-	[ProducesResponseType(200)]
-	[ProducesResponseType(401)]
-	public async Task<ActionResult<IEnumerable<string>>> GetPermissionsAsync(CancellationToken cancellationToken)
-	{
-		var permissions = await service.GetAllPermissionsAsync(cancellationToken);
-		return Ok(permissions);
 	}
 }

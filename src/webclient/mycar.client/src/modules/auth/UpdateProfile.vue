@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
   import { computed, reactive, ref } from 'vue';
-  import type IUpdateProfileCommand from './requests/updateprofile-command.ts';
+  import type IUpdateProfileCommand from './requests/updatename-command.ts';
   import TextInput from "@/components/TextInput.vue";
   import { useAuthStore } from '@/stores/AuthStore';
   import { FormErrors } from '@/types/FormErrors.ts';

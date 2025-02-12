@@ -5,7 +5,7 @@ internal class CodeEmailConfirmer() : IEmailConfirmer
 {
 	public string ConfirmToken { get; private set; }
 
-	public string GetRemaindPasswordBody(Guid userId, string email)
+	public string GetRemindPasswordBody(Guid userId, string email)
 	{
 		GenerateVerificationCode();
 

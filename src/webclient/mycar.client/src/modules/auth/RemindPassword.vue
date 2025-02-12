@@ -22,7 +22,7 @@
           await authStore.remindPassword(email);
         }
       } catch (error) {
-          await errors.CatchApiError("RemaindPassword", error);
+          await errors.CatchApiError("RemindPassword", error);
       }
     };
 
