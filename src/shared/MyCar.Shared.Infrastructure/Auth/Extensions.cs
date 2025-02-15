@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -100,12 +101,26 @@ public static class Extensions
 		services.AddSingleton(authOptions);
 		services.AddSingleton(tokenValidationParameters);
 
+		services.AddSingleton<IAuthorizationHandler, PermissionOrRoleHandler>();
+
 		services.AddAuthorization(auth =>
 		{
 			foreach(var module in modules) {
 				foreach(var policy in module.Policies) {
 					var policyName = $"{module.Name}.{policy}";
-					auth.AddPolicy(policyName, policy => policy.RequireClaim("permissions", policyName));
+
+					auth.AddPolicy(policyName, policy =>
+					   policy.Requirements.Add(new PermissionOrRoleRequirement(
+						[policyName], []))
+					);
+
+					auth.AddPolicy(policyName+".OrAdmin", policy =>
+						policy.Requirements.Add(new PermissionOrRoleRequirement(
+						[policyName], ["admin"]))
+					);
+
+					//auth.AddPolicy(policyName, policy =>
+					//	policy.RequireClaim("permissions", policyName));
 				}
 			}
 		});

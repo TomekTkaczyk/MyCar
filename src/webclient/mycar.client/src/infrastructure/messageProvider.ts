@@ -34,7 +34,7 @@ class MessageProvider implements IMessageProvider {
       var messages = await loader();
       this.messageDictionary = messages.default;
     } catch (error) {
-      console.error(`Error loading message group "@/infrastructure/${this.messageGroup}Messages":`, error);
+      error(`Error loading message group "@/infrastructure/${this.messageGroup}Messages":`, error);
     }
   }
 }

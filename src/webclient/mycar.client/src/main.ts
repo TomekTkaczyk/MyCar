@@ -8,12 +8,15 @@ import { createApp } from 'vue';
 import App from './MyCar.vue';
 import { createPinia } from 'pinia';
 import { useAuthStore } from '@/stores/AuthStore';
+import { setRouter } from './infrastructure/httpApiClient';
 
 import router from "@/router";
 
 const pinia = createPinia();
 
 const mycar = createApp(App);
+
+setRouter(router);
 
 mycar
     .use(pinia)

@@ -18,13 +18,18 @@ router.beforeEach((to, from, next) => {
     }
   }
 
-  const requiredRoles = to.meta.requiredRoles as string[] | undefined;
-  const requiredClaims = to.meta.requiredClaims as string[] | undefined;
+  const requiredRole = to.meta.role as string | undefined;
+  let requiredPermissions: string[] = [];
+  if (typeof to.meta.permissions === 'string') {
+    requiredPermissions = [to.meta.permissions];
+  } else if (Array.isArray(to.meta.permissions)) {
+    requiredPermissions = to.meta.permissions;
+  }
 
-  const hasRequiredRole = requiredRoles?.some(role => authStore.role === role) ?? true;
-  const hasRequiredClaim = requiredClaims?.some(claim => authStore.claims?.includes(claim)) ?? true;
+  const hasRole = requiredRole ? requiredRole === authStore.role : true;
+  const hasPermissions = requiredPermissions.length === 0 || requiredPermissions.some(perm => authStore.flatPermissions.has(perm));
 
-  if (!hasRequiredRole && !hasRequiredClaim) {
+  if (!(hasRole || hasPermissions)) {
     return next({ name: 'Error403' });
   }
 

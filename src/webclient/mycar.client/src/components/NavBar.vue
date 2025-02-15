@@ -8,17 +8,20 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav me-auto mb-lg-0">
-                <li class="nav-item" v-if="privilege.admins">
-                      <RouterLink class="nav-link" to="/UserManager">Użytkownicy</RouterLink>
+                <li class="nav-item" v-if="authStore.isAuthenticated">
+                      <RouterLink class="nav-link" to="/Customers">Klienci</RouterLink>
                 </li>
-                <li class="dropdown nav-item" v-if="privilege.users">
-                      <a class="nav-link dropdown-toggle" v-if="privilege.users" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Agenci
-                      </a>
-                      <ul class="dropdown-menu">
-                          <li><RouterLink class="dropdown-item" :to="{name:'Home'}">Kartoteka</RouterLink></li>
-                          <li><RouterLink class="dropdown-item" :to="{name:'Home'}">Struktura</RouterLink></li>
-                      </ul>
+                <li class="dropdown nav-item" v-if="privilege.agentmanager">
+                  <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Agenci
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><RouterLink class="dropdown-item" :to="{name:'Home'}">Kartoteka</RouterLink></li>
+                    <li><RouterLink class="dropdown-item" :to="{name:'Home'}">Struktura</RouterLink></li>
+                  </ul>
+                </li>
+                <li class="nav-item" v-if="privilege.usermanager">
+                      <RouterLink class="nav-link" to="/UserManager">Użytkownicy</RouterLink>
                 </li>
               </ul>
               <ul class="navbar-nav ms-auto mb-lg-0" v-if="authStore.isAuthenticated">
@@ -56,8 +59,8 @@
 
     const privilege = computed(() =>
       ({
-        admins: authStore.isAuthenticated && (authStore.role === "admin"),
-        users: authStore.isAuthenticated && (authStore.role === "user"),
+        usermanager: authStore.isAuthenticated && (authStore.role === "admin" || authStore.flatPermissions.has("Users.UserManager")),
+        agentmanager: authStore.isAuthenticated && (authStore.role === "admin" || authStore.flatPermissions.has("Agents.AgentManager")),
       })
     );
 

@@ -12,7 +12,6 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/modules/auth/MyProfile.vue'),
     meta: {
       requiresAuth: true,
-      role: 'user',
     }
   },
   {
@@ -21,7 +20,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/modules/users/UserManager.vue'),
     meta: {
       requiresAuth: true,
-      role: 'admin'
+      role: 'admin',
+      permissions: 'Users.UserManager'
     }
   },
   {
@@ -30,7 +30,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/modules/users/UserPrivilege.vue'),
     meta: {
       requiresAuth: true,
-      role: 'admin'
+      role: 'admin',
+      permissions: ['Users.UserManager', 'Employees.UserManager']
     }
   },
   {

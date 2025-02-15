@@ -52,7 +52,6 @@ class FormErrors {
           this.Add(value.field, messageProvider.GetMessage({code, message}));
         });
         if(data.code){
-          console.log("CatchApiError1: ", data);
           const message = messageProvider.GetMessage({code: data.code, message: data.message});
           this.messages.value.push(message);
         }

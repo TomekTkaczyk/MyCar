@@ -140,8 +140,6 @@ public static class Extensions
 			swagger.AddSecurityRequirement(securityRequirement);
 		});
 
-
-
 		return services;
 	}
 

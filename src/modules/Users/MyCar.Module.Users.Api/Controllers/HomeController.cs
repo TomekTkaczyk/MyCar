@@ -8,7 +8,7 @@ using MyCar.Module.Users.UseCases.Queries.GetUsers;
 namespace MyCar.Module.Users.Api.Controllers;
 
 [Route(UserModule.BasePath)]
-[Authorize(Policy ="Users.UserManager")]
+[Authorize(Policy ="Users.UserManager.OrAdmin")]
 internal class HomeController(IMediator mediator) : HomeControllerBase
 {
 	private readonly IMediator mediator = mediator;

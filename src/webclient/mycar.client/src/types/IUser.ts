@@ -6,6 +6,6 @@ export default interface IUser extends IEntity {
 	firstName?: string;
   lastName?: string;
   role?: string;
-  claims?: string[];
+  permissions?: Record<string, string[]>;
 	isConfirmed?: boolean;
 }

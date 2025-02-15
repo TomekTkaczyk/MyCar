@@ -11,7 +11,6 @@ onMounted(async () => {
   try{
     await authStore.logout();
   } catch(error) {
-    console.error("My Error: ", error);
   };
 });
 

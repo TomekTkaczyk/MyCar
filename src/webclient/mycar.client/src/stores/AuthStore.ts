@@ -21,6 +21,7 @@ export const useAuthStore = defineStore('auth', {
     refreshToken: null,
     isAuthenticated: false,
     isRefreshing: false,
+    permissions: {}
   }),
 
   actions: {
@@ -138,10 +139,9 @@ export const useAuthStore = defineStore('auth', {
         : "";
       this.firstName = userResponse.data.firstName || "";
       this.lastName = userResponse.data.lastName || "";
-      this.role = userResponse.data.role
-        ? (userResponse.data.role as string).toLowerCase()
-        : "";
-      this.claims = userResponse.data.claims;
+      this.role = userResponse.data.role ? (userResponse.data.role as string).toLowerCase() : "";
+      this.permissions = userResponse.data.permissions;
+
       this.isConfirmed = userResponse.data.isConfirmed;
 
       sessionStorage.setItem('auth', JSON.stringify({
@@ -174,6 +174,16 @@ export const useAuthStore = defineStore('auth', {
       this.accessToken = accessToken;
       this.refreshToken = refreshToken;
       this.isAuthenticated = !!accessToken;
+    }
+  },
+
+  getters: {
+    flatPermissions(): Set<string> {
+      return new Set(
+        Object.entries(this.permissions ?? {}).flatMap(([group, perms]) =>
+          (Array.isArray(perms) ? perms : []).map(perm => `${group}.${perm}`)
+        )
+      );
     }
   },
 });

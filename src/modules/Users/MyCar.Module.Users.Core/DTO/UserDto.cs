@@ -9,7 +9,7 @@ public class UserDto
 	public string FirstName { get; set; }
 	public string LastName { get; set; }
 	public string Role { get; set; }
-	public IDictionary<string, IEnumerable<string>> Claims { get; set; }
+	public IDictionary<string, IEnumerable<string>> Permissions { get; set; }
 	public bool IsActive { get; set; }
 	public bool IsConfirmed { get; set; }
 
@@ -23,7 +23,7 @@ public class UserDto
 			FirstName = user.FirstName,
 			LastName = user.LastName,
 			Role = user.Role,
-			Claims = user.Claims,
+			Permissions = user.Claims,
 			IsActive = user.IsActive,
 			IsConfirmed = user.EmailConfirm
 		};
