@@ -7,7 +7,7 @@ internal class DataInitializerService(IUserRepository repository, IPasswordHashe
 {
 	public async Task Initialize()
 	{
-		var user = await repository.GetByNameAsync("admin", default);
+		var user = await repository.GetByNameAsync("Admin", default);
 		if(user == null) {
 			await AddAdmin();
 		}
@@ -18,9 +18,9 @@ internal class DataInitializerService(IUserRepository repository, IPasswordHashe
 		var user = new User
 		{
 			Id = Guid.NewGuid(),
-			Name = "admin",
+			Name = "Admin",
 			Password = passwordHasher.HashPassword(default, ""),
-			Role = "admin",
+			Role = "Admin",
 			IsActive = true,
 			EmailConfirm = true,
 			Claims = new Dictionary<string, IEnumerable<string>>()

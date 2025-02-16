@@ -20,17 +20,17 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/modules/users/UserManager.vue'),
     meta: {
       requiresAuth: true,
-      role: 'admin',
+      role: 'Admin',
       permissions: 'Users.UserManager'
     }
   },
   {
-    path: '/UserPrivilege/:id',
-    name: 'UserPrivilege',
-    component: () => import('@/modules/users/UserPrivilege.vue'),
+    path: '/UserPermissions/:id',
+    name: 'UserPermissions',
+    component: () => import('@/modules/users/UserPermissions.vue'),
     meta: {
       requiresAuth: true,
-      role: 'admin',
+      role: 'Admin',
       permissions: ['Users.UserManager', 'Employees.UserManager']
     }
   },

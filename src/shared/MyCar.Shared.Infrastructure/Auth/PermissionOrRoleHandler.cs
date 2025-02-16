@@ -11,22 +11,16 @@ internal class PermissionOrRoleHandler : AuthorizationHandler<PermissionOrRoleRe
 			return Task.CompletedTask;
 		}
 
-		Console.WriteLine($"🔍 Debug: Sprawdzanie dostępu dla użytkownika: {context.User.Identity?.Name}");
-
-		foreach(var claim in context.User.Claims) {
-			Console.WriteLine($"    - Claim: {claim.Type} = {claim.Value}");
-		}
-
-		if(requirement.RequiredRoles.Any()) {
+		if(requirement.RequiredRoles.Count != 0) {
 			var roles = context.User.Claims
 				.Where(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")
-				.Select(c => c.Value.ToLowerInvariant());
-			if(roles.Any(r => requirement.RequiredRoles.Contains(r.ToLowerInvariant()))) {
+				.Select(c => c.Value);
+			if(roles.Any(r => requirement.RequiredRoles.Contains(r))) {
 				context.Succeed(requirement);
 				return Task.CompletedTask;
 			}
 		}
-		if(requirement.RequiredPermissions.Any()) {
+		if(requirement.RequiredPermissions.Count != 0) {
 			var permissions = context.User.Claims
 				.Where(c => c.Type == "permissions")
 				.Select(c => c.Value);

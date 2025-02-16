@@ -22,7 +22,7 @@ internal sealed class TokenProvider : ITokenProvider
 		_credentials = new(_securityKey, SecurityAlgorithms.HmacSha256);
 	}
 
-	public string GenerateAccessToken(Guid userId, string role, IDictionary<string, IEnumerable<string>> claims)
+	public string GenerateAccessToken(Guid userId, IDictionary<string, IEnumerable<string>> claims)
 	{
 		var now = _clock.CurrentDate();
 		var formattedClaims = new Dictionary<string, object>();
@@ -46,7 +46,6 @@ internal sealed class TokenProvider : ITokenProvider
 				new Claim(JwtRegisteredClaimNames.UniqueName, userId.ToString()),
 				new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 				new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(now).ToUnixTimeSeconds().ToString()),
-				new Claim("role", role)
 			]),
 			Issuer = "MyCar",
 			Expires = now.Add(_options.Expiry),

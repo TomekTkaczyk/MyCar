@@ -19,12 +19,12 @@ internal class SignUpHandler(
 	public async Task<Guid> Handle(SignUpCommand request, CancellationToken cancellationToken)
 	{
 		var error = new ApiError();
-		var user = await repository.GetByEmailAsync(request.Email.ToLowerInvariant(), cancellationToken);
+		var user = await repository.GetByEmailAsync(request.Email, cancellationToken);
 		if(user is not null) {
 			error.AddValidationError("Email", "email_is_unavailable", "Email is unavailable.");
 		}
 
-		user = await repository.GetByNameAsync(request.UserName.ToLowerInvariant(), cancellationToken);
+		user = await repository.GetByNameAsync(request.UserName, cancellationToken);
 		if(user is not null) {
 			error.AddValidationError("UserName", "username_is_unavailable", "UserName is unavailable.");
 		}
@@ -41,15 +41,15 @@ internal class SignUpHandler(
 		user = new User
 		{
 			Id = Guid.NewGuid(),
-			Name = request.UserName.ToLowerInvariant(),
-			Email = request.Email.ToLowerInvariant(),
+			Name = request.UserName,
+			Email = request.Email,
 			Password = password,
 			Role = "User",
 			Claims = new Dictionary<string, IEnumerable<string>>(),
 			CreatedAt = clock.CurrentDate(),
 			IsActive = true,
 			EmailConfirm = false,
-			EmailToConfirm = request.Email.ToLowerInvariant()
+			EmailToConfirm = request.Email
 		};
 
 

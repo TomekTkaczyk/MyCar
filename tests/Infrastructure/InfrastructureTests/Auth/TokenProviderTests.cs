@@ -1,5 +1,4 @@
 ﻿using Microsoft.IdentityModel.JsonWebTokens;
-using MyCar.Shared.Abstractions.Services;
 using MyCar.Shared.Infrastructure.Auth;
 
 namespace InfrastructureTests.Auth;
@@ -12,14 +11,14 @@ public class TokenProviderTests(TestFixture testFixture) : IClassFixture<TestFix
 	public void Provider_GenerateAccessToken_return_valid_token()
 	{
 		var id = Guid.NewGuid();
-		var role = "someRole";
 		var claims = new Dictionary<string, IEnumerable<string>>
 		{
+			{ "role", ["someRole"] },
 			{ "permissions", ["someClaim1", "someClaim2", "someClaim3"] },
 			{ "otherclaim", ["someOtherClaim1"] }
 		};
 
-		var accessToken = _provider.GenerateAccessToken(id, role, claims);
+		var accessToken = _provider.GenerateAccessToken(id, claims);
 
 		Assert.NotNull(accessToken);
 		Assert.NotEmpty(accessToken);

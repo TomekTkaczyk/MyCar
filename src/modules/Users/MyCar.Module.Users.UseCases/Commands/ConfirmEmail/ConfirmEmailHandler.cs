@@ -22,7 +22,7 @@ internal class ConfirmEmailHandler(
 			throw new InvalidEmailTokenException();
 		}
 
-		var emailClaim = confirmToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value.ToLowerInvariant()
+		var emailClaim = confirmToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value
 			?? throw new InvalidEmailTokenException();
 
 		var user = await repository.GetAsync(id, cancellationToken)

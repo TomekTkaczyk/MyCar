@@ -32,8 +32,8 @@ const fetchUsers = async () => {
   }
 };
 
-const userPrivilege = (id: string) => {
-  router.push({name: 'UserPrivilege', params: {id: id}});
+const userPermissions = (id: string) => {
+  router.push({name: 'UserPermissions', params: {id: id}});
 }
 
 onMounted(fetchUsers);
@@ -54,7 +54,7 @@ onMounted(fetchUsers);
       {{ errors.messages }}
     </div>
     <div v-else class="user-list">
-      <li v-for="user in users" :key="user.id" @click="userPrivilege(user.id)">
+      <li v-for="user in users" :key="user.id" @click="userPermissions(user.id)">
         <UserItem :user="user" />
       </li>
     </div>

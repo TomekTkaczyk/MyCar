@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using MyCar.Shared.Abstractions.Auth;
 using MyCar.Shared.Abstractions.Modules;
 using MyCar.Shared.Abstractions.Services;
-using MyCar.Shared.Infrastructure.Middleware;
 using System.Text;
 
 namespace MyCar.Shared.Infrastructure.Auth;
@@ -114,9 +112,9 @@ public static class Extensions
 						[policyName], []))
 					);
 
-					auth.AddPolicy(policyName+".OrAdmin", policy =>
+					auth.AddPolicy(policyName+"OrAdmin", policy =>
 						policy.Requirements.Add(new PermissionOrRoleRequirement(
-						[policyName], ["admin"]))
+						[policyName], ["Admin"]))
 					);
 
 					//auth.AddPolicy(policyName, policy =>

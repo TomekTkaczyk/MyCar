@@ -2,7 +2,7 @@
 
 public interface ITokenProvider
 {
-	string GenerateAccessToken(Guid userId, string role, IDictionary<string, IEnumerable<string>> claims);
+	string GenerateAccessToken(Guid userId, IDictionary<string, IEnumerable<string>> claims);
 	
 	string GenerateRefreshToken(Guid userId);
 

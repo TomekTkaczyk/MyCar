@@ -23,26 +23,26 @@
   const selectedOption = ref<OptionKey>((route.params.option as OptionKey));
 
   const currentComponent = computed(() => {
-    if(privilege.value[selectedOption.value]){
+    if(profileItems.value[selectedOption.value]){
       return componentsMap[selectedOption.value]
     } else {
-      const isApprove = Object.keys(privilege.value).find((key) =>
-          privilege.value[key as OptionKey]) as OptionKey;
+      const isApprove = Object.keys(profileItems.value).find((key) =>
+      profileItems.value[key as OptionKey]) as OptionKey;
       return componentsMap[isApprove];
     }
   });
 
-  interface IPrivilege {
+  interface IProfileItems {
     name: boolean,
     email: boolean,
     pass: boolean,
   };
 
-  const privilege = ref<IPrivilege>({
-    name: authStore.role !== "admin",
-    email: authStore.role !== "admin",
+  const profileItems = ref<IProfileItems>({
+    name: authStore.name !== "Admin",
+    email: authStore.name !== "Admin",
     pass: true,
-  } as IPrivilege);
+  } as IProfileItems);
 
 </script>
 
@@ -57,11 +57,11 @@
           <h4>Moje konto</h4>
           <div class="btn-group-vertical" role="group" aria-label="toggle button group">
             <input v-model="selectedOption" value="name" type="radio" class="btn-check" name="btnradio" id="option1" autocomplete="off">
-            <label v-if="privilege.name" class="btn text-start" for="option1">Nazwa</label>
+            <label v-if="profileItems.name" class="btn text-start" for="option1">Nazwa</label>
             <input v-model="selectedOption" value="email" type="radio" class="btn-check" :class="{ 'is-invalid': !authStore.isConfirmed }" name="btnradio" id="option2" autocomplete="off">
-            <label v-if="privilege.email" class="btn text-start" :class="{ 'text-danger': !authStore.isConfirmed }" for="option2">Email</label>
+            <label v-if="profileItems.email" class="btn text-start" :class="{ 'text-danger': !authStore.isConfirmed }" for="option2">Email</label>
             <input v-model="selectedOption" value="pass" type="radio" class="btn-check" name="btnradio" id="option3" autocomplete="off">
-            <label v-if="privilege.pass" class="btn text-start" for="option3">Hasło</label>
+            <label v-if="profileItems.pass" class="btn text-start" for="option3">Hasło</label>
           </div>
       </div>
       <div class="myprofile-content col-12 col-sm-12 col-md-7 col-lg-5 col-xl-4 col-xxl-3">

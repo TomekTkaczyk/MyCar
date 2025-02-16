@@ -135,11 +135,11 @@ export const useAuthStore = defineStore('auth', {
       this.id = userResponse.data.id;
       this.name = userResponse.data.name;
       this.email = userResponse.data.email
-        ? (userResponse.data.email as string).toLowerCase()
+        ? (userResponse.data.email as string)
         : "";
       this.firstName = userResponse.data.firstName || "";
       this.lastName = userResponse.data.lastName || "";
-      this.role = userResponse.data.role ? (userResponse.data.role as string).toLowerCase() : "";
+      this.role = userResponse.data.role ? (userResponse.data.role as string) : "";
       this.permissions = userResponse.data.permissions;
 
       this.isConfirmed = userResponse.data.isConfirmed;

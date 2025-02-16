@@ -1,7 +1,7 @@
 import { useAuthStore } from '@/stores/AuthStore';
 import { useLoadingStore } from '@/stores/LoadingStore';
 import axios, { type AxiosRequestConfig } from 'axios';
-import { useRouter, type Router } from 'vue-router';
+import { type Router } from 'vue-router';
 
 
 let router: Router | null = null;

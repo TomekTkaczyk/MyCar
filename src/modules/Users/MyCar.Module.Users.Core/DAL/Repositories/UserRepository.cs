@@ -16,10 +16,10 @@ internal class UserRepository(UsersDbContext context) : IUserRepository
 		=> _users.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 
 	public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
-		=> await _users.SingleOrDefaultAsync(x => x.Email == email, cancellationToken);
+		=> await _users.SingleOrDefaultAsync(x => EF.Functions.ILike(x.Email, email), cancellationToken);
 
 	public async Task<User> GetByNameAsync(string name, CancellationToken cancellationToken = default)
-		=> await _users.SingleOrDefaultAsync(x => x.Name == name, cancellationToken);
+		=> await _users.SingleOrDefaultAsync(x => EF.Functions.ILike(x.Name, name), cancellationToken);
 
 	public async Task AddAsync(User user, CancellationToken cancellationToken = default)
 	{

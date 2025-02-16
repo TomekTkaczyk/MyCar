@@ -1,6 +1,4 @@
 ﻿using MediatR;
-using MyCar.Module.Users.Core.DAL.Repositories;
-using MyCar.Module.Users.Core.Entities;
 using MyCar.Module.Users.Core.Exceptions;
 using MyCar.Module.Users.Core.Repositories;
 using MyCar.Shared.Abstractions;
@@ -44,12 +42,13 @@ internal class RefreshTokenHandler(
 
 		var claims = new Dictionary<string, IEnumerable<string>>
 		{
+			{ "role", new[] { user.Role } },
 			{ "permissions", user.GetPermissions() }
 		};
 
 		var jwt = new JsonWebToken
 		{
-			AccessToken = tokenProvider.GenerateAccessToken(user.Id, user.Role, claims),
+			AccessToken = tokenProvider.GenerateAccessToken(user.Id, claims),
 			RefreshToken = tokenProvider.GenerateRefreshToken(user.Id),
 		};
 

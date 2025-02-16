@@ -51,22 +51,22 @@ public class Program
 			return context.Response.WriteAsJsonAsync(moduleInfoProvider);
 		});
 
-		app.MapGet("claims", context =>
+		app.MapGet("permissions", context =>
 		{
 			var moduleInfoProvider = context.RequestServices.GetRequiredService<ModuleInfoProvider>();
-			IDictionary<string, IEnumerable<string>> claims = new Dictionary<string, IEnumerable<string>>();
+			IDictionary<string, IEnumerable<string>> permissions = new Dictionary<string, IEnumerable<string>>();
 			foreach(var module in moduleInfoProvider.MolueInfos) {
 				foreach(var policy in module.Policies) {
-					if(claims.ContainsKey(module.Name)) {
-						claims[module.Name] = claims[module.Name].Union(module.Policies);
+					if(permissions.ContainsKey(module.Name)) {
+						permissions[module.Name] = permissions[module.Name].Union(module.Policies);
 					}
 					else {
-						claims.Add(module.Name, module.Policies);
+						permissions.Add(module.Name, module.Policies);
 					}
 				}
 			}
 
-			return context.Response.WriteAsJsonAsync(claims);
+			return context.Response.WriteAsJsonAsync(permissions);
 		});
 
 		//app.MapGet("email", context =>

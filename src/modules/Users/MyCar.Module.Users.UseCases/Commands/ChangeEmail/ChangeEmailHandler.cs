@@ -16,7 +16,7 @@ internal class ChangeEmailHandler(
 		var user = await repository.GetAsync(request.Id, cancellationToken)
 		?? throw new InvalidCredentialsException();
 
-		var email = request.Email.ToLowerInvariant();
+		var email = request.Email;
 
 		var anotherUser = await repository.GetByEmailAsync(email, cancellationToken);
 

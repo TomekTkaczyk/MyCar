@@ -4,8 +4,8 @@
 
 <script setup lang='ts'>
 
-import { onMounted, reactive, ref, watchEffect } from 'vue';
-import type IUpdatePrivilegeCommand from './requests/updateprivilege-command.ts';
+import { onMounted, ref, watchEffect } from 'vue';
+import type IUpdatePermissionsCommand from './requests/updatepermissions-command.ts';
 import ComboBox from '@/components/ComboBox.vue';
 import { FormErrors } from '@/types/FormErrors.ts';
 import { useRoute, useRouter } from 'vue-router';
@@ -25,21 +25,22 @@ const touchedFields = ref({
   isActive: false,
 });
 
-const formData = ref<IUpdatePrivilegeCommand & {name: string, claims: Record<string,string[]>}>({
+const formData = ref<IUpdatePermissionsCommand & {name: string, permissions: Record<string,string[]>}>({
   id: "",
   name: "",
   role: "",
   isActive: false,
-  claims: {},
+  permissions: {},
 });
-const allClaims = ref<Record<string, string[]>>({});
+
+const allPermissions = ref<Record<string, string[]>>({});
 
 const errors = new FormErrors();
 
-const updatePrivilege = async (data: IUpdatePrivilegeCommand) => {
+const updatePermissions = async (data: IUpdatePermissionsCommand) => {
   try{
     if(isFormValid){
-      await userStore.updatePrivilege(data);
+      await userStore.updatePermissions(data);
       router.push("/UserManager");
     }
   } catch (error) {
@@ -69,10 +70,11 @@ const fetchUser = async () => {
     formData.value.name = response?.data.name;
     formData.value.role = response?.data.role;
     formData.value.isActive = response?.data.isActive;
-    formData.value.claims = response?.data.claims || {};
+    formData.value.permissions = response?.data.permissions || {};
 
-    const claims = await userStore.getAllClaims();
-    allClaims.value = claims?.data || {};
+
+    const permissions = await userStore.getAllPermissions();
+    allPermissions.value = permissions?.data || {};
   } catch (error) {
     errorHandle(error);
   }
@@ -83,26 +85,26 @@ const categoryTranslations: Record<string, string> = {
   "Employees": "Moduł: Pracownik"
 };
 
-const translateClaimCategory = (category: string): string => {
+const translatePermissionsCategory = (category: string): string => {
   return categoryTranslations[category] || category;
 };
 
-const onClaimChange = (category: string, claim: string, event: Event) => {
+const onPermissionsChange = (category: string, claim: string, event: Event) => {
   const checked = (event.target as HTMLInputElement).checked;
 
-  if (!formData.value.claims[category]) {
-    formData.value.claims[category] = [];
+  if (!formData.value.permissions[category]) {
+    formData.value.permissions[category] = [];
   }
 
   if (checked) {
-    if (!formData.value.claims[category].includes(claim)) {
-      formData.value.claims[category].push(claim);
+    if (!formData.value.permissions[category].includes(claim)) {
+      formData.value.permissions[category].push(claim);
     }
   } else {
-    formData.value.claims[category] = formData.value.claims[category].filter(c => c !== claim);
+    formData.value.permissions[category] = formData.value.permissions[category].filter(c => c !== claim);
 
-    if (formData.value.claims[category].length === 0) {
-      delete formData.value.claims[category];
+    if (formData.value.permissions[category].length === 0) {
+      delete formData.value.permissions[category];
     }
   }
 };
@@ -122,7 +124,7 @@ onMounted(fetchUser);
     <br/>
     <h4>Edycja użytkownika</h4>
     <div class="user-name">{{formData.name}}</div>
-    <form @submit.prevent="updatePrivilege(formData)">
+    <form @submit.prevent="updatePermissions(formData)">
       <div class="form-group">
         <ComboBox v-model="formData.role"
           label="Rola w systemie"
@@ -138,17 +140,17 @@ onMounted(fetchUser);
         />
       </div>
 
-      <div class="claims-section">
+      <div class="permissions-section">
         <h5>Uprawnienia</h5>
-        <div v-for="(claims, category) in allClaims" :key="category" class="claim-group">
-          <h6 class="claim-category">{{ translateClaimCategory(category) }}</h6>
-          <div v-for="claim in claims" :key="claim" class="claim-item">
+        <div v-for="(permissions, category) in allPermissions" :key="category" class="permissions-group">
+          <h6 class="permissions-category">{{ translatePermissionsCategory(category) }}</h6>
+          <div v-for="permission in permissions" :key="permission" class="permissions-item">
             <label>
               <input type="checkbox"
-                    :value="claim"
-                    :checked="formData.claims[category]?.includes(claim)"
-                    @change="onClaimChange(category, claim, $event)" />
-              {{ claim }}
+                    :value="permission"
+                    :checked="formData.permissions[category]?.includes(permission)"
+                    @change="onPermissionsChange(category, permission, $event)" />
+              {{ permission }}
             </label>
           </div>
         </div>
@@ -181,21 +183,21 @@ onMounted(fetchUser);
   color: blue;
 }
 
-.claims-section {
+.permissions-section {
   margin-top: 20px;
 }
 
-.claim-group {
+.permissions-group {
   margin-bottom: 15px;
 }
 
-.claim-category {
+.permissions-category {
   text-align: center;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
-.claim-item label {
+.permissions-item label {
   display: flex;
   align-items: center;
   gap: 10px;

@@ -15,7 +15,7 @@ internal class SignInHandler(
 
 	public async Task<JsonWebToken> Handle(SignInCommand request, CancellationToken cancellationToken)
 	{
-		var user = await repository.GetByIdentifierAsync(request.Identifier.ToLowerInvariant(), cancellationToken)
+		var user = await repository.GetByIdentifierAsync(request.Identifier, cancellationToken)
 		?? throw new InvalidCredentialsException();
 
 		if(passwordHasher.VerifyHashedPassword(default, user.Password, request.Password) is not PasswordVerificationResult.Success) {
@@ -24,12 +24,13 @@ internal class SignInHandler(
 
 		var claims = new Dictionary<string, IEnumerable<string>>
 		{
+			{ "role", new[] { user.Role } },
 			{ "permissions", user.GetPermissions() }
 		};
 
 		var jwt = new JsonWebToken
 		{
-			AccessToken = tokenProvider.GenerateAccessToken(user.Id, user.Role, claims),
+			AccessToken = tokenProvider.GenerateAccessToken(user.Id, claims),
 			RefreshToken = tokenProvider.GenerateRefreshToken(user.Id),
 		};
 

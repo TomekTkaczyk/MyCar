@@ -1,3 +1,26 @@
+<!-- ***************************************************  -->
+<!-- * Script section                                  *  -->
+<!-- ***************************************************  -->
+
+<script setup lang="ts">
+    import { useAuthStore } from '@/stores/AuthStore';
+    import { computed } from 'vue';
+
+    const authStore = useAuthStore();
+    const permissions = computed(() =>
+      ({
+        usermanager: authStore.isAuthenticated && (authStore.role === "Admin" || authStore.flatPermissions.has("Users.UserManager")),
+        agentmanager: authStore.isAuthenticated && (authStore.role === "Admin" || authStore.flatPermissions.has("Agents.AgentManager")),
+      })
+    );
+
+    const logout = () => authStore.logout();
+</script>
+
+<!-- ***************************************************  -->
+<!-- * Template section                                *  -->
+<!-- ***************************************************  -->
+
 <template>
   <nav class="navbar navbar-dark bg-dark navbar-expand-md" role="navigation">
       <div class="container-fluid">
@@ -11,7 +34,7 @@
                 <li class="nav-item" v-if="authStore.isAuthenticated">
                       <RouterLink class="nav-link" to="/Customers">Klienci</RouterLink>
                 </li>
-                <li class="dropdown nav-item" v-if="privilege.agentmanager">
+                <li class="dropdown nav-item" v-if="permissions.agentmanager">
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     Agenci
                   </a>
@@ -20,7 +43,7 @@
                     <li><RouterLink class="dropdown-item" :to="{name:'Home'}">Struktura</RouterLink></li>
                   </ul>
                 </li>
-                <li class="nav-item" v-if="privilege.usermanager">
+                <li class="nav-item" v-if="permissions.usermanager">
                       <RouterLink class="nav-link" to="/UserManager">Użytkownicy</RouterLink>
                 </li>
               </ul>
@@ -51,21 +74,9 @@
   </nav>
 </template>
 
-<script setup lang="ts">
-    import { useAuthStore } from '@/stores/AuthStore';
-    import { computed } from 'vue';
-
-    const authStore = useAuthStore();
-
-    const privilege = computed(() =>
-      ({
-        usermanager: authStore.isAuthenticated && (authStore.role === "admin" || authStore.flatPermissions.has("Users.UserManager")),
-        agentmanager: authStore.isAuthenticated && (authStore.role === "admin" || authStore.flatPermissions.has("Agents.AgentManager")),
-      })
-    );
-
-    const logout = () => authStore.logout();
-</script>
+<!-- ***************************************************  -->
+<!-- * Style section                                   *  -->
+<!-- ***************************************************  -->
 
 <style>
     a[class*=dropdown-item] {
