@@ -14,7 +14,10 @@ public class Program
 		IList<IModule> _modules;
 
 		var builder = WebApplication.CreateBuilder(args);
-
+		
+		var environment = builder.Environment.EnvironmentName;
+		Console.WriteLine($"Current Environment: {environment}");
+		
 		var configuration = builder.Configuration;
 		var services = builder.Services;
 

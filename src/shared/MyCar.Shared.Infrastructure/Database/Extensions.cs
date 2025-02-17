@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace MyCar.Shared.Infrastructure.Database;
 public static class Extensions
 {
-	private const string _dbSectionName = "Postgress";
+	private const string _dbSectionName = "Postgres";
 
 	public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration) {
 
